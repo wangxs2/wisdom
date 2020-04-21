@@ -1,15 +1,23 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
 import layout from '../views/layout/index.vue'
-
+import realTimeMonitoring from '../views/realTimeMonitoring/index.vue'
 Vue.use(VueRouter)
 
   const routes = [
   {
     path: '/',
     name: 'layout',
-    component: layout
+    component: layout,
+    children: [
+      {
+        path: '/realTimeMonitoring',
+        name: 'realTimeMonitoring',
+        component: realTimeMonitoring
+      },
+    ]
   },
+  
   {
     path: '/about',
     name: 'About',

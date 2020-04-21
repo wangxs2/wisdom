@@ -7,7 +7,7 @@ const CompressionPlugin = require('compression-webpack-plugin') //Gzip
 function resolve(dir) {
   return path.join(__dirname, dir)
 }
-
+console.log(11111111111111111111111)
 module.exports = {
   lintOnSave: false,
   // publicPath: '/', // 部署项目路径
@@ -29,6 +29,9 @@ module.exports = {
       }
     }
   },
+  externals: {
+    "BMap": "BMap"
+  },
   configureWebpack: {
     // webpack 配置项
     // resolve: {
@@ -42,7 +45,8 @@ module.exports = {
       new webpack.ProvidePlugin({
         $: 'jquery',
         jQuery: 'jquery',
-        'windows.jQuery': 'jquery'
+        'windows.jQuery': 'jquery',
+
       })
     ]
   },
@@ -62,7 +66,7 @@ module.exports = {
     loaderOptions: {
       sass: {
         // data: `@import "@/assets/css/global.scss";`
-        // prependData: `@import "~@/assets/css/global.scss";`
+        prependData: `@import "~@/assets/scss/global.scss";`
       }
     }
   }
