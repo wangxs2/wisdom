@@ -35,6 +35,8 @@
 </template>
 
 <script>
+import $ from "jquery"
+import { mapGetters } from "vuex";
 // @ is an alias to /src
 import menuNav from "./components/menu";
 import topTag from "./components/topTag";
@@ -45,6 +47,26 @@ export default {
       menuNav,
       topTag,
       appMain
+  },
+   computed: {
+    ...mapGetters(["menuFlag"]),
+    getRouterName: function () {
+      return this.$route.matched.slice(1);
+    }
+  },
+  created(){
+    console.log(this.$route)
+  },
+  methods:{
+    isShow() {
+      //侧边栏显示隐藏
+      this.$store.commit("SET_FLAG");
+      if (this.menuFlag) {
+        $(".treeleft").width("64px");
+      } else {
+        $(".treeleft").width("210px");
+      }
+    }
   }
 };
 </script>
@@ -118,6 +140,7 @@ export default {
         line-height: 44px;
         box-sizing: border-box;
         padding-left: 11px;
+        background:pink;
       }
       .main-content{
         flex: 1;

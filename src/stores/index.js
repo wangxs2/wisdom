@@ -15,7 +15,7 @@ const stores = new Vuex.Store({
   },
   getters
 })
-
+import $ from "jquery"
 // 自适应计算
 function countratio(w) {
   let whdef = 100 / 1920;

@@ -4,7 +4,7 @@
       <el-dropdown @command="handleCommand">
         <span class="rightinif-link"
               style="color:#ffffff">
-          luoyu
+          admin
           <i class="el-icon-arrow-down el-icon--right"></i>
         </span>
         <el-dropdown-menu slot="dropdown">
@@ -227,7 +227,11 @@ export default {
   align-items: center;
   margin-right: 30px;
   .rightinif {
-    flex: 1;
+    width:100%;
+    height:100%;
+    display:flex;
+    justify-content: center;
+    align-items: center;
   }
 
   

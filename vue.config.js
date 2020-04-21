@@ -29,40 +29,40 @@ module.exports = {
       }
     }
   },
-  // configureWebpack: {
-  //   // webpack 配置项
-  //   // resolve: {
-  //   //   alias: {
-  //   //     vue$: 'vue/dist/vue.esm.js'
-  //   //     // '@': resolve('src'),
-  //   //     // 'views': resolve('src/views')
-  //   //   }
-  //   // },
-  //   plugins: [
-  //     new webpack.ProvidePlugin({
-  //       $: 'jquery',
-  //       jQuery: 'jquery',
-  //       'windows.jQuery': 'jquery'
-  //     })
-  //   ]
-  // },
-
   configureWebpack: {
-    "plugins": ["@babel/plugin-syntax-dynamic-import"],
+    // webpack 配置项
+    // resolve: {
+    //   alias: {
+    //     vue$: 'vue/dist/vue.esm.js'
+    //     // '@': resolve('src'),
+    //     // 'views': resolve('src/views')
+    //   }
+    // },
     plugins: [
       new webpack.ProvidePlugin({
-        $: "jquery",
-        jQuery: "jquery",
-        "windows.jQuery": "jquery"
+        $: 'jquery',
+        jQuery: 'jquery',
+        'windows.jQuery': 'jquery'
       })
-    ],
-   
+    ]
   },
+
+  // configureWebpack: {
+  //   // "plugins": ["@babel/plugin-syntax-dynamic-import"],
+  //   plugins: [
+  //     new webpack.ProvidePlugin({
+  //       $: "jquery",
+  //       jQuery: "jquery",
+  //       "windows.jQuery": "jquery"
+  //     })
+  //   ],
+   
+  // },
   css: {
     loaderOptions: {
       sass: {
         // data: `@import "@/assets/css/global.scss";`
-        prependData: `@import "~@/assets/css/global.scss";`
+        // prependData: `@import "~@/assets/css/global.scss";`
       }
     }
   }

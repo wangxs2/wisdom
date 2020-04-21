@@ -1,3 +1,5 @@
+// console.log($)
+import $ from "jquery"
 const app = {
   state: {
     docHeight: $(document).height() - 180, //文档高度
