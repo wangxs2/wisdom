@@ -7,7 +7,14 @@
             <i class="iconfont icon-icon-left-open"></i>
           </el-tooltip>
         </div>
-        <div style="margin-left:15px">浦东新区机动车维修综合监管平台</div>
+        <div style="margin-left:15px">运输监控系统</div>
+         <div class="route-tit">
+          <el-breadcrumb separator="/">
+            <template v-for="(item,index) in getRouterName">
+              <el-breadcrumb-item :key="index">{{ item.name }}</el-breadcrumb-item>
+            </template>
+          </el-breadcrumb>
+        </div>
       </div>
       <div style="top-right">
         <top-tag></top-tag>
@@ -18,13 +25,7 @@
         <menu-nav></menu-nav>
       </div>
       <div class="appMain">
-        <div class="route-tit">
-          <el-breadcrumb separator="/">
-            <template v-for="(item,index) in getRouterName">
-              <el-breadcrumb-item :key="index">{{ item.name }}</el-breadcrumb-item>
-            </template>
-          </el-breadcrumb>
-        </div>
+       
         <div class="main-content">
           <app-main></app-main>
         </div>
@@ -70,6 +71,15 @@ export default {
   }
 };
 </script>
+<style lang="scss">
+ .route-tit{
+   margin-left: 20px;
+      color: #ffffff;
+      .el-breadcrumb__item:last-child .el-breadcrumb__inner, .el-breadcrumb__item:last-child .el-breadcrumb__inner a, .el-breadcrumb__item:last-child .el-breadcrumb__inner a:hover, .el-breadcrumb__item:last-child .el-breadcrumb__inner:hover{
+        color: #ffffff;
+      }
+    }
+</style>
 <style lang="scss" scoped>
 .layout {
   width: 100%;
@@ -114,6 +124,7 @@ export default {
       }
     }
    
+   
   }
   .bottomContent {
     width: 100%;
@@ -134,14 +145,7 @@ export default {
       background:#F2F2F2;
       display: flex;
       flex-direction: column;
-      .route-tit {
-        width: 100%;
-        height: 44px;
-        line-height: 44px;
-        box-sizing: border-box;
-        padding-left: 11px;
-        background:pink;
-      }
+      
       .main-content{
         flex: 1;
         width: 100%;

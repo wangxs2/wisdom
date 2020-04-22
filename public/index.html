@@ -7,14 +7,21 @@
   <meta name="viewport" content="width=device-width,initial-scale=1.0">
   <link rel="icon" href="<%= BASE_URL %>favicon.ico">
   <script type="text/javascript" src="http://api.map.baidu.com/api?v=3.0&ak=KnbRKfG0QaA9qFPXqHkkBf4SCALzl7Rq"></script>
-  <title><%= htmlWebpackPlugin.options.title %></title>
+  <title>运输监控系统</title>
   <style>
-    .BMap_cpyCtrl {
+    
+
+    /* .anchorBL {
+      display: none;
+    } */
+    .anchorBL span,.anchorBL a{
       display: none !important;
     }
-
-    .anchorBL {
-      display: none !important;
+    
+    .BMap_scaleCtrl{
+      display: block;
+      background: rgba(255, 255, 255, 0.6);
+      border-radius: 2px;
     }
   </style>
 </head>

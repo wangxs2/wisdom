@@ -2,13 +2,15 @@
   <div class="treeleft">
     <el-menu
       default-active="2"
+      :collapse-transition="false"
       class="el-menu-vertical-demo"
       @open="handleOpen"
       @close="handleClose"
-     active-text-color="#ffffff"
-    background-color="#323B4B"
-    text-color="#fff"
-    >
+      :collapse="menuFlag"
+      active-text-color="#ffffff"
+      background-color="#323B4B"
+      text-color="#fff"
+      >
       <el-menu-item index="2" @click="$router.push({ path:'/realTimeMonitoring' })">
         <i class="el-icon-menu"></i>
         <span slot="title">实时监控</span>
@@ -22,6 +24,7 @@
 </template>
 
 <script>
+import { mapGetters } from "vuex";
 export default {
   name: "menuNav",
   components: {
@@ -33,7 +36,7 @@ export default {
     };
   },
   computed: {
-    
+    ...mapGetters(["menuFlag"]),
   },
   methods: {
      handleOpen(key, keyPath) {
