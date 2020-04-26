@@ -2,6 +2,7 @@ import Vue from 'vue'
 import VueRouter from 'vue-router'
 import layout from '../views/layout/index.vue'
 import realTimeMonitoring from '../views/realTimeMonitoring/index.vue'
+import login from '../views/login/index.vue'
 Vue.use(VueRouter)
 
   const routes = [
@@ -16,6 +17,11 @@ Vue.use(VueRouter)
         component: realTimeMonitoring
       },
     ]
+  },
+  {
+    path: '/login',
+    name: 'login',
+    component: login,
   },
   
   {

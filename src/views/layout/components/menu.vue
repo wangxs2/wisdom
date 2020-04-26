@@ -10,15 +10,25 @@
       active-text-color="#ffffff"
       background-color="#323B4B"
       text-color="#fff"
-      >
-      <el-menu-item index="2" @click="$router.push({ path:'/realTimeMonitoring' })">
-        <i class="el-icon-menu"></i>
-        <span slot="title">实时监控</span>
-      </el-menu-item>
-      <el-menu-item index="4">
-        <i class="el-icon-setting"></i>
-        <span slot="title">导航四</span>
-      </el-menu-item>
+    >
+      <el-submenu index="1">
+        <template slot="title">
+          <i class="el-icon-location"></i>
+          <span>GPS监控</span>
+        </template>
+        <el-menu-item-group>
+          <el-menu-item index="1-1">实时监控</el-menu-item>
+          <el-menu-item index="1-2">轨迹查询</el-menu-item>
+        </el-menu-item-group>
+      </el-submenu>
+      <el-submenu index="2">
+        <template slot="title">
+          <i class="el-icon-map-location"></i>
+          <span>围栏管理</span>
+        </template>
+        <el-menu-item index="2-1">地址管理</el-menu-item>
+        <el-menu-item index="2-2">围栏记录</el-menu-item>
+      </el-submenu>
     </el-menu>
   </div>
 </template>
@@ -27,8 +37,7 @@
 import { mapGetters } from "vuex";
 export default {
   name: "menuNav",
-  components: {
-  },
+  components: {},
   data() {
     return {
       isCollapse: false,
@@ -36,16 +45,15 @@ export default {
     };
   },
   computed: {
-    ...mapGetters(["menuFlag"]),
+    ...mapGetters(["menuFlag"])
   },
   methods: {
-     handleOpen(key, keyPath) {
-        console.log(key, keyPath);
+    handleOpen(key, keyPath) {
+      console.log(key, keyPath);
     },
     handleClose(key, keyPath) {
       console.log(key, keyPath);
     }
-   
   }
 };
 </script>

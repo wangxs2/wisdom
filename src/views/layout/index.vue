@@ -73,7 +73,7 @@ export default {
 </script>
 <style lang="scss">
  .route-tit{
-   margin-left: 20px;
+   margin-left: vw(20);
       color: #ffffff;
       .el-breadcrumb__item:last-child .el-breadcrumb__inner, .el-breadcrumb__item:last-child .el-breadcrumb__inner a, .el-breadcrumb__item:last-child .el-breadcrumb__inner a:hover, .el-breadcrumb__item:last-child .el-breadcrumb__inner:hover{
         color: #ffffff;
@@ -103,21 +103,21 @@ export default {
   }
   .toptMenu {
     width: 100%;
-    height: 60px;
+    height: vh(60);
     background: #222530;
     display: flex;
     color: #ffffff;
     justify-content: space-between;
     align-items: center;
     .tit {
-      font-size: 20px;
+      font-size: vw(20);
       display: flex;
       align-items: center;
       justify-content: space-between;
       .leftBtn {
-        width: 60px;
-        height: 60px;
-        line-height: 60px;
+        width: vw(60);
+        height: vw(60);
+        line-height: vw(60);
         color: #ffffff;
         text-align: center;
         cursor: pointer;
@@ -137,6 +137,8 @@ export default {
       // width: 1px;
       height: 100%;
       background: #2c3441;
+      position: relative;
+      z-index:20;
     }
     .appMain {
       width: 1px;
