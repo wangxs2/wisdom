@@ -45,7 +45,9 @@ module.exports = {
   //     })
   //   ]
   // },
-
+  chainWebpack: config => {
+    config.entry('polyfill').add('@babel/polyfill')
+  } ,
   configureWebpack: {
     // "plugins": ["@babel/plugin-syntax-dynamic-import"],
     plugins: [

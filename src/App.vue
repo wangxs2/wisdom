@@ -5,7 +5,7 @@
 </template>
 
 <style lang="scss">
-@import url("./assets/iconfont/iconfont.css");
+// @import url("./assets/iconfont/iconfont.css");
 html,body,#app {
   font-family: Microsoft YaHei,Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -16,6 +16,9 @@ html,body,#app {
   height: 100%;
   margin: 0;
   padding: 0
+}
+.el-scrollbar__wrap{
+  margin-bottom: 0 !important;
 }
 ul,li{
   list-style-type:none;

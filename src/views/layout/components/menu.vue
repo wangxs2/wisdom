@@ -8,12 +8,12 @@
       @close="handleClose"
       :collapse="menuFlag"
       active-text-color="#ffffff"
-      background-color="#323B4B"
+      background-color="#222530"
       text-color="#fff"
     >
       <el-submenu index="1">
         <template slot="title">
-          <i class="el-icon-location"></i>
+          <i class="el-icon-locations"></i>
           <span>GPS监控</span>
         </template>
         <el-menu-item-group>
@@ -23,7 +23,7 @@
       </el-submenu>
       <el-submenu index="2">
         <template slot="title">
-          <i class="el-icon-map-location"></i>
+          <i class="el-icon-map-location1"></i>
           <span>围栏管理</span>
         </template>
         <el-menu-item index="2-1">地址管理</el-menu-item>
@@ -64,6 +64,28 @@ export default {
 }
 .el-menu-item.is-active {
   background-color: #2ba3ff !important;
+}
+.el-menu-item{
+    font-size: vw(16);
+
+}
+
+.el-submenu__title{
+  span{
+    font-size: vw(16);
+  }
+}
+.el-icon-locations{
+  width: vw(19);
+  height: vw(20);
+  background: url("../../../assets/image/GPS1.png") no-repeat;
+  background-size: contain;
+}
+.el-icon-map-location1{
+  width: vw(18);
+  height: vw(18);
+  background: url("../../../assets/image/wl.png") no-repeat;
+  background-size: contain;
 }
 </style>
 

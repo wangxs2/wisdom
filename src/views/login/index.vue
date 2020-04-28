@@ -2,6 +2,7 @@
   <div class="login">
     <div class="content-box">
       <div class="left-img">
+        <img style="margin-top:5vh" src="../../assets/image/logo2.png" alt="" srcset="">
         <div class="fon">
           <span>实时监控</span>
           <span style="margin-left:30px">轨迹查询</span>
@@ -9,7 +10,6 @@
       </div>
       <div class="right-form">
         <h3>运输监控系统</h3>
-
         <el-form
           :model="ruleForm2"
           :show-message="false"

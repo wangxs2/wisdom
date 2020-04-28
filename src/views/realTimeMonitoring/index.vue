@@ -11,9 +11,11 @@
         </el-autocomplete>
       </div>
       <div class="right-sea">
-        <el-button @click="isWaring=!isWaring" type="warning" plain>报警（126）</el-button>
-        <el-button>距离下一次刷新 59 秒 <i class="iconfont icon-shuaxin"></i></el-button>
-        <i @click="mapFullEvent" class="iconfont icon-quanping3"></i>
+        <el-button @click="isWaring=!isWaring" type="danger" icon="el-icon-message-solid">报警（126）</el-button>
+        <div class="shua"  @click="totalTime=60"> <i class="iconfont icon-shuaxin1"></i>距离下一次刷新 {{totalTime}} 秒</div>
+        <div @click="mapFullEvent" class="box-qunping">
+          <img src="../../assets/image/fdicon.png" alt="" srcset="">
+        </div>
       </div>
     </div>
     <!-- 左侧的车辆信息 -->
@@ -23,12 +25,23 @@
         leave-active-class="animated fadeOutLeft"
       >
       <div class="left-content" style="left:0px" v-if="isLeft">
-        <div class="tit">车辆信息</div>
+        <div class="tit" style="color:#333333">车辆信息</div>
         <div class="cltit">
-          <div :class='titindex==index?"cltit-iteamac cltit-iteam":"cltit-iteam"' @click="titindex=index" v-for="(iteam,index) in cltitData">
-            <span>{{iteam.name}}</span>
-            <span style="margin-top:4px">{{iteam.num}}</span>
+          <div style="margin-right:1vw">车辆状态</div>
+          <div style="flex:1">
+             <el-select style="width:100%" size="small" v-model="valuenum" placeholder="请选择">
+                <el-option
+                  v-for="item in cltitData"
+                  :key="item.num"
+                  :label="item.name"
+                  :value="item.num">
+                </el-option>
+              </el-select>
           </div>
+          <!-- <div :class='titindex==index?"cltit-iteamac cltit-iteam":"cltit-iteam"' @click="titindex=index" v-for="(iteam,index) in cltitData">
+            <span>{{iteam.name}}</span>
+            <span>{{iteam.num}}</span>
+          </div> -->
         </div>
         <div class="table-box">
           <div class="table-head">
@@ -38,22 +51,22 @@
             <div class="head-it">操作</div>
           </div>
           <div class="table-body">
-            <div class="infinite-list-wrapper">
+            <el-scrollbar style="height:100%">
               <ul
                 class="list">
-                <li v-for="i in count" class="list-item">
+                <li v-for="i in count" :key="i" class="list-item">
                   <div class="body-it">{{i}}</div>
                   <div class="body-it">赣JS5129</div>
-                  <div :class="i==1?'body-it body-it0':i==2?'body-it body-it1':'body-it body-it2'">{{i==1?'行驶':i==2?'静止':'离线'}}</div>
+                  <div class="body-it"><span :class="i==1?'body-it0':i==2?'body-it1':'body-it2'">{{i==1?'行驶':i==2?'静止':'离线'}}</span></div>
                   <div class="body-it">
-                    <i  class="iconfont icon-bofang1"></i>
-                    <i style="margin-left:6px"  class="iconfont icon-weizhilanse"></i>
+                    <img src="../../assets/image/bf.png">
+                    <img style="margin-left:14px" src="../../assets/image/dw.png">
                   </div>
                 </li>
               </ul>
               <p v-if="loading">加载中...</p>
               <p v-if="noMore">没有更多了</p>
-            </div>
+            </el-scrollbar>
           </div>
         </div>
       </div>
@@ -65,7 +78,8 @@
         leave-active-class="animated fadeOutLeft fadesa1"
       >
       <div class="sideslip" v-if="isLeft" @click="isLeft=false">
-        <i  class="iconfont icon-top"></i>
+        <!-- <i  class="iconfont icon-top"></i> -->
+        <img src="../../assets/image/image_1@3x.png">
       </div>
     </transition>
     <transition
@@ -74,7 +88,8 @@
         leave-active-class="animated fadeOutRight"
       >
       <div class="sideslip1" v-if="!isLeft" @click="isLeft=true">
-        <i  class="iconfont icon-next"></i>
+        <!-- <i  class="iconfont icon-next"></i> -->
+        <img src="../../assets/image/image_2@3x.png">
       </div>
     </transition>
     <!-- 报警的列表 -->
@@ -83,7 +98,7 @@
         enter-active-class="animated fadeInDown"
         leave-active-class="animated fadeOutUp"
       >
-      <div class="left-content waring-box" style="right:0px" v-if="isWaring">
+      <div class="left-content waring-box" v-if="isWaring">
         <div class="tit">报警对象：静止超过10分钟的车辆</div>
         <div class="table-box">
           <div class="table-head">
@@ -93,7 +108,7 @@
             <div class="head-it">操作</div>
           </div>
           <div class="table-body">
-            <div class="infinite-list-wrapper">
+            <el-scrollbar style="height:100%">
               <ul
                 class="list">
                 <li v-for="i in count" class="list-item">
@@ -102,20 +117,29 @@
                   <div>1小时45分钟</div>
                   <div class="body-it">
                     <!-- <i  class="iconfont icon-bofang1"></i> -->
-                    <i style="margin-left:6px"  class="iconfont icon-weizhilanse"></i>
+                    <img src="../../assets/image/dw.png">
                   </div>
                 </li>
               </ul>
               <p v-if="loading">加载中...</p>
               <p v-if="noMore">没有更多了</p>
-            </div>
+            </el-scrollbar>
           </div>
         </div>
         
       </div>
     </transition>
-
     <!-- 报警的列表 -->
+    <!-- 缩放的按钮 -->
+    <div class="zoomBtn">
+      <div class="box-big" id="box-big1" @click="addZoom()">
+        <img src="../../assets/image/big.png">
+      </div>
+      <div class="box-big" id="box-big2" @click="delZoom()">
+        <img src="../../assets/image/small.png">
+      </div>
+    </div>
+    <!-- 缩放的按钮 -->
     <div class="timeCar" id="mymap">
       <!-- top搜索 -->
     </div>
@@ -129,39 +153,55 @@ export default {
   data() {
     return {
       count: 40,
+      totalTime: 60, //倒计时
       restaurants: [],
       timeout:  null,
       loading: false,
       isWaring: false,
       myMap: null,
       ZoomNum: null,
+      valuenum:12,
       isLeft:true,//是否隐藏左侧的车辆信息
       mapstyle: "normal",
       searchinput:"",
       select:"1",
       cltitData:[
         {
-          name:"全部",
-          num:126
+          name:"全部(126)",
+          num:12
         },
         {
-          name:"行驶",
-          num:126
+          name:"行驶(126)",
+          num:136
         },
         {
-          name:"静止",
-          num:126
+          name:"静止(126)",
+          num:116
         },
         {
-          name:"离线",
-          num:126
+          name:"离线(126)",
+          num:106
         },
       ],
       titindex:0,
       // mapstyle:"dark",
     };
   },
-   computed: {
+  watch:{
+    "ZoomNum":function(val,old){
+      if(val>18){
+        $("#box-big1").css({"cursor": "not-allowed"});
+      }else{
+        $("#box-big1").css({"cursor": "pointer"});
+      }
+      if(val<5){
+        $("#box-big2").css({"cursor": "not-allowed"});
+      }else{
+        $("#box-big2").css({"cursor": "pointer"});
+      }
+    },
+  },
+  computed: {
       noMore () {
         return this.count >= 40
       },
@@ -174,26 +214,37 @@ export default {
     this.initMap();
     this.getZmap();
   },
-  created() {},
+  created() {
+    // this.getLine()
+    this.countDown()
+  },
   methods: {
+    //倒计时
+    countDown() {
+      this.totalTime--
+      if(this.totalTime<0){
+        this.totalTime=60
+      }
+      setTimeout( ()=> {
+				this.countDown()
+			}, 1000)
+    },
     initMap() {
       this.myMap = new BMap.Map("mymap");
-      this.myMap.centerAndZoom(new BMap.Point(121.571035, 31.236302), 14);
+      this.myMap.centerAndZoom(new BMap.Point(108.933051,34.546597), 5);
       this.myMap.enableScrollWheelZoom(); //地图缩放的功能
       this.myMap.addControl(
         new BMap.ScaleControl({ anchor: BMAP_ANCHOR_BOTTOM_RIGHT })
       );
-      this.myMap.setMapStyle({ style: this.mapstyle });
-      var top_right_navigation = new BMap.NavigationControl({
-        anchor: BMAP_ANCHOR_BOTTOM_RIGHT,
-        type: BMAP_NAVIGATION_CONTROL_SMALL
-      }); //右上角，仅包含平移和缩放按钮
-      this.myMap.addControl(top_right_navigation);
+      this.myMap.setMapStyleV2({     
+        styleId: '877fcc51379e35af5063374cd7687818'
+      });
     },
     //地图的缩放时间
     getZmap() {
       this.myMap.addEventListener("zoomend", () => {
         this.ZoomNum = this.myMap.getZoom();
+        console.log(this.ZoomNum)
         // 14 是1公里
         // 13 是2公里
         // 12 是5公里
@@ -218,7 +269,6 @@ export default {
         { "value": "油厂2", "address": "上海市长宁区淞虹路661号" },
         { "value": "油厂3", "address": "上海市普陀区真北路988号创邑金沙谷6号楼113" },
         { "value": "油厂4", "address": "天山西路438号" },
-        
       ];
       },
     querySearchAsync(queryString, cb) {
@@ -238,13 +288,80 @@ export default {
     handleSelect(item) {
       console.log(item);
     },
+    //路书
+    getLine(){
+      var lushu;
+        // 实例化一个驾车导航用来生成路线
+          var drv = new BMap.DrivingRoute('全国', {
+              onSearchComplete: function(res) {
+                  if (drv.getStatus() == BMAP_STATUS_SUCCESS) {
+                      var plan = res.getPlan(0);
+                      var arrPois =[];
+                      for(var j=0;j<plan.getNumRoutes();j++){
+                          var route = plan.getRoute(j);
+                          arrPois= arrPois.concat(route.getPath());
+                      }
+                      console.log(arrPois)
+                      map.addOverlay(new BMap.Polyline(arrPois, {strokeColor: '#111'}));
+                      map.setViewport(arrPois);
+
+                      lushu = new BMapLib.LuShu(map,arrPois,{
+                      defaultContent:"",//"从天安门到百度大厦"
+                      autoView:true,//是否开启自动视野调整，如果开启那么路书在运动过程中会根据视野自动调整
+                      icon  : new BMap.Icon('/jsdemo/img/car.png', new BMap.Size(52,26),{anchor : new BMap.Size(27, 13)}),
+                      speed: 4500,
+                      enableRotation:true,//是否设置marker随着道路的走向进行旋转
+                      landmarkPois: [
+                        {lng:116.314782,lat:39.913508,html:'加油站',pauseTime:20},
+                        {lng:116.315391,lat:39.964429,html:'高速公路收费<div><img src="//map.baidu.com/img/logo-map.gif"/></div>',pauseTime:3},
+                        {lng:116.381476,lat:39.974073,html:'肯德基早餐',pauseTime:2}
+                      ]});
+                  }
+              }
+          });
+          var start=new BMap.Point(116.404844,39.911836);
+          var end=new BMap.Point(116.308102,40.056057);
+        drv.search(start, end);
+        //绑定事件
+        $("run").onclick = function(){
+          lushu.start();
+        }
+        $("stop").onclick = function(){
+          lushu.stop();
+        }
+        $("pause").onclick = function(){
+          lushu.pause();
+        }
+        $("hide").onclick = function(){
+          lushu.hideInfoWindow();
+        }
+        $("show").onclick = function(){
+          lushu.showInfoWindow();
+        }
+        function $(element){
+          return document.getElementById(element);
+        }
+    },
+     //加大地图级别
+    addZoom(params) {
+      this.myMap.zoomIn() //放大一级视图
+    },
+    //缩小地图级别
+    delZoom(params) {
+      this.myMap.zoomOut() //缩小一级视图
+    }
+
   }
 };
 </script>
 <style lang="scss">
-.el-select .el-input {
+.top-search .el-select .el-input {
     width: vw(100);
-  }
+}
+.el-scrollbar__wrap{
+  overflow-x: hidden !important;
+  overflow-y: scroll;
+}
 </style>
 <style lang="scss" scoped>
 .map-content {
@@ -259,23 +376,57 @@ export default {
     left: 0;
     width: 100%;
     height: vh(60);
-    background: #ffffff;
+    // background: #ffffff;
     z-index: 20;
     display: flex;
     justify-content: space-between;
     align-items: center;
     box-sizing: border-box;
-    padding: vh(6) vw(12);
-    box-shadow:0px 0px vw(10) 0px rgba(51,51,51,0.3);
-    border-bottom:1px solid #DCDFE6;
+    padding: vh(6) vw(20);
+    // box-shadow:0px 0px vw(10) 0px rgba(51,51,51,0.3);
+    // border-bottom:1px solid #DCDFE6;
+    .left-sea{
+      box-shadow:0px 0px vw(6) 0px rgba(51,51,51,0.3);
+    }
     .right-sea{
       display: flex;
       align-items: center;
-      .icon-quanping3{
-        font-size:vw(24);
-        color:#1A98FF;
-        margin-left:vw(8);
+      .box-qunping{
+        width:vw(40);
+        height:vw(40);
+        margin-left: vw(20);
+        background:rgba(230,241,252,1);
+        box-shadow:1px 1px 4px 0px rgba(213,213,213,1);
+        border-radius:4px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+         cursor: pointer;
+      }
+      .shua{
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width:vw(220);
+       box-sizing: border-box;
+       padding: vh(10) vw(14);
+        background:rgba(230,241,252,1);
+        box-shadow:1px 1px 4px 0px rgba(213,213,213,1);
+        border-radius:4px;
+        margin-left: vw(20);
         cursor: pointer;
+        color: #7B7D7F;
+      }
+      .shua:hover{
+        background:rgba(255,255,255,0.8);
+      }
+      .icon-shuaxin1{
+        display: inline-block;
+        width: vw(22);
+        height: vw(22);
+        background: url("../../assets/image/sx.png") no-repeat;
+        background-size: 100% 100%;
+        margin-right: vw(8);
       }
     }
   }
@@ -322,42 +473,70 @@ export default {
       opacity:1;
     }
   }
+  .zoomBtn{
+    position: absolute;
+    top:vh(80);
+    right:vw(20);
+    z-index: 9;
+    display:flex;
+    flex-direction: column;
+    .box-big{
+      width:vw(40);
+      height:vw(40);
+      background:rgba(255,255,255,1);
+      box-shadow:1px 1px 4px 0px rgba(213,213,213,1);
+      border-radius:4px;
+      display:flex;
+      justify-content: center;
+      align-items: center;
+      margin-bottom:vh(10);
+       cursor: pointer;
+    }
+    .box-big:hover{
+      background:rgba(255,255,255,0.8);
+    }
+  }
   .left-content{
     width:vw(400);
-    height:100%;
+    height:90%;
     position: absolute;
-    box-shadow:vw(2) vw(4) vw(2) vw(2) rgba(51,51,51,0.3);
+    box-shadow:vw(2) vw(2) vw(2) vw(2) rgba(51,51,51,0.1);
     top: vh(60);
     box-sizing:border-box;
     display:flex;
     flex-direction: column;
-    padding:vw(6);
-    padding-bottom:vh(90);
+    // padding:vw(6);
+    // padding-bottom:vh(90);
     background: rgba(255,255,255,1);
+    border-radius:4px 4px 0px 0px;
     z-index: 10;
     .tit{
       width:100%;
-      height:vh(40);
-      border-bottom:1px solid #DCDFE6;
+      height:vh(50);
+      line-height: vh(50);
+      // border-bottom:1px solid #DCDFE6;
       box-sizing:border-box;
-      padding:vh(6) 0;
-      color:rgb(44, 158, 255);
+      background: #F0F2F5;
+      font-size: vw(20);
+      color: #303133;
+      border-radius:4px 4px 0px 0px;
     }
     .table-box{
       flex:1;
-      margin-top:vh(10);
-      border:1px solid #DCDFE6;
+      // margin-top:vh(10);
+      // border:1px solid #DCDFE6;
       display:flex;
       flex-direction: column;
       overflow:hidden;
       .table-head{
         width:100%;
-        height:vh(36);
+        height:vh(40);
         display:flex;
-        border-bottom:1px solid #DCDFE6;
+        background: rgba(244,248,253,1);
+        color: #303133;
+        // border-bottom:1px solid #DCDFE6;
         box-sizing:border-box;
         padding:vh(6) 0;
-        padding-right:vw(16);
         .head-it{
           flex:1;
         }
@@ -367,7 +546,7 @@ export default {
         overflow:hidden;
       }
       .infinite-list-wrapper{
-         overflow:hidden;
+        overflow:hidden;
         overflow-y:scroll;
         width:100%;
         height:100%;
@@ -378,7 +557,7 @@ export default {
       .list-item{
         display:flex;
         box-sizing:border-box;
-        border-bottom:1px solid #DCDFE6;
+        cursor: pointer;
         padding:vh(6) 0;
         .body-it{
           flex:1;
@@ -389,48 +568,62 @@ export default {
           }
         }
         .body-it0{
-          color:#2BA3FF;
+          color:#ffffff;
+          font-size: vw(12);
+          display: inline-block;
+          background:#307CFC;
+          border-radius:4px;
+          box-sizing:border-box;
+          padding:vh(3) vw(6);
         }
         .body-it1{
-          color:#FFB42E;
+          color:#ffffff;
+          font-size: vw(12);
+          display: inline-block;
+          background:#FF9900;
+          border-radius:4px;
+          box-sizing:border-box;
+          padding:vh(3) vw(6);
         }
         .body-it2{
-          color:#909399;
+          color:#ffffff;
+          font-size: vw(12);
+          display: inline-block;
+          background:#909399;
+          border-radius:4px;
+          box-sizing:border-box;
+          padding:vh(3) vw(6);
           
         }
+      }
+      .list-item:hover{
+        background: rgba(188,216,252,0.6);
       }
     }
     .cltit{
       width:100%;
-      height:vh(50);
+      height:vh(60);
       display:flex;
-      // border-right:1px solid #DCDFE6;
-      // border-left:1px solid #DCDFE6;
-      .cltit-iteam{
-        flex:1;
-        box-sizing:border-box;
-        padding:1px 0;
-        // border:1px solid #DCDFE6;
-        border-top:none;
-        border-right:none;
-        display:flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        cursor: pointer;
-      }
-      .cltit-iteamac{
-        background:#eeeeee;
-        color:#333333;
-      }
+      justify-content: flex-start;
+      align-items: center;
+      box-sizing: border-box;
+      padding: vw(12);
+      font-size: vw(16);
     }
   }
   .waring-box{
-    padding:vw(6);
-    box-shadow:vw(10) vw(10) vw(10) vw(20) rgba(51,51,51,0.3);
+    padding:vw(0);
+    height: 80%;
+    right: vw(52);
+    box-shadow:vw(2) vw(2) vw(2) vw(4) rgba(51,51,51,0.1);
+    .table-box{
+      box-sizing: border-box;
+    }
     .tit{
-      border:none;
-      background:#DCDFE6;
+      background:rgba(255,225,225,0.8);
+      color: #DD2726;
+      font-size: vw(16);
+      box-sizing: border-box;
     }
   }
   .sideslip{
@@ -438,21 +631,14 @@ export default {
     top: 46%;
     left: vw(400);
     z-index:10;
-    .iconfont{
-      font-size:vw(32);
-      cursor: pointer;
-    }
+    cursor: pointer;
   }
   .sideslip1{
     position: absolute;
     top: 46%;
     left: 0px;
     z-index:10;
-    .icon-next{
-      font-size:vw(32);
-      cursor: pointer;
-
-    }
+    cursor: pointer;
   }
   .timeCar {
     width: 100%;
