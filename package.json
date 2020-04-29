@@ -9,10 +9,10 @@
     "server": "nodemon index.js --ignore client"
   },
   "dependencies": {
-    "@babel/polyfill": "^7.8.7",
     "@quasar/extras": "^1.1.2",
     "animate.css": "^3.7.0",
     "axios": "^0.19.0",
+    "babel-polyfill": "^6.26.0",
     "core-js": "^3.4.3",
     "echarts": "^4.5.0",
     "element-ui": "^2.13.0",
@@ -25,6 +25,7 @@
     "vuedraggable": "^2.23.2",
     "vuescroll": "^4.7.5",
     "vuex": "^3.0.1",
+    "vuex-along": "^1.2.11",
     "ztree": "^3.5.24"
   },
   "devDependencies": {
@@ -39,7 +40,8 @@
     "eslint-plugin-vue": "^5.0.0",
     "node-sass": "^4.13.0",
     "sass-loader": "^8.0.0",
-    "vue-template-compiler": "^2.6.10"
+    "vue-template-compiler": "^2.6.10",
+    "webpack-dev-server": "^2.7.1"
   },
   "eslintConfig": {
     "root": true,

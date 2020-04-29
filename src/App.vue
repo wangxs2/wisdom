@@ -3,7 +3,10 @@
     <router-view/>
   </div>
 </template>
-
+<script>
+  // import "@babel/polyfill"
+  export default {}
+</script>
 <style lang="scss">
 // @import url("./assets/iconfont/iconfont.css");
 html,body,#app {

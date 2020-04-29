@@ -1,65 +1,6 @@
-// import {
-//   fetchGet
-// } from '@/libs/http'
-// import {
-//   constantRouterMap,
-//   asyncRouterMap
-// } from '@/router'
-// import {
-//   getCookie
-// } from '@/libs/util'
-// const _import = require('@/router/_import_' + process.env.NODE_ENV)
+
 console.log(process.env.NODE_ENV)
-// const localList = `/Intelligence,/Intelligence/ElectronicArchives,/Intelligence/recordExpect,/Intelligence/unlicensed,s
-// /system,/system/roles,/system/orgs,/system/users,/system/auth,/system/const,/complaintSupervision,/companyView,/creditSupervision,
-// ` //本地列表 注意最后加逗号
 
-/**
- * 递归菜单
- */
-// function filterAsyncMenu(pid, json) {
-//   let arr = []
-//   json.map(item => {
-//     if (item.pid === pid) {
-//       if (localList.indexOf(item.url + ',') == -1 || item.url === '') {
-//         //判断是否本地页面 不是去错误页面
-//         item.url = '/error'
-//       }
-//       arr.push(item)
-//       item.children = filterAsyncMenu(item.id, json)
-//     }
-//   })
-//   return arr
-// }
-
-/**
- * 格式菜单成路由表
- */
-
-// function filterAsyncRouter(menusaData) {
-//   let arr = [],
-//     obj
-//   menusaData.forEach(item => {
-//     obj = {}
-//     if (item.children && item.children.length) {
-//       obj.children = filterAsyncRouter(item.children)
-//     }
-
-//     if (item.url === '/error') {
-//       //加载错误页面
-//       obj.path = '/error'
-//       obj.component = _import('errorPage/index')
-//     } else {
-//       obj.path = item.url
-//       console.log(item.url)
-//       console.log(item.url.slice(1))
-//       obj.component = _import(item.url.slice(1) + '/index')
-//     }
-//     obj.name = item.name
-//     arr.push(obj)
-//   })
-//   return arr
-// }
 const permission = {
   state: {
     menuData: [], //菜单数据
@@ -76,29 +17,6 @@ const permission = {
     }
   },
   actions: {
-    // GenerateRoutes({ //获取菜单
-    //   commit,
-    //   state
-    // }) {
-
-      // return new Promise((resolve, reject) => {
-      //   fetchGet('auths/menu').then(res => {
-      //     if (!res) {
-      //       resolve(1)
-      //       return
-      //     }
-      //     let menuData = filterAsyncMenu(1000, res.slice(0))
-      //     asyncRouterMap[0].children = filterAsyncRouter(menuData.slice(0))
-      //     let routerData = asyncRouterMap
-      //     commit('SET_MENU', menuData)
-      //     commit('SET_ROUTERS', routerData)
-      //     resolve({
-      //       menuData,
-      //       routerData
-      //     })
-      //   })
-      // })
-    // }
   }
 }
 

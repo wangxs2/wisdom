@@ -2,17 +2,15 @@
   <div class="map-content" ref="compreMap">
     <div class="top-search">
       <div class="left-sea">
-        <el-autocomplete  v-model="searchinput"  :fetch-suggestions="querySearchAsync" placeholder="请输入内容" @select="handleSelect" class="input-with-select">
+        <el-autocomplete  v-model="searchinput"  :fetch-suggestions="querySearchAsync" placeholder="请输入车牌号" @select="handleSelect" class="input-with-select">
           <el-select v-model="select" slot="prepend" placeholder="请选择">
-            <el-option label="车辆" value="1"></el-option>
-            <el-option label="组织" value="2"></el-option>
+            <el-option label="车牌号" value="1"></el-option>
+            <!-- <el-option label="组织" value="2"></el-option> -->
           </el-select>
-          <el-button  slot="append" icon="el-icon-search"></el-button>
+          <!-- <el-button  slot="append" icon="el-icon-search"></el-button> -->
         </el-autocomplete>
       </div>
       <div class="right-sea">
-        <el-button @click="isWaring=!isWaring" type="danger" icon="el-icon-message-solid">报警（126）</el-button>
-        <div class="shua"  @click="totalTime=60"> <i class="iconfont icon-shuaxin1"></i>距离下一次刷新 {{totalTime}} 秒</div>
         <div @click="mapFullEvent" class="box-qunping">
           <img src="../../assets/image/fdicon.png" alt="" srcset="">
         </div>
@@ -25,23 +23,11 @@
         leave-active-class="animated fadeOutLeft"
       >
       <div class="left-content" style="left:0px" v-if="isLeft">
-        <div class="tit" style="color:#333333">车辆信息</div>
+        <div class="tit" style="color:#333333">轨迹信息</div>
         <div class="cltit">
-          <div style="margin-right:1vw">车辆状态</div>
-          <div style="flex:1">
-             <el-select style="width:100%" size="small" v-model="valuenum" placeholder="请选择">
-                <el-option
-                  v-for="item in cltitData"
-                  :key="item.num"
-                  :label="item.name"
-                  :value="item.num">
-                </el-option>
-              </el-select>
-          </div>
-          <!-- <div :class='titindex==index?"cltit-iteamac cltit-iteam":"cltit-iteam"' @click="titindex=index" v-for="(iteam,index) in cltitData">
-            <span>{{iteam.name}}</span>
-            <span>{{iteam.num}}</span>
-          </div> -->
+          <div>运行总时长  46小时36分钟</div>
+          <div>运行里程  674km</div>
+          <div>平均速度  66km/h</div>
         </div>
         <div class="table-box">
           <div class="table-head">
@@ -92,44 +78,7 @@
         <img src="../../assets/image/image_2@3x.png">
       </div>
     </transition>
-    <!-- 报警的列表 -->
-    <transition
-        name="from-above-down"
-        enter-active-class="animated fadeInDown"
-        leave-active-class="animated fadeOutUp"
-      >
-      <div class="left-content waring-box" v-if="isWaring">
-        <div class="tit">报警对象：静止超过10分钟的车辆</div>
-        <div class="table-box">
-          <div class="table-head">
-            <div class="head-it">序号</div>
-            <div class="head-it">车牌号</div>
-            <div class="head-it">停留时长</div>
-            <div class="head-it">操作</div>
-          </div>
-          <div class="table-body">
-            <el-scrollbar style="height:100%">
-              <ul
-                class="list">
-                <li v-for="i in count" class="list-item">
-                  <div class="body-it">{{i}}</div>
-                  <div class="body-it">赣JS5129</div>
-                  <div>1小时45分钟</div>
-                  <div class="body-it">
-                    <!-- <i  class="iconfont icon-bofang1"></i> -->
-                    <img src="../../assets/image/dw.png">
-                  </div>
-                </li>
-              </ul>
-              <p v-if="loading">加载中...</p>
-              <p v-if="noMore">没有更多了</p>
-            </el-scrollbar>
-          </div>
-        </div>
-        
-      </div>
-    </transition>
-    <!-- 报警的列表 -->
+   
     <!-- 缩放的按钮 -->
     <div class="zoomBtn">
       <div class="box-big" id="box-big1" @click="addZoom()">
@@ -140,13 +89,14 @@
       </div>
     </div>
     <!-- 缩放的按钮 -->
-    <div class="timeCar" id="mymap">
+    <div class="timeCar" id="mymap2">
       <!-- top搜索 -->
     </div>
     <!-- 右下角的车辆状态 -->
-    <div class="statusCar" v-if="isCar">
-      <div class="itamStatus" v-for="item in carData" :key="item.id">
-        <img :src="item.iurl" width="16" height="16">
+    <div class="statusCar">
+      <div style="margin-bottom:1vh">时速<span style="color:#999999">(km/h)</span></div>
+      <div class="itamStatus1" v-for="item in carData" :key="item.id">
+        <span class="leimg"></span>
         <span>{{item.name}}</span>
       </div>
     </div>
@@ -161,12 +111,9 @@ export default {
   data() {
     return {
       count: 40,
-      totalTime: 60, //倒计时
       restaurants: [],
       timeout:  null,
       loading: false,
-      isWaring: false,
-      isCar: false,//图例
       myMap: null,
       ZoomNum: null,
       valuenum:12,
@@ -176,44 +123,27 @@ export default {
       select:"1",
       carData:[
         {
-          name:"行驶",
+          name:"0-25",
           id:1,
-          iurl:require("../../assets/image/xs.png")
         },
         {
-          name:"静止",
+          name:"25-50",
           id:2,
-          iurl:require("../../assets/image/jz.png")
         },
         {
-          name:"离线",
+          name:"50-75",
           id:3,
-          iurl:require("../../assets/image/lx.png")
         },
         {
-          name:"油厂",
+          name:"75-100",
           id:4,
-          iurl:require("../../assets/image/yc3.png")
+        },
+        {
+          name:"100-125",
+          id:5,
         },
       ],
-      cltitData:[
-        {
-          name:"全部(126)",
-          num:12
-        },
-        {
-          name:"行驶(126)",
-          num:136
-        },
-        {
-          name:"静止(126)",
-          num:116
-        },
-        {
-          name:"离线(126)",
-          num:106
-        },
-      ],
+     
       titindex:0,
       // mapstyle:"dark",
     };
@@ -247,21 +177,11 @@ export default {
   },
   created() {
     // this.getLine()
-    this.countDown()
   },
   methods: {
-    //倒计时
-    countDown() {
-      this.totalTime--
-      if(this.totalTime<0){
-        this.totalTime=60
-      }
-      setTimeout( ()=> {
-				this.countDown()
-			}, 1000)
-    },
+    
     initMap() {
-      this.myMap = new BMap.Map("mymap");
+      this.myMap = new BMap.Map("mymap2");
       this.myMap.centerAndZoom(new BMap.Point(108.933051,34.546597), 5);
       this.myMap.enableScrollWheelZoom(); //地图缩放的功能
       this.myMap.addControl(
@@ -438,23 +358,6 @@ export default {
         justify-content: center;
         align-items: center;
          cursor: pointer;
-      }
-      .shua{
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        width:vw(220);
-       box-sizing: border-box;
-       padding: vh(10) vw(14);
-        background:rgba(230,241,252,1);
-        box-shadow:1px 1px 4px 0px rgba(213,213,213,1);
-        border-radius:4px;
-        margin-left: vw(20);
-        cursor: pointer;
-        color: #7B7D7F;
-      }
-      .shua:hover{
-        background:rgba(255,255,255,0.8);
       }
       .icon-shuaxin1{
         display: inline-block;
@@ -640,28 +543,13 @@ export default {
       width:100%;
       height:vh(60);
       display:flex;
-      justify-content: flex-start;
-      align-items: center;
+     flex-direction: column;
       box-sizing: border-box;
       padding: vw(12);
       font-size: vw(16);
     }
   }
-  .waring-box{
-    padding:vw(0);
-    height: 80%;
-    right: vw(52);
-    box-shadow:vw(2) vw(2) vw(2) vw(4) rgba(51,51,51,0.1);
-    .table-box{
-      box-sizing: border-box;
-    }
-    .tit{
-      background:rgba(255,225,225,0.8);
-      color: #DD2726;
-      font-size: vw(16);
-      box-sizing: border-box;
-    }
-  }
+  
   .sideslip{
     position: absolute;
     top: 46%;
@@ -691,21 +579,48 @@ export default {
     box-sizing:border-box;
     padding:vh(10) vw(13);
     padding-bottom:0;
-    .itamStatus{
+    .itamStatus1{
       display:flex;
       align-items: center;
       margin-bottom:vh(10);
-      cursor: pointer;
-      img{
-        margin-right:vw(8);
+    //   cursor: pointer;
+      .leimg{
+          display:inline-block;
+          width:vw(8);
+          height:vh(16);
+        //   background:#81dafa;
+          border-radius:4px;
+          margin-right:vw(10);
       }
       span{
         font-size:vw(16);
+        color:#747576;
       }
     }
-    .itamStatus:nth-child(4){
-      border-top:1px solid #F0F2F5;
-      padding-top:vh(10);
+    .itamStatus1:nth-child(2){
+      .leimg{
+          background:#81dafa;
+      }
+    }
+    .itamStatus1:nth-child(3){
+      .leimg{
+          background:#307cfc;
+      }
+    }
+    .itamStatus1:nth-child(4){
+      .leimg{
+          background:#21c434;
+      }
+    }
+    .itamStatus1:nth-child(5){
+      .leimg{
+          background:#ffd201;
+      }
+    }
+    .itamStatus1:nth-child(6){
+      .leimg{
+          background:#bd0301;
+      }
     }
   }
 }

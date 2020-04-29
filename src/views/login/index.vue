@@ -2,14 +2,14 @@
   <div class="login">
     <div class="content-box">
       <div class="left-img">
-        <img style="margin-top:5vh" src="../../assets/image/logo2.png" alt="" srcset="">
+        <!-- <img style="margin-top:5vh" src="../../assets/image/logo2.png" alt="" srcset=""> -->
         <div class="fon">
           <span>实时监控</span>
           <span style="margin-left:30px">轨迹查询</span>
         </div>
       </div>
       <div class="right-form">
-        <h3>运输监控系统</h3>
+        <h3><img src="../../assets/image/logo2.png" alt="" srcset="">运输监控系统</h3>
         <el-form
           :model="ruleForm2"
           :show-message="false"
@@ -114,7 +114,10 @@ export default {
   methods:{
       submitForm(){
         this.$router.push("/realTimeMonitoring")
-      }
+      },
+      forget(){
+
+      },
   }
 };
 </script>
@@ -179,6 +182,12 @@ $colorSa: #2ba3ff;
         padding: 0;
         margin-top: vw(96);
         color: #333333;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        img{
+          margin-right:vw(14);
+        }
       }
       .titfon{
           color:#999999;

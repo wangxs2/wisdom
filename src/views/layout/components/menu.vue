@@ -17,8 +17,8 @@
           <span>GPS监控</span>
         </template>
         <el-menu-item-group>
-          <el-menu-item index="1-1">实时监控</el-menu-item>
-          <el-menu-item index="1-2">轨迹查询</el-menu-item>
+          <el-menu-item index="1-1" @click="gorouter">实时监控</el-menu-item>
+          <el-menu-item index="1-2" @click="gorouter1">轨迹查询</el-menu-item>
         </el-menu-item-group>
       </el-submenu>
       <el-submenu index="2">
@@ -53,7 +53,13 @@ export default {
     },
     handleClose(key, keyPath) {
       console.log(key, keyPath);
-    }
+    },
+    gorouter(){
+      this.$router.push("/realTimeMonitoring")
+    },
+    gorouter1(){
+      this.$router.push("/trajectory")
+    },
   }
 };
 </script>

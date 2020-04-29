@@ -1,8 +1,9 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
 import layout from '../views/layout/index.vue'
-import realTimeMonitoring from '../views/realTimeMonitoring/index.vue'
+import realTimeMonitoring from '../views/realTimeMonitoring/index.vue'//车辆信息
 import login from '../views/login/index.vue'
+import trajectory from '../views/trajectory/index.vue'//轨迹查询
 Vue.use(VueRouter)
 
   const routes = [
@@ -16,6 +17,12 @@ Vue.use(VueRouter)
         name: '实时监控',
         component: realTimeMonitoring
       },
+      {
+        path: '/trajectory',
+        name: '轨迹查询',
+        component: trajectory
+      },
+      
     ]
   },
   {
@@ -35,7 +42,7 @@ Vue.use(VueRouter)
 ]
 
 const router = new VueRouter({
-  mode: 'history',
+  // mode: 'history',
   base: process.env.BASE_URL,
   routes
 })

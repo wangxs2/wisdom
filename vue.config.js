@@ -28,25 +28,9 @@ module.exports = {
       }
     }
   },
-  // configureWebpack: {
-  //   // webpack 配置项
-  //   // resolve: {
-  //   //   alias: {
-  //   //     vue$: 'vue/dist/vue.esm.js'
-  //   //     // '@': resolve('src'),
-  //   //     // 'views': resolve('src/views')
-  //   //   }
-  //   // },
-  //   plugins: [
-  //     new webpack.ProvidePlugin({
-  //       $: 'jquery',
-  //       jQuery: 'jquery',
-  //       'windows.jQuery': 'jquery'
-  //     })
-  //   ]
-  // },
+  transpileDependencies:["webpack-dev-serve/client","vuex-along"],
   chainWebpack: config => {
-    config.entry('polyfill').add('@babel/polyfill')
+    config.entry('main').add('babel-polyfill')
   } ,
   configureWebpack: {
     // "plugins": ["@babel/plugin-syntax-dynamic-import"],
@@ -62,7 +46,6 @@ module.exports = {
   css: {
     loaderOptions: {
       sass: {
-        // data: `@import "@/assets/css/global.scss";`
         prependData: `@import "~@/assets/scss/index.scss";`
       }
     }
