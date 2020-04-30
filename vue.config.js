@@ -28,7 +28,7 @@ module.exports = {
       }
     }
   },
-  transpileDependencies:["webpack-dev-serve/client","vuex-along"],
+  // transpileDependencies:["webpack-dev-serve/client","vuex-along"],
   chainWebpack: config => {
     config.entry('main').add('babel-polyfill')
   } ,

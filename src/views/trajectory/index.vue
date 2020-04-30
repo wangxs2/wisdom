@@ -9,10 +9,24 @@
           </el-select>
           <!-- <el-button  slot="append" icon="el-icon-search"></el-button> -->
         </el-autocomplete>
+
+         <el-date-picker
+            v-model="value1"
+            type="datetimerange"
+            style="margin-left:1vw"
+            range-separator="至"
+            format="yyyy-MM-dd HH:mm:ss"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期">
+            <!-- <el-button  slot="append" icon="el-icon-search"></el-button> -->
+        </el-date-picker>
+        <div class="search">
+          <img src="../../assets/image/sear.png" alt="" srcset="">
+        </div>
       </div>
       <div class="right-sea">
         <div @click="mapFullEvent" class="box-qunping">
-          <img src="../../assets/image/fdicon.png" alt="" srcset="">
+          <img src="../../assets/image/fdicon.png" width="22" height="23">
         </div>
       </div>
     </div>
@@ -29,24 +43,26 @@
           <div>运行里程  674km</div>
           <div>平均速度  66km/h</div>
         </div>
+        <div class="point">
+            <div @click="changePoint(index)" :class="valuenum==index?'itampoint active':'itampoint'" v-for="(itam,index) in pointData" :key="index">{{itam}}</div>
+        </div>
         <div class="table-box">
           <div class="table-head">
-            <div class="head-it">序号</div>
-            <div class="head-it">车牌号</div>
-            <div class="head-it">车辆状态</div>
-            <div class="head-it">操作</div>
+            <div class="head-it" style="width:15%">序号</div>
+            <div class="head-it" style="width:45%">定位时间</div>
+            <div class="head-it" style="width:25%">速度</div>
+            <div class="head-it" style="width:15%">操作</div>
           </div>
           <div class="table-body">
             <el-scrollbar style="height:100%">
               <ul
                 class="list">
                 <li v-for="i in count" :key="i" class="list-item">
-                  <div class="body-it">{{i}}</div>
-                  <div class="body-it">赣JS5129</div>
-                  <div class="body-it"><span :class="i==1?'body-it0':i==2?'body-it1':'body-it2'">{{i==1?'行驶':i==2?'静止':'离线'}}</span></div>
-                  <div class="body-it">
-                    <img src="../../assets/image/bf.png">
-                    <img style="margin-left:14px" src="../../assets/image/dw.png">
+                  <div class="body-it" style="width:15%">{{i}}</div>
+                  <div class="body-it" style="width:45%">2020-02-11 09:26:26</div>
+                  <div class="body-it" style="width:25%">20km/h</div>
+                  <div class="body-it" style="width:15%">
+                    <img src="../../assets/image/dw.png">
                   </div>
                 </li>
               </ul>
@@ -111,16 +127,18 @@ export default {
   data() {
     return {
       count: 40,
+      value1:[new Date(), new Date()],
       restaurants: [],
       timeout:  null,
       loading: false,
       myMap: null,
       ZoomNum: null,
-      valuenum:12,
+      valuenum:0,
       isLeft:true,//是否隐藏左侧的车辆信息
       mapstyle: "normal",
       searchinput:"",
       select:"1",
+      pointData:["异常点","轨迹点"],
       carData:[
         {
           name:"0-25",
@@ -305,7 +323,34 @@ export default {
     //缩小地图级别
     delZoom(params) {
       this.myMap.zoomOut() //缩小一级视图
-    }
+    },
+    changePoint(index){
+        this.valuenum=index
+    },
+    //时间间隔不能大于3天
+    timeUpdatethree(val){
+        let sTime=new Date(val[0]).getTime();
+        let eTime=new Date(val[1]).getTime();
+        let reduceDate=(eTime-sTime)/1000/60/60/24;
+        if(reduceDate>3){
+            return true;
+        }
+    },
+
+    timedataBtn(val) {
+        let timeUpdate=this.timeUpdatethree
+        if(val!=null){
+            if(timeUpdate(val)){
+              this.$message.error('查询天数不能大于3天');
+            }else{
+            //   this.$message.success('查询成功');
+            }
+
+        }
+
+    },
+
+
 
   }
 };
@@ -341,8 +386,20 @@ export default {
     padding: vh(6) vw(20);
     // box-shadow:0px 0px vw(10) 0px rgba(51,51,51,0.3);
     // border-bottom:1px solid #DCDFE6;
+    
     .left-sea{
-      box-shadow:0px 0px vw(6) 0px rgba(51,51,51,0.3);
+      position: relative;
+     .search{
+        position: absolute;
+        top: 0;
+        right: -28px;
+        width:50px;
+        height:39px;
+        background:rgba(230,241,252,1);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+     }
     }
     .right-sea{
       display: flex;
@@ -477,7 +534,7 @@ export default {
         box-sizing:border-box;
         padding:vh(6) 0;
         .head-it{
-          flex:1;
+        //   flex:1;
         }
       }
       .table-body{
@@ -499,41 +556,14 @@ export default {
         cursor: pointer;
         padding:vh(6) 0;
         .body-it{
-          flex:1;
+        //   flex:1;
           .iconfont{
             cursor: pointer;
             font-size:vw(20);
             color:#999999;
           }
         }
-        .body-it0{
-          color:#ffffff;
-          font-size: vw(12);
-          display: inline-block;
-          background:#307CFC;
-          border-radius:4px;
-          box-sizing:border-box;
-          padding:vh(3) vw(6);
-        }
-        .body-it1{
-          color:#ffffff;
-          font-size: vw(12);
-          display: inline-block;
-          background:#FF9900;
-          border-radius:4px;
-          box-sizing:border-box;
-          padding:vh(3) vw(6);
-        }
-        .body-it2{
-          color:#ffffff;
-          font-size: vw(12);
-          display: inline-block;
-          background:#909399;
-          border-radius:4px;
-          box-sizing:border-box;
-          padding:vh(3) vw(6);
-          
-        }
+        
       }
       .list-item:hover{
         background: rgba(188,216,252,0.6);
@@ -541,12 +571,30 @@ export default {
     }
     .cltit{
       width:100%;
-      height:vh(60);
+      height:vh(120);
       display:flex;
-     flex-direction: column;
+      flex-direction: column;
+      div{
+        text-align:left;
+        margin-bottom:vh(6);
+      }
       box-sizing: border-box;
-      padding: vw(12);
+      padding: vw(18) vw(12);
       font-size: vw(16);
+    }
+    .point{
+        width:100%;
+        height:vh(50);
+        display:flex;
+        .itampoint{
+            flex:1;
+            line-height:vh(50);
+            cursor: pointer;
+        }
+        .active{
+            background:rgba(188,216,252,1);
+            color:#307CFC;
+        }
     }
   }
   

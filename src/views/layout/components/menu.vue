@@ -1,17 +1,20 @@
 <template>
   <div class="treeleft">
     <el-menu
-      default-active="2"
+      :default-active="$route.path"
+      ref="navbar"
+      router
       :collapse-transition="false"
       class="el-menu-vertical-demo"
       @open="handleOpen"
       @close="handleClose"
+      @select="selectMenu"
       :collapse="menuFlag"
       active-text-color="#ffffff"
       background-color="#222530"
       text-color="#fff"
     >
-      <el-submenu index="1">
+      <!-- <el-submenu index="1">
         <template slot="title">
           <i class="el-icon-locations"></i>
           <span>GPS监控</span>
@@ -28,7 +31,48 @@
         </template>
         <el-menu-item index="2-1">地址管理</el-menu-item>
         <el-menu-item index="2-2">围栏记录</el-menu-item>
+      </el-submenu> -->
+
+
+      <el-submenu v-for="(item,n) in menuData" :key="item.id" v-if="item.children && item.children.length" :index="String(n)">
+        <!-- 创建父级菜单 -->
+        <template slot="title">
+          <i style="color:#fff;"
+            class="iconfont"
+            :class="item.props"></i>
+          <span slot="title"
+                class="menuIcon">{{ item.name }}</span>
+        </template>
+        <!-- 创建子菜单 -->
+        <template v-for="(subItem,i) in item.children">
+
+          <nav-item :key="n+'-'+i"
+                    :item="subItem"
+                    :index="n+'-'+i"
+                    v-if="subItem.children && subItem.children.length">
+          </nav-item>
+
+          <el-menu-item :key="n+'-'+i"
+                        :index="subItem.url"
+                        v-else>
+            <i style="color:#fff;"
+              class="iconfont"
+              :class="subItem.props"></i>
+            <span slot="title"
+                  class="menuIcon">{{ subItem.name }}</span>
+          </el-menu-item>
+
+        </template>
       </el-submenu>
+
+      <el-menu-item v-else
+                    :index="item.url">
+        <i style="color:#fff;"
+          class="iconfont"
+          :class="item.props"></i>
+        <span slot="title"
+              class="menuIcon">{{ item.name }}</span>
+      </el-menu-item>
     </el-menu>
   </div>
 </template>
@@ -41,7 +85,36 @@ export default {
   data() {
     return {
       isCollapse: false,
-      menuData: []
+      menuData: [
+        {
+          name:"GPS监控",
+          props:'el-icon-locations',
+          children:[
+            {
+              name:"实时监控",
+              url:"/realTimeMonitoring"
+            },
+            {
+              name:"轨迹查询",
+              url:"/trajectory"
+            }
+          ]
+        },
+        {
+          name:"围栏管理",
+          props:'el-icon-map-location1',
+          children:[
+            {
+              name:"地址管理",
+              url:"/error"
+            },
+            {
+              name:"围栏记录",
+              url:"/error"
+            }
+          ]
+        },
+      ]
     };
   },
   computed: {
@@ -54,12 +127,24 @@ export default {
     handleClose(key, keyPath) {
       console.log(key, keyPath);
     },
-    gorouter(){
-      this.$router.push("/realTimeMonitoring")
-    },
-    gorouter1(){
-      this.$router.push("/trajectory")
-    },
+    
+    selectMenu (index, indexPath) {
+      // 手风琴效果
+      // 获取当前打开的所有菜单
+      let openMenu = this.$refs.navbar.openedMenus.concat([]);
+      // 获取点击菜单的父级index，如果当前点击的是根节点，则直接关闭所有打开菜单
+      let nowMenuPath =
+        indexPath.length > 1 ? indexPath[indexPath.length - 2] : "";
+      if (nowMenuPath) {
+        // 获取父级index在数组中索引，关闭其后所有的菜单
+        let menuIndex = openMenu.indexOf(nowMenuPath);
+        openMenu = openMenu.slice(menuIndex + 1);
+      }
+      openMenu = openMenu.reverse();
+      openMenu.forEach(ele => {
+        this.$refs.navbar.closeMenu(ele);
+      });
+    }
   }
 };
 </script>

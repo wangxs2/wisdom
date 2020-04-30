@@ -4,6 +4,7 @@ import router from './router'
 import store from './stores'
 import ElementUI from 'element-ui'
 import NProgress from 'nprogress' // 进度条
+// import "babel-polyfill"
 import 'animate.css/animate.css' // 动画
 import 'element-ui/lib/theme-chalk/index.css'
 Vue.config.productionTip = false

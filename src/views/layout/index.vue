@@ -29,11 +29,20 @@
     </div>
     <div class="bottomContent">
       <div class="topUser">
-        <div class="leftBtn" @click="isShow">
-          <el-tooltip effect="dark" content="折叠菜单" placement="bottom">
-            <img v-if="!menuFlag" src="../../assets/image/zd.png" width="23" height="20">
-            <img v-if="menuFlag" src="../../assets/image/zk.png" width="23" height="20">
-          </el-tooltip>
+        <div class="left-rout">
+          <div class="leftBtn" @click="isShow">
+            <el-tooltip effect="dark" content="折叠菜单" placement="bottom">
+              <img v-if="!menuFlag" src="../../assets/image/zd.png" width="23" height="20">
+              <img v-if="menuFlag" src="../../assets/image/zk.png" width="23" height="20">
+            </el-tooltip>
+          </div>
+          <div class="route-tit">
+            <el-breadcrumb separator="/">
+              <template v-for="(item,index) in getRouterName">
+                <el-breadcrumb-item :key="index">{{ item.name }}</el-breadcrumb-item>
+              </template>
+            </el-breadcrumb>
+          </div>
         </div>
         <div class="right-user">
           <div class="img-my"></div>
@@ -170,6 +179,11 @@ export default {
       padding: 0 vw(20);
       position: relative;
       z-index: 100;
+      .left-rout{
+        display: flex;
+        justify-content: flex-start;
+        align-items: center;
+      }
       .right-user{
         display: flex;
         justify-content: flex-start;

@@ -4,6 +4,7 @@ import layout from '../views/layout/index.vue'
 import realTimeMonitoring from '../views/realTimeMonitoring/index.vue'//车辆信息
 import login from '../views/login/index.vue'
 import trajectory from '../views/trajectory/index.vue'//轨迹查询
+import error from '../views/error/index.vue'//轨迹查询
 Vue.use(VueRouter)
 
   const routes = [
@@ -21,6 +22,11 @@ Vue.use(VueRouter)
         path: '/trajectory',
         name: '轨迹查询',
         component: trajectory
+      },
+      {
+        path: '/error',
+        name: '开发中',
+        component: error
       },
       
     ]
