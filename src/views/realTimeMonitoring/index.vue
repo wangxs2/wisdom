@@ -162,6 +162,7 @@ export default {
     return {
       count: 40,
       totalTime: 60, //倒计时
+      activeLab:null,//选中车辆
       restaurants: [],
       timeout:  null,
       loading: false,
@@ -173,6 +174,8 @@ export default {
       isLeft:true,//是否隐藏左侧的车辆信息
       mapstyle: "normal",
       searchinput:"",
+      cityPoint:[],//省的聚合
+      cityMarker:[],//车辆和组织
       select:"1",
       carData:[
         {
@@ -211,8 +214,59 @@ export default {
         },
         {
           name:"离线(126)",
+          num:107
+        },
+         {
+          name:"未入网(126)",
           num:106
         },
+      ],
+      allData:[
+        {
+          lng:114.527637,
+          lat:38.099299,
+          num:9,
+          name:'河北',
+        },
+        {
+          lng:116.367366,
+          lat:39.964568,
+          num:19,
+          name:'北京',
+        },
+        {
+          lng:113.681361,
+          lat:34.830886,
+          num:119,
+          name:'河南',
+        },
+        {
+          lng:121.487899486,
+          lat:31.24916171,
+          num:1119,
+          name:'上海',
+        },
+
+      ],
+      statusData:[
+         {
+          lng:114.292029,
+          lat:30.57571,
+          status:1,
+          name:'行驶',
+        },
+        {
+          lng:115.852242,
+          lat:28.803303,
+          status:2,
+          name:'静止',
+        },
+        {
+          lng:119.274139,
+          lat:26.145259,
+          status:3,
+          name:'离线',
+        }
       ],
       titindex:0,
       // mapstyle:"dark",
@@ -248,6 +302,7 @@ export default {
   created() {
     // this.getLine()
     this.countDown()
+    
   },
   methods: {
     //倒计时
@@ -270,6 +325,8 @@ export default {
       this.myMap.setMapStyleV2({     
         styleId: '877fcc51379e35af5063374cd7687818'
       });
+      this.makeBigcel()
+      this.statuMark()
     },
     //地图的缩放时间
     getZmap() {
@@ -278,8 +335,12 @@ export default {
         console.log(this.ZoomNum)
         if(this.ZoomNum>8){
           this.isCar=true
+          this.clearBig()
+          this.statuMark()
         }else{
           this.isCar=false
+          this.makeBigcel()
+          this.clearMark()
         }
         // 14 是1公里
         // 13 是2公里
@@ -324,60 +385,6 @@ export default {
     handleSelect(item) {
       console.log(item);
     },
-    //路书
-    getLine(){
-      var lushu;
-        // 实例化一个驾车导航用来生成路线
-          var drv = new BMap.DrivingRoute('全国', {
-              onSearchComplete: function(res) {
-                  if (drv.getStatus() == BMAP_STATUS_SUCCESS) {
-                      var plan = res.getPlan(0);
-                      var arrPois =[];
-                      for(var j=0;j<plan.getNumRoutes();j++){
-                          var route = plan.getRoute(j);
-                          arrPois= arrPois.concat(route.getPath());
-                      }
-                      console.log(arrPois)
-                      map.addOverlay(new BMap.Polyline(arrPois, {strokeColor: '#111'}));
-                      map.setViewport(arrPois);
-
-                      lushu = new BMapLib.LuShu(map,arrPois,{
-                      defaultContent:"",//"从天安门到百度大厦"
-                      autoView:true,//是否开启自动视野调整，如果开启那么路书在运动过程中会根据视野自动调整
-                      icon  : new BMap.Icon('/jsdemo/img/car.png', new BMap.Size(52,26),{anchor : new BMap.Size(27, 13)}),
-                      speed: 4500,
-                      enableRotation:true,//是否设置marker随着道路的走向进行旋转
-                      landmarkPois: [
-                        {lng:116.314782,lat:39.913508,html:'加油站',pauseTime:20},
-                        {lng:116.315391,lat:39.964429,html:'高速公路收费<div><img src="//map.baidu.com/img/logo-map.gif"/></div>',pauseTime:3},
-                        {lng:116.381476,lat:39.974073,html:'肯德基早餐',pauseTime:2}
-                      ]});
-                  }
-              }
-          });
-          var start=new BMap.Point(116.404844,39.911836);
-          var end=new BMap.Point(116.308102,40.056057);
-        drv.search(start, end);
-        //绑定事件
-        $("run").onclick = function(){
-          lushu.start();
-        }
-        $("stop").onclick = function(){
-          lushu.stop();
-        }
-        $("pause").onclick = function(){
-          lushu.pause();
-        }
-        $("hide").onclick = function(){
-          lushu.hideInfoWindow();
-        }
-        $("show").onclick = function(){
-          lushu.showInfoWindow();
-        }
-        function $(element){
-          return document.getElementById(element);
-        }
-    },
      //加大地图级别
     addZoom(params) {
       this.myMap.zoomIn() //放大一级视图
@@ -385,12 +392,148 @@ export default {
     //缩小地图级别
     delZoom(params) {
       this.myMap.zoomOut() //缩小一级视图
-    }
+    },
+    //大圆圈的点
+    makeBigcel(){
+      this.allData.forEach(iteam=>{
+        var point = new BMap.Point(iteam.lng,iteam.lat);
+        let opts = {
+            position : point,    // 指定文本标注所在的地理位置
+            offset   : new BMap.Size(-20, -30)    //设置文本偏移量
+          }
+        let img,width,height;
+        if(iteam.num<10){
+          img=require('../../assets/image/1w.png')
+          width="27px"
+          height=29
+        }else if(iteam.num>9&&iteam.num<100){
+          img=require('../../assets/image/2w.png')
+          width="33px"
+          height=37
+        }else if(iteam.num>99&&iteam.num<1000){
+          img=require('../../assets/image/3w.png')
+          width="41px"
+          height=45
+        }else if(iteam.num>999&&iteam.num<10000){
+          img=require('../../assets/image/4w.png')
+          width="47px"
+          height=52
+        }
+        let conten=`<div style="width:${width};height:${height}px;cursor: pointer;color:#ffffff;font-size:16px;text-align:center;line-height:${height-4}px;background:url(${img});background-size:100% 100%">${iteam.num}</div>`
+        let label = new BMap.Label(conten, opts);  // 创建文本标注对象
+        label.addEventListener("click",()=>{
+          let obj=label.getPosition()
+          this.myMap.setZoom(9)
+          this.myMap.centerAndZoom(new BMap.Point(obj.lng,obj.lat), 9);
+        });
+        this.cityPoint.push(label);
+        this.myMap.addOverlay(label);   
+      })
+      
+    },
+    //清除大圆圈
+    clearBig(){
+      this.cityPoint.forEach(iteam=>{
+        this.myMap.removeOverlay(iteam);  
+      })
+    },
+    //各个状态的点
+    statuMark(){
+      this.statusData.forEach(iteam=>{
+        let point = new BMap.Point(iteam.lng,iteam.lat);
+        let icon;
+        if(iteam.status==1){
+          icon=require('../../assets/image/xs.png')
+        }else if(iteam.status==2){
+          icon=require('../../assets/image/jz.png')
+        }else{
+          icon=require('../../assets/image/lx.png')
+        }
+        let opts = {
+            icon : new BMap.Icon(icon, new BMap.Size(30,30)),    // 指定文本标注所在的地理位置
+            offset : new BMap.Size(-15, -15)    //设置文本偏移量
+        }
+        let marker = new BMap.Marker(point, opts);  // 创建文本标注对象
+        marker.addEventListener("click",()=>{
+          if(this.activeLab){
+            this.myMap.removeOverlay(this.activeLab); 
+          }
+          let obj=marker.getPosition()
+          let activep = {
+            position : new BMap.Point(obj.lng,obj.lat),    // 指定文本标注所在的地理位置
+            offset   : new BMap.Size(-48, -48)    //设置文本偏移量
+          }
+          let conten1=`<div style="width:60px;
+                                  height:60px;
+                                  background:rgba(188,216,252,0.2);
+                                  box-shadow:0px 2px 2px 0px rgba(0,0,0,0.5);
+                                  border:2px solid rgba(48,124,252,1);
+                                  border-radius:50%;"></div>`
+          let label1 = new BMap.Label(conten1, activep);  // 创建文本标注对象
+          console.log(conten1, activep)
+          this.activeLab=label1
+          this.myMap.addOverlay(label1); 
+          this.showInform(new BMap.Point(obj.lng,obj.lat))
+        
+        });
+        this.cityMarker.push(marker);
+        this.myMap.addOverlay(marker);   
+      })
+    },
+    //清除车辆和组织
+    clearMark(){
+      this.cityMarker.forEach(iteam=>{
+        this.myMap.removeOverlay(iteam);  
+      })
+      if(this.activeLab){
+        this.myMap.removeOverlay(this.activeLab); 
+      }
+    },
+    //显示车辆的信息
+    showInform(point){
+      let activep1 = {
+            position: point,    // 指定文本标注所在的地理位置
+            offset: new BMap.Size(-180, -250)    //设置文本偏移量
+      }
+      var sContent=`<div style="width:360px;height:200px;background:#ffffff;position:relative;box-shadow:0px 0px 12px 0px rgba(51,51,51,0.3);border-radius:4px;z-index:800">
+                        <div style="display:flex;width:100%;height:50px;background:rgba(188,216,252,1); justify-content: space-between;align-items: center;box-sizing: border-box;
+                        padding:10px 20px;">
+                          <img src="${require('../../assets/image/qc.png')}" width="30" height="22">
+                          <span style="font-size:22px;color:#307CFC">京A123666</span>
+                          <img src="${require('../../assets/image/close.png')}" width="16" height="16">
+                        </div>
+                        <div style="width:100%;height:150px;overflow:hidden;box-sizing:border-box;padding:10px">
+                          <div style="display:flex;justify-content:flex-start;font-size:16px;color:#7B7D7F;margin-bottom:6px;">
+                            <div style="width:66px">时速</div>
+                            <div style="margin-left:16px;flex:1">68 km/h</div>
+                          </div>
+                          
+                          <div style="display:flex;justify-content:flex-start;font-size:16px;color:#7B7D7F;margin-bottom:6px;">
+                            <div style="width:66px">定位时间</div>
+                            <div style="margin-left:16px">68 km/h</div>
+                          </div>
+                          <div style="display:flex;justify-content:flex-start;font-size:16px;color:#7B7D7F;">
+                            <div style="width:66px">最后定位</div>
+                            <div style="margin-left:16px;word-break:break-all;flex:1"">浙江省 嘉善县 惠民镇G15浙江省 嘉善县 惠民镇G15（嘉敏高速）</div>
+                          </div>
+                        </div>
+                        <div style="position: absolute;bottom:-12px;left:165px;border-left: 8px solid transparent;border-right: 8px solid transparent;border-top: 12px solid #ffffff;"></div>
+                    </div>`
+      var infoWindow = new BMap.Label(sContent, activep1);  // 创建信息窗口对象
+      infoWindow.setZIndex(900)
+      this.myMap.addOverlay(infoWindow); 
+    },
+
+
 
   }
 };
 </script>
 <style lang="scss">
+.BMapLabel{
+  border:none !important;
+  background-color:transparent !important;
+}
 .top-search .el-select .el-input {
     width: vw(100);
 }

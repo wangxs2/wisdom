@@ -97,7 +97,6 @@ export default {
     isShow() {
       //侧边栏显示隐藏
       this.$store.commit("SET_FLAG");
-      console.log(this.menuFlag)
       if (this.menuFlag) {
         $(".toptMenu").width("64px");
       } else {
