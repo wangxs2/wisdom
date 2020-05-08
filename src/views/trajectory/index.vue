@@ -21,7 +21,7 @@
             <!-- <el-button  slot="append" icon="el-icon-search"></el-button> -->
         </el-date-picker>
         <div class="search">
-          <img src="../../assets/image/sear.png" alt="" srcset="">
+          <img @click="timedataBtn" src="../../assets/image/sear.png" alt="" srcset="">
         </div>
       </div>
       <div class="right-sea">
@@ -117,6 +117,44 @@
       </div>
     </div>
     <!-- 右下角的车辆状态 -->
+    <!-- 轨迹播放 -->
+    <div class="trajectoryBox">
+      <div style="color:#307CFC">2020-02-11 12:30:24</div>
+      <div style="color:#307CFC;margin-left:20px">28km</div>
+      <div style="margin-left:20px" @click="isbf=!isbf" class="bfbtn">
+        <i v-if="isbf" class="iconfont iconbofang"></i>
+        <i v-if="!isbf" class="iconfont iconzantingtingzhi"></i>
+      </div>
+      <img style="margin-left:30px;cursor: pointer;" src="../../assets/image/sx.png" width="30" height="30">
+      <div style="color:#303133;margin-left:20px">2020-02-11 12:30:24</div>
+      <div style="color:#303133;margin-left:20px">28km</div>
+      <div style="margin-left:40px">
+        <el-dropdown @command="handleCommand">
+          <span class="el-dropdown-link">
+            {{sdName}}<i class="el-icon-arrow-down el-icon--right"></i>
+          </span>
+          <el-dropdown-menu slot="dropdown">
+            <el-dropdown-item command="慢速">慢速</el-dropdown-item>
+            <el-dropdown-item command="快速">快速</el-dropdown-item>
+            <el-dropdown-item command="正常速">正常速</el-dropdown-item>
+          </el-dropdown-menu>
+        </el-dropdown>
+      </div>
+      <div style="margin-left:30px;cursor: pointer;">
+          <el-popover
+            placement="bottom"
+            title="轨迹点显示设置"
+            width="200"
+            trigger="click"
+            >
+            <div><el-checkbox v-model="checked">显示异常点</el-checkbox></div>
+            <i slot="reference" style="color:#307CFC;font-size:22px" class="iconfont iconshezhi2"></i>
+          </el-popover>
+        
+      </div>
+      
+    </div>
+    <!-- 轨迹播放 -->
   </div>
 </template>
 
@@ -127,6 +165,9 @@ export default {
   data() {
     return {
       count: 40,
+      sdName:"正常速",
+      checked:true,
+      isbf:true,
       value1:[new Date(), new Date()],
       restaurants: [],
       timeout:  null,
@@ -197,7 +238,10 @@ export default {
     // this.getLine()
   },
   methods: {
-    
+    handleCommand(val){
+      console.log(val)
+      this.sdName=val
+    },
     initMap() {
       this.myMap = new BMap.Map("mymap2");
       this.myMap.centerAndZoom(new BMap.Point(108.933051,34.546597), 5);
@@ -668,6 +712,34 @@ export default {
     .itamStatus1:nth-child(6){
       .leimg{
           background:#bd0301;
+      }
+    }
+  }
+  .trajectoryBox{
+    position: absolute;
+    bottom:vh(20);
+    left:vw(453);
+    z-index:10;
+    font-size:16px;
+    background:rgba(255,255,255,1);
+    box-shadow:1px 1px 4px 0px rgba(213,213,213,1);
+    border-radius:4px;
+    box-sizing:border-box;
+    padding:16px 24px;
+    display:flex;
+    align-items: center;
+    .bfbtn{
+      width:24px;
+      height:30px;
+      display:flex;
+    align-items: center;
+     justify-content: center;
+      background:#307CFC;
+      border-radius:2px;
+      cursor: pointer;
+      i{
+        color:#ffffff;
+        font-size:9px;
       }
     }
   }

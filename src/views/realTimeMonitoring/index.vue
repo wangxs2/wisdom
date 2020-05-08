@@ -163,6 +163,8 @@ export default {
       count: 40,
       totalTime: 60, //倒计时
       activeLab:null,//选中车辆
+      activeInfow:null,//选中车辆详细信息
+      activemillInfow:null,//选中油厂详细信息
       restaurants: [],
       timeout:  null,
       loading: false,
@@ -298,6 +300,10 @@ export default {
     this.restaurants = this.loadAll();
     this.initMap();
     this.getZmap();
+    $('.map-content').on("click", "#close1",  ()=> {
+      this.myMap.removeOverlay(this.activeInfow); 
+      this.myMap.removeOverlay(this.activeLab); 
+    })
   },
   created() {
     // this.getLine()
@@ -326,7 +332,7 @@ export default {
         styleId: '877fcc51379e35af5063374cd7687818'
       });
       this.makeBigcel()
-      this.statuMark()
+      // this.statuMark()
     },
     //地图的缩放时间
     getZmap() {
@@ -458,6 +464,9 @@ export default {
           if(this.activeLab){
             this.myMap.removeOverlay(this.activeLab); 
           }
+          if(this.activeInfow){
+            this.myMap.removeOverlay(this.activeInfow); 
+          }
           let obj=marker.getPosition()
           let activep = {
             position : new BMap.Point(obj.lng,obj.lat),    // 指定文本标注所在的地理位置
@@ -488,6 +497,9 @@ export default {
       if(this.activeLab){
         this.myMap.removeOverlay(this.activeLab); 
       }
+      if(this.activeInfow){
+        this.myMap.removeOverlay(this.activeInfow); 
+      }
     },
     //显示车辆的信息
     showInform(point){
@@ -500,7 +512,7 @@ export default {
                         padding:10px 20px;">
                           <img src="${require('../../assets/image/qc.png')}" width="30" height="22">
                           <span style="font-size:22px;color:#307CFC">京A123666</span>
-                          <img src="${require('../../assets/image/close.png')}" width="16" height="16">
+                          <img id="close1" style="cursor: pointer;" src="${require('../../assets/image/close.png')}" width="16" height="16">
                         </div>
                         <div style="width:100%;height:150px;overflow:hidden;box-sizing:border-box;padding:10px">
                           <div style="display:flex;justify-content:flex-start;font-size:16px;color:#7B7D7F;margin-bottom:6px;">
@@ -514,14 +526,41 @@ export default {
                           </div>
                           <div style="display:flex;justify-content:flex-start;font-size:16px;color:#7B7D7F;">
                             <div style="width:66px">最后定位</div>
-                            <div style="margin-left:16px;word-break:break-all;flex:1"">浙江省 嘉善县 惠民镇G15浙江省 嘉善县 惠民镇G15（嘉敏高速）</div>
+                            <div style="margin-left:16px;word-break:break-all;flex:1"">浙江省 嘉善县 惠民镇G15浙江省 嘉善县 惠民镇G15（嘉敏高速）嘉善县 惠民镇G15（嘉敏高速）</div>
                           </div>
                         </div>
                         <div style="position: absolute;bottom:-12px;left:165px;border-left: 8px solid transparent;border-right: 8px solid transparent;border-top: 12px solid #ffffff;"></div>
                     </div>`
       var infoWindow = new BMap.Label(sContent, activep1);  // 创建信息窗口对象
       infoWindow.setZIndex(900)
-      this.myMap.addOverlay(infoWindow); 
+      this.activeInfow=infoWindow
+      this.myMap.addOverlay(this.activeInfow); 
+    },
+    //显示油厂的的信息
+    showmillInform(point){
+      let activep1 = {
+            position: point,    // 指定文本标注所在的地理位置
+            offset: new BMap.Size(-180, -210)    //设置文本偏移量
+      }
+      var sContent=`<div style="width:360px;height:160px;background:#ffffff;position:relative;box-shadow:0px 0px 12px 0px rgba(51,51,51,0.3);border-radius:4px;z-index:800">
+                        <div style="display:flex;width:100%;height:50px;background:rgba(208,250,228,1); justify-content: space-between;align-items: center;box-sizing: border-box;
+                        padding:10px 20px;">
+                          <img src="${require('../../assets/image/yt1.png')}" width="28" height="16">
+                          <span style="font-size:22px;color:#25CD77">华东油厂</span>
+                          <img id="close1" style="cursor: pointer;" src="${require('../../assets/image/close1.png')}" width="16" height="16">
+                        </div>
+                        <div style="width:100%;height:150px;overflow:hidden;box-sizing:border-box;padding:10px">
+                          <div style="display:flex;justify-content:flex-start;font-size:16px;color:#7B7D7F;">
+                            <div style="width:36px">地址</div>
+                            <div style="margin-left:16px;word-break:break-all;flex:1"">浙江省 嘉善县 惠民镇G15浙江省 嘉善县 惠民镇G15（嘉敏高速）嘉善县 惠民镇G15（嘉敏高速）</div>
+                          </div>
+                        </div>
+                        <div style="position: absolute;bottom:-12px;left:165px;border-left: 8px solid transparent;border-right: 8px solid transparent;border-top: 12px solid #ffffff;"></div>
+                    </div>`
+      var infoWindow = new BMap.Label(sContent, activep1);  // 创建信息窗口对象
+      infoWindow.setZIndex(900)
+      this.activemillInfow=infoWindow
+      this.myMap.addOverlay(this.activemillInfow); 
     },
 
 

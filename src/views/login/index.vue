@@ -131,14 +131,6 @@ export default {
 </style>
 <style lang="scss" scoped>
 $colorSa: #2ba3ff;
-.bigquan{
-  width:60px;
-  height:60px;
-  background:rgba(188,216,252,0.6);
-  box-shadow:0px 2px 2px 0px rgba(0,0,0,0.5);
-  border:2px solid rgba(48,124,252,1);
-  border-radius:50%;
-}
 .login {
   width: 100%;
   height: 100%;
