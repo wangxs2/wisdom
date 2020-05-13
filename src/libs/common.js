@@ -2,7 +2,7 @@ import {
   Loading,
   Message
 } from 'element-ui';
-import dialogs from '@/components/dialogs'
+// import dialogs from '@/components/dialogs'
 
 import echarts from 'echarts' //引入echarts
 
@@ -11,8 +11,8 @@ import * as http from './http'
 export default {
   install(Vue, options) {
     // 组件传值
-    Vue.use(dialogs)
-    Vue.component('dialogs', dialogs)
+    // Vue.use(dialogs)
+    // Vue.component('dialogs', dialogs)
     /* *
      *成功提示
      */

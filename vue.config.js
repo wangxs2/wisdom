@@ -17,13 +17,13 @@ module.exports = {
     // host: '10.1.',
     open: false, // 配置自动启动浏览器
     proxy: {
-      '/vehiclerepair': {
+      '/': {
         // target: 'http://10.1.4.68:8080/vehiclerepair',
         // target: 'http://10.1.4.64:8080/vehiclerepair',
-        target: 'http://10.1.30.210:50081/vehiclerepair',
+        target: 'http://10.1.4.76:1111/lhana',
         changeOrigin: true,
         pathRewrite: {
-          '^/vehiclerepair': '/'
+          '^/lhana': '/'
         }
       }
     }

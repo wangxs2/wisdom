@@ -9,7 +9,7 @@ import {
 
 // 创建axios实例
 export const Axios = axios.create({
-  baseURL: "/vehiclerepair/",
+  baseURL: "/lhana/",
   timeout: 10000,
   withCredentials: true // 是否允许带cookie这些
 });

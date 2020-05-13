@@ -1,28 +1,30 @@
 <template>
-  <div class="map-content" ref="compreMap">
+  <div class="map-content" ref="compreMap"  v-loading="loading">
     <div class="top-search">
       <div class="left-sea">
-        <el-autocomplete  v-model="searchinput"  :fetch-suggestions="querySearchAsync" placeholder="请输入车牌号" @select="handleSelect" class="input-with-select">
+        <el-input style="width:20vw" placeholder="请输入车牌号" v-model="input3" class="input-with-select">
           <el-select v-model="select" slot="prepend" placeholder="请选择">
             <el-option label="车牌号" value="1"></el-option>
             <!-- <el-option label="组织" value="2"></el-option> -->
           </el-select>
-          <!-- <el-button  slot="append" icon="el-icon-search"></el-button> -->
-        </el-autocomplete>
-
+          <el-button @click="getData()"  slot="append" icon="el-icon-search"></el-button>
+        </el-input>
          <el-date-picker
             v-model="value1"
+            @change="timedataBtn(value1)"
             type="datetimerange"
+            :clearable='false'
             style="margin-left:1vw"
             range-separator="至"
+            value-format="yyyy-MM-dd HH:mm:ss"
             format="yyyy-MM-dd HH:mm:ss"
             start-placeholder="开始日期"
             end-placeholder="结束日期">
             <!-- <el-button  slot="append" icon="el-icon-search"></el-button> -->
         </el-date-picker>
-        <div class="search">
-          <img @click="timedataBtn" src="../../assets/image/sear.png" alt="" srcset="">
-        </div>
+        <!-- <div class="search">
+          <img @click="timedataBtn(value1)" src="../../assets/image/sear.png" alt="" srcset="">
+        </div> -->
       </div>
       <div class="right-sea">
         <div @click="mapFullEvent" class="box-qunping">
@@ -66,10 +68,19 @@
                   </div>
                 </li>
               </ul>
-              <p v-if="loading">加载中...</p>
-              <p v-if="noMore">没有更多了</p>
+              <!-- <p v-if="loading">加载中...</p>
+              <p v-if="noMore">没有更多了</p> -->
             </el-scrollbar>
           </div>
+        </div>
+        <div class="pagingClass">
+          <el-pagination
+            background
+            @size-change="sizeChange"
+            @current-change="currentChange"
+            layout="pager"
+            :total="1000">
+          </el-pagination>
         </div>
       </div>
     </transition>
@@ -160,6 +171,7 @@
 
 <script>
 import screenfull from 'screenfull';
+import "../../libs/util.js"
 export default {
   name: "appMain",
   data() {
@@ -168,7 +180,10 @@ export default {
       sdName:"正常速",
       checked:true,
       isbf:true,
-      value1:[new Date(), new Date()],
+      value1:[new Date(new Date()-24*60*60*1000), new Date()],//开始时间 结束时间
+      beginTime:'',//开始时间
+      endTime:'',//结束时间
+      input3:'',//车牌号
       restaurants: [],
       timeout:  null,
       loading: false,
@@ -222,25 +237,48 @@ export default {
     },
   },
   computed: {
-      noMore () {
-        return this.count >= 40
-      },
-      disabled () {
-        return this.loading || this.noMore
-      }
     },
   mounted() {
     this.restaurants = this.loadAll();
     this.initMap();
+    // this.getLine()
     this.getZmap();
   },
   created() {
-    // this.getLine()
+    let str=this.value1[0].Format('yyyy-MM-dd hh:mm:ss')
+    this.beginTime=this.value1[0].Format('yyyy-MM-dd hh:mm:ss')
+    this.endTime=this.value1[1].Format('yyyy-MM-dd hh:mm:ss')
   },
   methods: {
     handleCommand(val){
       console.log(val)
       this.sdName=val
+    },
+    //分页
+    sizeChange(val){
+      console.log(val)
+    },
+    currentChange(val){
+      console.log(val)
+      this.page=val
+    },
+    //获取数据
+    getData(){
+      this.loading=true
+      this.$fetchGet("getTraceCar/byPeriod",{
+        cNo:this.input3,
+        beginTime:this.beginTime,
+        endTime:this.endTime,
+        // page:this.page,
+        // pageSize:this.pageSize
+      }).then(res=>{
+        
+        if(res.content.length>0){
+          this.loading=false
+          this.getLine(res.content)
+        }
+        
+      })
     },
     initMap() {
       this.myMap = new BMap.Map("mymap2");
@@ -307,58 +345,94 @@ export default {
       console.log(item);
     },
     //路书
-    getLine(){
+    getLine(data){
       var lushu;
-        // 实例化一个驾车导航用来生成路线
-          var drv = new BMap.DrivingRoute('全国', {
-              onSearchComplete: function(res) {
-                  if (drv.getStatus() == BMAP_STATUS_SUCCESS) {
-                      var plan = res.getPlan(0);
-                      var arrPois =[];
-                      for(var j=0;j<plan.getNumRoutes();j++){
-                          var route = plan.getRoute(j);
-                          arrPois= arrPois.concat(route.getPath());
-                      }
-                      console.log(arrPois)
-                      map.addOverlay(new BMap.Polyline(arrPois, {strokeColor: '#111'}));
-                      map.setViewport(arrPois);
+        // // 实例化一个驾车导航用来生成路线
+        //   var drv = new BMap.DrivingRoute('全国', {
+        //       onSearchComplete: (res)=> {
+        //           if (drv.getStatus() == BMAP_STATUS_SUCCESS) {
+        //               var plan = res.getPlan(0);
+        //               var arrPois =[];
+        //               for(var j=0;j<plan.getNumRoutes();j++){
+        //                   var route = plan.getRoute(j);
+        //                   arrPois= arrPois.concat(route.getPath());
+        //               }
+        //               console.log(arrPois)
+        //               this.myMap.addOverlay(new BMap.Polyline(arrPois, {strokeColor: '#111'}));
+        //               this.myMap.setViewport(arrPois);
 
-                      lushu = new BMapLib.LuShu(map,arrPois,{
-                      defaultContent:"",//"从天安门到百度大厦"
-                      autoView:true,//是否开启自动视野调整，如果开启那么路书在运动过程中会根据视野自动调整
-                      icon  : new BMap.Icon('/jsdemo/img/car.png', new BMap.Size(52,26),{anchor : new BMap.Size(27, 13)}),
-                      speed: 4500,
-                      enableRotation:true,//是否设置marker随着道路的走向进行旋转
-                      landmarkPois: [
-                        {lng:116.314782,lat:39.913508,html:'加油站',pauseTime:20},
-                        {lng:116.315391,lat:39.964429,html:'高速公路收费<div><img src="//map.baidu.com/img/logo-map.gif"/></div>',pauseTime:3},
-                        {lng:116.381476,lat:39.974073,html:'肯德基早餐',pauseTime:2}
-                      ]});
-                  }
-              }
-          });
-          var start=new BMap.Point(116.404844,39.911836);
-          var end=new BMap.Point(116.308102,40.056057);
-        drv.search(start, end);
+        //               lushu = new BMapLib.LuShu(map,arrPois,{
+        //               defaultContent:"",//"从天安门到百度大厦"
+        //               autoView:true,//是否开启自动视野调整，如果开启那么路书在运动过程中会根据视野自动调整
+        //               icon  : new BMap.Icon('/jsdemo/img/car.png', new BMap.Size(52,26),{anchor : new BMap.Size(27, 13)}),
+        //               speed: 4500,
+        //               enableRotation:true,//是否设置marker随着道路的走向进行旋转
+        //               landmarkPois: [
+        //                 {lng:116.314782,lat:39.913508,html:'加油站',pauseTime:20},
+        //                 {lng:116.315391,lat:39.964429,html:'高速公路收费<div><img src="//map.baidu.com/img/logo-map.gif"/></div>',pauseTime:3},
+        //                 {lng:116.381476,lat:39.974073,html:'肯德基早餐',pauseTime:2}
+        //               ]});
+        //           }
+        //       }
+        //   });
+        let arrPois =[]
+        let lineColor=""
+        data.forEach(iteam=>{
+          arrPois.push(new BMap.Point(iteam.lon,iteam.lat))
+           //区间颜色
+          if(iteam.spd<26){
+              lineColor="#81dafa";
+          }else if(iteam.spd>25&&iteam.spd<50){
+              lineColor="#307cfc";
+          }else if(iteam.spd>50&&iteam.spd<75){
+              lineColor="#21c434";
+          }else if(iteam.spd>75&&iteam.spd<100) {
+              lineColor="#ffd201";
+          }else{
+            lineColor="#bd0301";
+          }
+          //创建线路
+          let polyline = new BMap.Polyline(
+                  arrPois,//所有的GPS坐标点
+                  {
+                    strokeColor : lineColor, //线路颜色
+                    strokeWeight : 4,//线路大小
+                  });
+          //绘制线路
+          console.log(polyline)
+          this.myMap.addOverlay(polyline);
+        })
+        let start=new BMap.Point(data[0].lon,data[0].lat);
+        let end=new BMap.Point(data[data.length-1].lon,data[data.length-1].lat);
+        console.log(start)
+        console.log(end)
+        // var polyline = new BMap.Polyline([
+        //     new BMap.Point(116.399, 39.910),
+        //     new BMap.Point(116.405, 39.920),
+        //     new BMap.Point(116.425, 39.900)
+        // ], {strokeColor:"blue", strokeWeight:2, strokeOpacity:0.5}); 
+        // var start=new BMap.Point(116.404844,39.911836);
+        // var end=new BMap.Point(116.308102,40.056057);
+        // drv.search(start, end);
         //绑定事件
-        $("run").onclick = function(){
-          lushu.start();
-        }
-        $("stop").onclick = function(){
-          lushu.stop();
-        }
-        $("pause").onclick = function(){
-          lushu.pause();
-        }
-        $("hide").onclick = function(){
-          lushu.hideInfoWindow();
-        }
-        $("show").onclick = function(){
-          lushu.showInfoWindow();
-        }
-        function $(element){
-          return document.getElementById(element);
-        }
+        // $("run").onclick = function(){
+        //   lushu.start();
+        // }
+        // $("stop").onclick = function(){
+        //   lushu.stop();
+        // }
+        // $("pause").onclick = function(){
+        //   lushu.pause();
+        // }
+        // $("hide").onclick = function(){
+        //   lushu.hideInfoWindow();
+        // }
+        // $("show").onclick = function(){
+        //   lushu.showInfoWindow();
+        // }
+        // function $(element){
+        //   return document.getElementById(element);
+        // }
     },
      //加大地图级别
     addZoom(params) {
@@ -433,6 +507,8 @@ export default {
     
     .left-sea{
       position: relative;
+      display: flex;
+       justify-content: flex-start;
      .search{
         position: absolute;
         top: 0;
@@ -550,6 +626,11 @@ export default {
     background: rgba(255,255,255,1);
     border-radius:4px 4px 0px 0px;
     z-index: 10;
+    .pagingClass{
+      box-sizing:border-box;
+      padding:vh(6) vw(4);
+      padding-top:vh(12);
+    }
     .tit{
       width:100%;
       height:vh(50);
