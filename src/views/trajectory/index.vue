@@ -1,5 +1,9 @@
 <template>
-  <div class="map-content" ref="compreMap"  v-loading="loading">
+  <div class="map-content" ref="compreMap"
+    v-loading="loading"
+    element-loading-text="拼命加载中"
+    element-loading-background="rgba(255,255,255, 0.6)"
+    >
     <div class="top-search">
       <div class="left-sea">
         <el-input style="width:20vw" placeholder="请输入车牌号" v-model="input3" class="input-with-select">
@@ -52,7 +56,8 @@
           <div class="table-head">
             <div class="head-it" style="width:15%">序号</div>
             <div class="head-it" style="width:45%">定位时间</div>
-            <div class="head-it" style="width:25%">速度</div>
+            <div v-if="valuenum==1" class="head-it" style="width:25%">速度</div>
+            <div v-if="valuenum==0" class="head-it" style="width:25%">异常类型</div>
             <div class="head-it" style="width:15%">操作</div>
           </div>
           <div class="table-body">
@@ -62,7 +67,8 @@
                 <li v-for="i in count" :key="i" class="list-item">
                   <div class="body-it" style="width:15%">{{i}}</div>
                   <div class="body-it" style="width:45%">2020-02-11 09:26:26</div>
-                  <div class="body-it" style="width:25%">20km/h</div>
+                  <div v-if="valuenum==1" class="body-it" style="width:25%">20km/h</div>
+                  <div v-if="valuenum==0" class="body-it" style="width:25%">停车</div>
                   <div class="body-it" style="width:15%">
                     <img src="../../assets/image/dw.png">
                   </div>
@@ -130,15 +136,15 @@
     <!-- 右下角的车辆状态 -->
     <!-- 轨迹播放 -->
     <div class="trajectoryBox">
-      <div style="color:#307CFC">2020-02-11 12:30:24</div>
-      <div style="color:#307CFC;margin-left:20px">28km</div>
+      <div style="color:#307CFC">{{value1[0]}}</div>
+      <div style="color:#307CFC;margin-left:20px">{{startDance}}km</div>
       <div style="margin-left:20px" @click="isbf=!isbf" class="bfbtn">
-        <i v-if="isbf" class="iconfont iconbofang"></i>
-        <i v-if="!isbf" class="iconfont iconzantingtingzhi"></i>
+        <i v-if="isbf" @click="start()" class="iconfont iconbofang"></i>
+        <i v-if="!isbf" @click="stop()" class="iconfont iconzantingtingzhi"></i>
       </div>
-      <img style="margin-left:30px;cursor: pointer;" src="../../assets/image/sx.png" width="30" height="30">
-      <div style="color:#303133;margin-left:20px">2020-02-11 12:30:24</div>
-      <div style="color:#303133;margin-left:20px">28km</div>
+      <img @click="refresh()" style="margin-left:30px;cursor: pointer;" src="../../assets/image/sx.png" width="30" height="30">
+      <div style="color:#303133;margin-left:20px">{{value1[1]}}</div>
+      <div style="color:#303133;margin-left:20px">{{endDance}}km</div>
       <div style="margin-left:40px">
         <el-dropdown @command="handleCommand">
           <span class="el-dropdown-link">
@@ -178,19 +184,30 @@ export default {
     return {
       count: 40,
       sdName:"正常速",
+      carMk:null,
+      stendMark:[],//起点和终点
+      startDance:0,
+      endDance:0,
       checked:true,
       isbf:true,
-      value1:[new Date(new Date()-24*60*60*1000), new Date()],//开始时间 结束时间
+      value1:[new Date(new Date()-24*60*60*1000).Format('yyyy-MM-dd hh:mm:ss'), new Date().Format('yyyy-MM-dd hh:mm:ss')],//开始时间 结束时间
       beginTime:'',//开始时间
       endTime:'',//结束时间
-      input3:'',//车牌号
+      input3:'陕YH0008',//车牌号
       restaurants: [],
-      timeout:  null,
+      page:1,
+      pageSize:15,
+      timeout:null,
+      lushu:null,//路书
       loading: false,
-      myMap: null,
-      ZoomNum: null,
+      myMap:null,
+      ZoomNum:null,
       valuenum:0,
-      isLeft:true,//是否隐藏左侧的车辆信息
+      ptsdata:[],
+      ptsdata1:[],//取旋转的角度
+      oneIndex:0,//起始点
+      allIndex:0,//轨迹点总的长度
+      isLeft:false,//是否隐藏左侧的车辆信息
       mapstyle: "normal",
       searchinput:"",
       select:"1",
@@ -241,25 +258,39 @@ export default {
   mounted() {
     this.restaurants = this.loadAll();
     this.initMap();
-    // this.getLine()
+    // this.playMark()
     this.getZmap();
+    
   },
   created() {
-    let str=this.value1[0].Format('yyyy-MM-dd hh:mm:ss')
-    this.beginTime=this.value1[0].Format('yyyy-MM-dd hh:mm:ss')
-    this.endTime=this.value1[1].Format('yyyy-MM-dd hh:mm:ss')
+   
   },
   methods: {
     handleCommand(val){
-      console.log(val)
       this.sdName=val
+      console.log(val)
+      if(val=="正常速"){
+         setTimeout(()=>{
+          this.oneIndex++;
+          this.resetMkPoint(this.oneIndex);
+        },600);
+      }else if(val=="慢速"){
+        setTimeout(()=>{
+          this.oneIndex++;
+          this.resetMkPoint(this.oneIndex);
+        },1200);
+      }else{
+         setTimeout(()=>{
+          this.oneIndex++;
+          this.resetMkPoint(this.oneIndex);
+        },300);
+      }
+      
     },
     //分页
     sizeChange(val){
-      console.log(val)
     },
     currentChange(val){
-      console.log(val)
       this.page=val
     },
     //获取数据
@@ -269,13 +300,28 @@ export default {
         cNo:this.input3,
         beginTime:this.beginTime,
         endTime:this.endTime,
-        // page:this.page,
-        // pageSize:this.pageSize
+        page:this.page,
+        pageSize:this.pageSize
       }).then(res=>{
+        if(res.content.list.length>0){
+          // this.getLine(res.content)
+        }else{
+
+        }
         
-        if(res.content.length>0){
-          this.loading=false
-          this.getLine(res.content)
+      })
+      this.$fetchGet("getTraceCar/byPeriod",{
+        cNo:this.input3,
+        beginTime:this.beginTime,
+        endTime:this.endTime,
+        page:0,
+        pageSize:0
+      }).then(res=>{
+        this.loading=false
+        if(res.content.data.length>0){
+          this.getLine(res.content.data)
+        }else{
+          this.$message.error('暂无数据！请重试');
         }
         
       })
@@ -290,12 +336,13 @@ export default {
       this.myMap.setMapStyleV2({     
         styleId: '877fcc51379e35af5063374cd7687818'
       });
+      
     },
+    
     //地图的缩放时间
     getZmap() {
       this.myMap.addEventListener("zoomend", () => {
         this.ZoomNum = this.myMap.getZoom();
-        console.log(this.ZoomNum)
         if(this.ZoomNum>8){
           this.isCar=true
         }else{
@@ -315,7 +362,6 @@ export default {
     },
     //全屏
     mapFullEvent () {
-      console.log(screenfull)
       screenfull.toggle(this.$refs.compreMap)
     },
     //加载更多
@@ -342,97 +388,173 @@ export default {
       };
     },
     handleSelect(item) {
-      console.log(item);
     },
     //路书
     getLine(data){
-      var lushu;
-        // // 实例化一个驾车导航用来生成路线
-        //   var drv = new BMap.DrivingRoute('全国', {
-        //       onSearchComplete: (res)=> {
-        //           if (drv.getStatus() == BMAP_STATUS_SUCCESS) {
-        //               var plan = res.getPlan(0);
-        //               var arrPois =[];
-        //               for(var j=0;j<plan.getNumRoutes();j++){
-        //                   var route = plan.getRoute(j);
-        //                   arrPois= arrPois.concat(route.getPath());
-        //               }
-        //               console.log(arrPois)
-        //               this.myMap.addOverlay(new BMap.Polyline(arrPois, {strokeColor: '#111'}));
-        //               this.myMap.setViewport(arrPois);
-
-        //               lushu = new BMapLib.LuShu(map,arrPois,{
-        //               defaultContent:"",//"从天安门到百度大厦"
-        //               autoView:true,//是否开启自动视野调整，如果开启那么路书在运动过程中会根据视野自动调整
-        //               icon  : new BMap.Icon('/jsdemo/img/car.png', new BMap.Size(52,26),{anchor : new BMap.Size(27, 13)}),
-        //               speed: 4500,
-        //               enableRotation:true,//是否设置marker随着道路的走向进行旋转
-        //               landmarkPois: [
-        //                 {lng:116.314782,lat:39.913508,html:'加油站',pauseTime:20},
-        //                 {lng:116.315391,lat:39.964429,html:'高速公路收费<div><img src="//map.baidu.com/img/logo-map.gif"/></div>',pauseTime:3},
-        //                 {lng:116.381476,lat:39.974073,html:'肯德基早餐',pauseTime:2}
-        //               ]});
-        //           }
-        //       }
-        //   });
-        let arrPois =[]
-        let lineColor=""
-        data.forEach(iteam=>{
-          arrPois.push(new BMap.Point(iteam.lon,iteam.lat))
-           //区间颜色
-          if(iteam.spd<26){
-              lineColor="#81dafa";
-          }else if(iteam.spd>25&&iteam.spd<50){
-              lineColor="#307cfc";
-          }else if(iteam.spd>50&&iteam.spd<75){
-              lineColor="#21c434";
-          }else if(iteam.spd>75&&iteam.spd<100) {
-              lineColor="#ffd201";
-          }else{
-            lineColor="#bd0301";
-          }
-          //创建线路
-          let polyline = new BMap.Polyline(
-                  arrPois,//所有的GPS坐标点
-                  {
-                    strokeColor : lineColor, //线路颜色
-                    strokeWeight : 4,//线路大小
-                  });
-          //绘制线路
-          console.log(polyline)
-          this.myMap.addOverlay(polyline);
-        })
+      this.ptsdata1=data
+      let markdata=[]//起点和终点
+      let arrPois =[]
+      let lineColor=""
+      let drv = new BMap.DrivingRoute()
+      data.forEach(iteam=>{
+        arrPois.push(new BMap.Point(iteam.lon,iteam.lat))
+          //区间颜色
+        if(iteam.spd<26){
+            lineColor="#4ACFFF";
+        }else if(iteam.spd>25&&iteam.spd<50){
+            lineColor="#307CFC";
+        }else if(iteam.spd>50&&iteam.spd<75){
+            lineColor="#21c434";
+        }else if(iteam.spd>75&&iteam.spd<100) {
+            lineColor="#FFD201";
+        }else{
+          lineColor="#BD0301";
+        }
+        //创建线路
+  
+      })
+      let polyline = new BMap.Polyline(
+          arrPois,//所有的GPS坐标点
+          {
+            strokeColor : lineColor, //线路颜色
+            strokeOpacity:1,
+            strokeWeight :6,//线路大小
+          });
+        //绘制线路
+        this.myMap.addOverlay(polyline);
         let start=new BMap.Point(data[0].lon,data[0].lat);
         let end=new BMap.Point(data[data.length-1].lon,data[data.length-1].lat);
-        console.log(start)
-        console.log(end)
-        // var polyline = new BMap.Polyline([
-        //     new BMap.Point(116.399, 39.910),
-        //     new BMap.Point(116.405, 39.920),
-        //     new BMap.Point(116.425, 39.900)
-        // ], {strokeColor:"blue", strokeWeight:2, strokeOpacity:0.5}); 
-        // var start=new BMap.Point(116.404844,39.911836);
-        // var end=new BMap.Point(116.308102,40.056057);
-        // drv.search(start, end);
-        //绑定事件
-        // $("run").onclick = function(){
-        //   lushu.start();
-        // }
-        // $("stop").onclick = function(){
-        //   lushu.stop();
-        // }
-        // $("pause").onclick = function(){
-        //   lushu.pause();
-        // }
-        // $("hide").onclick = function(){
-        //   lushu.hideInfoWindow();
-        // }
-        // $("show").onclick = function(){
-        //   lushu.showInfoWindow();
-        // }
-        // function $(element){
-        //   return document.getElementById(element);
-        // }
+        this.startDance=this.myMap.getDistance(start,new BMap.Point(data[0].lon,data[0].lat))
+        this.endDance=this.myMap.getDistance(start,end)
+        markdata.push(start,end)
+        this.setStendMark(markdata)
+        this.myMap.setViewport(arrPois);
+        this.ptsdata=arrPois
+       
+    },
+
+    //播放点的速度
+    playMark(){
+      var that=this
+      var myP1 = new BMap.Point(116.380967,39.913285);    //起点
+      var myP2 = new BMap.Point(116.424374,39.914668);    //终点
+      var driving2 = new BMap.DrivingRoute(this.myMap, {renderOptions:{map: this.myMap, autoViewport: true}});    //驾车实例
+      driving2.search(myP1, myP2);    //显示一条公交线路
+      window.run =  ()=>{
+        var driving = new BMap.DrivingRoute(that.myMap);    //驾车实例
+        driving.search(myP1, myP2);
+        driving.setSearchCompleteCallback(()=>{
+          var pts = driving.getResults().getPlan(0).getRoute(0).getPath();
+          console.log(44)
+          console.log(pts) 
+          this.ptsdata=pts
+          // this.startlushu(pts)   //通过驾车实例，获得一系列点的数组
+          // var paths = pts.length;    //获得有几个点
+          // var carMk = new BMap.Marker(pts[0],{icon:myIcon});
+          // carMk.addEventListener("click",(e)=>{
+          // })
+          // that.myMap.addOverlay(carMk);
+          // let i=0;
+          // function resetMkPoint(i){
+          //   carMk.setPosition(pts[i]);
+          //   carMk.setRotation(90)
+          //   if(i < paths){
+          //     setTimeout(function(){
+          //       i++;
+          //       resetMkPoint(i);
+          //     },100);
+          //   }
+          // }
+          // setTimeout(function(){
+          //   resetMkPoint(0);
+          // },100)
+
+        });
+      }
+      run();
+      // setTimeout(function(){
+      //   run();
+      // },1500);
+
+    },
+
+    startlushu(pts){
+      this.allIndex = pts.length
+      if(this.carMk){
+        this.myMap.removeOverlay(this.carMk);  
+      }
+       var myIcon = new BMap.Icon(require('../../assets/image/xs.png'), new BMap.Size(30,30), {    //小车图片
+        //offset: new BMap.Size(0, -5),    //相当于CSS精灵
+        imageOffset: new BMap.Size(0, 0)    //图片的偏移量。为了是图片底部中心对准坐标点。
+        });
+      this.carMk  = new BMap.Marker(pts[this.oneIndex],{icon:myIcon});
+      if(this.oneIndex==0){
+        this.carMk.setAnimation(BMAP_ANIMATION_DROP);
+      }
+        
+        this.myMap.addOverlay(this.carMk );
+        this.resetMkPoint()
+
+        // setTimeout(()=>{
+        //   this.resetMkPoint(this.oneIndex);
+        // },1500)
+     
+    },
+    resetMkPoint(){
+      this.carMk.setPosition(this.ptsdata[this.oneIndex]);
+      this.carMk.setRotation(this.ptsdata1[this.oneIndex].drc+180)
+      // this.carMk.setRotation(225)
+      console.log(this.oneIndex)
+      if(this.oneIndex < this.allIndex){
+        // setTimeout(()=>{
+        //   this.oneIndex++;
+        //   this.resetMkPoint(this.oneIndex);
+        // },600);
+        this.handleCommand(this.sdName)
+      }
+    },
+    start(){
+      //  this.lushu.start();
+      this.startlushu(this.ptsdata)
+    },
+    //路书重置
+    refresh(){
+      this.oneIndex=0
+      this.startlushu(this.ptsdata)
+    },
+    stop(){
+      // this.lushu.pause();
+      console.log(this.oneIndex)
+      this.allIndex=this.oneIndex
+    },
+    //设置起点和终点
+    setStendMark(data){
+      if(this.stendMark.length>0){
+         this.stendMark.forEach(iteam=>{
+          this.myMap.removeOverlay(iteam);  
+        })
+      }else{
+        data.forEach((iteam,index)=>{
+            let icon;
+            if(index==0){
+              icon=require('../../assets/image/kas.png')
+            }else{
+              icon=require('../../assets/image/zd1.png')
+            }
+            let opts = {
+                icon : new BMap.Icon(icon, new BMap.Size(44,44),new BMap.Size(0,0),{
+                  imageOffset: new BMap.Size(0, 0)  
+                }),    // 指定文本标注所在的地理位置
+                offset : index==0?new BMap.Size(-4,-22): new BMap.Size(-5,-22)   //设置文本偏移量
+            }
+            let marker = new BMap.Marker(iteam, opts); 
+            this.stendMark.push(marker);
+            this.myMap.addOverlay(marker);  
+        })
+      }
+     
+      
+     
     },
      //加大地图级别
     addZoom(params) {
@@ -457,11 +579,15 @@ export default {
 
     timedataBtn(val) {
         let timeUpdate=this.timeUpdatethree
+        this.beginTime=val[0]
+        this.endTime=val[1]
         if(val!=null){
+          
             if(timeUpdate(val)){
               this.$message.error('查询天数不能大于3天');
             }else{
             //   this.$message.success('查询成功');
+                this.getData()
             }
 
         }
