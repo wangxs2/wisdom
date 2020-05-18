@@ -10,6 +10,25 @@
           <el-button  slot="append" icon="el-icon-search"></el-button>
         </el-autocomplete>
       </div>
+      <!-- <el-input v-model="inputaas" style="width:200px" @blur="getXzqu" placeholder="请输入内容"></el-input> -->
+      <el-select  @change="getXzqu" v-model="inputaas" placeholder="请选择">
+        <el-option
+          style="width:400px"
+          v-for="(item,index) in options"
+          :key="index"
+          :label="item.name"
+          :value="item.name">
+        </el-option>
+      </el-select>
+       <el-select  @change="postName" v-model="value" placeholder="请选择">
+        <el-option
+          style="width:400px"
+          v-for="(item,index) in options"
+          :key="index"
+          :label="item.name"
+          :value="item.center">
+        </el-option>
+      </el-select>
       <div class="right-sea">
         <el-button @click="isWaring=!isWaring" type="danger" icon="el-icon-message-solid">报警（126）</el-button>
         <div class="shua"  @click="totalTime=60"> <i class="iconfont icon-shuaxin1"></i>距离下一次刷新 {{totalTime}} 秒</div>
@@ -29,12 +48,12 @@
         <div class="cltit">
           <div style="margin-right:1vw">车辆状态</div>
           <div style="flex:1">
-             <el-select style="width:100%" size="small" v-model="valuenum" placeholder="请选择">
+             <el-select style="width:100%" size="small" @change="carStatus()" v-model="valuenum" placeholder="请选择">
                 <el-option
                   v-for="item in cltitData"
-                  :key="item.num"
+                  :key="item.id"
                   :label="item.name"
-                  :value="item.num">
+                  :value="item.id">
                 </el-option>
               </el-select>
           </div>
@@ -156,11 +175,14 @@
 
 <script>
 import screenfull from 'screenfull';
+import cityName from './city.js';
 export default {
   name: "appMain",
   data() {
     return {
       count: 40,
+      value:'',
+      inputaas:'',
       totalTime: 60, //倒计时
       activeLab:null,//选中车辆
       activeInfow:null,//选中车辆详细信息
@@ -204,23 +226,22 @@ export default {
       cltitData:[
         {
           name:"全部(126)",
-          num:12
+          id:0,
         },
         {
           name:"行驶(126)",
-          num:136
+          id:1,
         },
         {
           name:"静止(126)",
-          num:116
+          id:2,
         },
         {
           name:"离线(126)",
-          num:107
+          id:-1,
         },
          {
           name:"未入网(126)",
-          num:106
         },
       ],
       allData:[
@@ -304,11 +325,15 @@ export default {
       this.myMap.removeOverlay(this.activeInfow); 
       this.myMap.removeOverlay(this.activeLab); 
     })
+    $('.map-content').on("click", "#trajectory",  ()=> {
+       this.$router.push("/trajectory")
+    })
+    
   },
   created() {
-    // this.getLine()
+    this.options=cityName
     this.countDown()
-    
+    this.getAllCar()
   },
   methods: {
     //倒计时
@@ -320,6 +345,26 @@ export default {
       setTimeout( ()=> {
 				this.countDown()
 			}, 1000)
+    },
+    //切换车辆的状态
+    carStatus(){
+       this.$fetchGet("monitor/getRealInfo",{
+        online:this.valuenum,
+      }).then(res=>{
+
+      })
+    },
+    getAllCar(){
+      this.$fetchGet("monitor/getLinkage",{
+        cNo:this.searchinput,
+         status:''
+      }).then(res=>{
+          if(res.content){
+
+          }else{
+
+          }
+      })
     },
     initMap() {
       this.myMap = new BMap.Map("mymap");
@@ -364,6 +409,7 @@ export default {
     mapFullEvent () {
       console.log(screenfull)
       screenfull.toggle(this.$refs.compreMap)
+
     },
     //加载更多
     loadAll() {
@@ -505,16 +551,16 @@ export default {
     showInform(point){
       let activep1 = {
             position: point,    // 指定文本标注所在的地理位置
-            offset: new BMap.Size(-180, -250)    //设置文本偏移量
+            offset: new BMap.Size(-180, -310)    //设置文本偏移量
       }
-      var sContent=`<div style="width:360px;height:200px;background:#ffffff;position:relative;box-shadow:0px 0px 12px 0px rgba(51,51,51,0.3);border-radius:4px;z-index:800">
+      var sContent=`<div style="width:360px;height:260px;background:#ffffff;position:relative;box-shadow:0px 0px 12px 0px rgba(51,51,51,0.3);border-radius:4px;z-index:800">
                         <div style="display:flex;width:100%;height:50px;background:rgba(188,216,252,1); justify-content: space-between;align-items: center;box-sizing: border-box;
                         padding:10px 20px;">
                           <img src="${require('../../assets/image/qc.png')}" width="30" height="22">
                           <span style="font-size:22px;color:#307CFC">京A123666</span>
                           <img id="close1" style="cursor: pointer;" src="${require('../../assets/image/close.png')}" width="16" height="16">
                         </div>
-                        <div style="width:100%;height:150px;overflow:hidden;box-sizing:border-box;padding:10px">
+                        <div style="width:100%;height:210px;overflow:hidden;box-sizing:border-box;padding:10px">
                           <div style="display:flex;justify-content:flex-start;font-size:16px;color:#7B7D7F;margin-bottom:6px;">
                             <div style="width:66px">时速</div>
                             <div style="margin-left:16px;flex:1">68 km/h</div>
@@ -527,6 +573,11 @@ export default {
                           <div style="display:flex;justify-content:flex-start;font-size:16px;color:#7B7D7F;">
                             <div style="width:66px">最后定位</div>
                             <div style="margin-left:16px;word-break:break-all;flex:1"">浙江省 嘉善县 惠民镇G15浙江省 嘉善县 惠民镇G15（嘉敏高速）嘉善县 惠民镇G15（嘉敏高速）</div>
+                          </div>
+                          <div style="display:flex;justify-content:center;margin-top:20px">
+                             <div id="trajectory" style="cursor: pointer;width:110px;height:30px;background:rgba(48,124,252,1);border-radius:4px;color:#ffffff;display:flex;justify-content:center;align-items:center;">
+                                   <img style="margin-right:6px" src="${require('../../assets/image/bf1.png')}" width="16" height="20">轨迹回放
+                             </div>
                           </div>
                         </div>
                         <div style="position: absolute;bottom:-12px;left:165px;border-left: 8px solid transparent;border-right: 8px solid transparent;border-top: 12px solid #ffffff;"></div>
@@ -561,6 +612,55 @@ export default {
       infoWindow.setZIndex(900)
       this.activemillInfow=infoWindow
       this.myMap.addOverlay(this.activemillInfow); 
+    },
+    postName(){
+      this.$fetchPost("monitor/insetPogem",{
+        orgName:this.inputaas,
+        polygonGeom:this.mapo,
+        centerLongitude:this.value
+      },'json').then(res=>{
+        console.log(res)
+      })
+    },
+    //搜索行政区录入数据库
+    getXzqu(){
+      var bdary = new BMap.Boundary();
+      bdary.get(this.inputaas, (rs)=>{       //获取行政区域
+        this.myMap.clearOverlays();        //清除地图覆盖物       
+        var count = rs.boundaries.length; //行政区域的点有多少个
+        if (count === 0) {
+          alert('未能获取当前输入行政区域');
+          return ;
+        }
+        this.mapo=''
+        var pointArray = [];
+        for (var i = 0; i < count; i++) {
+          var ply = new BMap.Polygon(rs.boundaries[i], {strokeWeight: 2, strokeColor: "#ff0000"}); //建立多边形覆盖物
+          this.myMap.addOverlay(ply);  //添加覆盖物
+          pointArray = pointArray.concat(ply.getPath());
+          this.mapo=rs.boundaries[i]
+        }    
+        this.myMap.setViewport(pointArray);    //调整视野  
+        console.log(this.formattingCharacters(pointArray))
+        this.mapo=this.formattingCharacters(pointArray)
+
+        // addlabel();               
+      });  
+    },
+
+    //处理边界的经纬度
+    formattingCharacters (val) {
+      // let arr = val
+      // arr.push(val[0]);
+      let arr1 = [];
+      let arr2;
+      val.forEach((iteam, index) => {
+        arr1.push(iteam.lng + ' ' + iteam.lat)
+      })
+      arr2 = arr1.join(',')
+      let arr3 = `POLYGON((${arr2}))`
+      return arr3
+
     },
 
 
@@ -625,9 +725,9 @@ export default {
         display: flex;
         justify-content: center;
         align-items: center;
-        width:vw(220);
+        width:vw(250);
        box-sizing: border-box;
-       padding: vh(10) vw(14);
+       padding: vh(10) vw(10);
         background:rgba(230,241,252,1);
         box-shadow:1px 1px 4px 0px rgba(213,213,213,1);
         border-radius:4px;

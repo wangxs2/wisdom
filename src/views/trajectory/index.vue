@@ -15,7 +15,7 @@
         </el-input>
          <el-date-picker
             v-model="value1"
-            @change="timedataBtn(value1)"
+            @blur="timedataBtn(value1)"
             type="datetimerange"
             :clearable='false'
             style="margin-left:1vw"
@@ -43,51 +43,52 @@
         leave-active-class="animated fadeOutLeft"
       >
       <div class="left-content" style="left:0px" v-if="isLeft">
-        <div class="tit" style="color:#333333">轨迹信息</div>
-        <div class="cltit">
-          <div>运行总时长  46小时36分钟</div>
-          <div>运行里程  674km</div>
-          <div>平均速度  66km/h</div>
-        </div>
-        <div class="point">
-            <div @click="changePoint(index)" :class="valuenum==index?'itampoint active':'itampoint'" v-for="(itam,index) in pointData" :key="index">{{itam}}</div>
-        </div>
-        <div class="table-box">
-          <div class="table-head">
-            <div class="head-it" style="width:15%">序号</div>
-            <div class="head-it" style="width:45%">定位时间</div>
-            <div v-if="valuenum==1" class="head-it" style="width:25%">速度</div>
-            <div v-if="valuenum==0" class="head-it" style="width:25%">异常类型</div>
-            <div class="head-it" style="width:15%">操作</div>
+          <div class="tit" style="color:#333333">轨迹信息</div>
+          <div class="cltit">
+            <div>运行总时长  {{ageTime.toFixed(2)}}小时</div>
+            <div>运行里程  {{(ageTime*ageSpeed).toFixed(2)}}km</div>
+            <div>平均速度  {{ageSpeed.toFixed(2)}}km/h</div>
           </div>
-          <div class="table-body">
-            <el-scrollbar style="height:100%">
-              <ul
-                class="list">
-                <li v-for="i in count" :key="i" class="list-item">
-                  <div class="body-it" style="width:15%">{{i}}</div>
-                  <div class="body-it" style="width:45%">2020-02-11 09:26:26</div>
-                  <div v-if="valuenum==1" class="body-it" style="width:25%">20km/h</div>
-                  <div v-if="valuenum==0" class="body-it" style="width:25%">停车</div>
-                  <div class="body-it" style="width:15%">
-                    <img src="../../assets/image/dw.png">
-                  </div>
-                </li>
-              </ul>
-              <!-- <p v-if="loading">加载中...</p>
-              <p v-if="noMore">没有更多了</p> -->
-            </el-scrollbar>
+          <div class="point">
+              <div @click="changePoint(index)" :class="valuenum==index?'itampoint active':'itampoint'" v-for="(itam,index) in pointData" :key="index">{{itam}}</div>
           </div>
-        </div>
-        <div class="pagingClass">
-          <el-pagination
-            background
-            @size-change="sizeChange"
-            @current-change="currentChange"
-            layout="pager"
-            :total="1000">
-          </el-pagination>
-        </div>
+          <div class="table-box">
+            <div class="table-head">
+              <div class="head-it" style="width:15%">序号</div>
+              <div class="head-it" style="width:45%">定位时间</div>
+              <div v-if="valuenum==1" class="head-it" style="width:25%">速度</div>
+              <div v-if="valuenum==0" class="head-it" style="width:25%">异常类型</div>
+              <div class="head-it" style="width:15%">操作</div>
+            </div>
+            <div class="table-body">
+              <el-scrollbar style="height:100%">
+                <ul
+                  class="list">
+                  <li v-for="(iteam,index) in count" :key="index" class="list-item">
+                    <div class="body-it" style="width:15%">{{index+1}}</div>
+                    <div class="body-it" style="width:45%">{{new Date(iteam.utc*1000).Format('yyyy-MM-dd hh:mm:ss')}}</div>
+                    <div v-if="valuenum==1" class="body-it" style="width:25%">{{iteam.spd}}km/h</div>
+                    <div v-if="valuenum==0" class="body-it" style="width:25%">停车</div>
+                    <div class="body-it" style="width:15%" @click="setLeftMark(iteam)">
+                      <img src="../../assets/image/dw.png">
+                    </div>
+                  </li>
+                </ul>
+                <!-- <p v-if="loading">加载中...</p>
+                <p v-if="noMore">没有更多了</p> -->
+              </el-scrollbar>
+            </div>
+          </div>
+          <div class="pagingClass">
+            <el-pagination
+              background
+              @size-change="sizeChange"
+              :page-size="15"
+              @current-change="currentChange"
+              layout="pager"
+              :total="total">
+            </el-pagination>
+          </div>
       </div>
     </transition>
     <!-- 左侧的车辆信息 -->
@@ -137,14 +138,14 @@
     <!-- 轨迹播放 -->
     <div class="trajectoryBox">
       <div style="color:#307CFC">{{value1[0]}}</div>
-      <div style="color:#307CFC;margin-left:20px">{{startDance}}km</div>
+      <div style="color:#307CFC;margin-left:20px">{{parseInt(startDance/1000)}}km</div>
       <div style="margin-left:20px" @click="isbf=!isbf" class="bfbtn">
         <i v-if="isbf" @click="start()" class="iconfont iconbofang"></i>
         <i v-if="!isbf" @click="stop()" class="iconfont iconzantingtingzhi"></i>
       </div>
       <img @click="refresh()" style="margin-left:30px;cursor: pointer;" src="../../assets/image/sx.png" width="30" height="30">
       <div style="color:#303133;margin-left:20px">{{value1[1]}}</div>
-      <div style="color:#303133;margin-left:20px">{{endDance}}km</div>
+      <div style="color:#303133;margin-left:20px">{{parseInt(endDance/1000)}}km</div>
       <div style="margin-left:40px">
         <el-dropdown @command="handleCommand">
           <span class="el-dropdown-link">
@@ -164,7 +165,7 @@
             width="200"
             trigger="click"
             >
-            <div><el-checkbox v-model="checked">显示异常点</el-checkbox></div>
+            <div><el-checkbox @change="isShow" v-model="checked">显示异常点</el-checkbox></div>
             <i slot="reference" style="color:#307CFC;font-size:22px" class="iconfont iconshezhi2"></i>
           </el-popover>
         
@@ -182,26 +183,35 @@ export default {
   name: "appMain",
   data() {
     return {
-      count: 40,
+      count:[],
+      normalCount:[],
+      errorCount:[],
+      normalTotal:0,
+      errorTotal:0,
+      total:0,
       sdName:"正常速",
+      ageSpeed:"",//运行的平均速度
+      ageTime:"",//运行的总时长
       carMk:null,
+      activeInfow:null,//异常点的信息
       stendMark:[],//起点和终点
       startDance:0,
       endDance:0,
-      checked:true,
+      checked:false,
       isbf:true,
       value1:[new Date(new Date()-24*60*60*1000).Format('yyyy-MM-dd hh:mm:ss'), new Date().Format('yyyy-MM-dd hh:mm:ss')],//开始时间 结束时间
-      beginTime:'',//开始时间
-      endTime:'',//结束时间
       input3:'陕YH0008',//车牌号
-      restaurants: [],
       page:1,
       pageSize:15,
       timeout:null,
       lushu:null,//路书
       loading: false,
       myMap:null,
+      statusError:[],//异常点的数据
+      cityMarker:[],//异常点的数据
       ZoomNum:null,
+      polyline:null,
+      polylinearr:[],
       valuenum:0,
       ptsdata:[],
       ptsdata1:[],//取旋转的角度
@@ -236,6 +246,8 @@ export default {
       ],
      
       titindex:0,
+      timeId:null,
+      leftMark:null,
       // mapstyle:"dark",
     };
   },
@@ -256,55 +268,213 @@ export default {
   computed: {
     },
   mounted() {
-    this.restaurants = this.loadAll();
     this.initMap();
+    this.getErrorData()
+    this.getData()
     // this.playMark()
     this.getZmap();
+
+    $('.map-content').on("click", "#close2",  ()=> {
+      this.myMap.removeOverlay(this.activeInfow); 
+    })
     
   },
   created() {
    
   },
   methods: {
+    //是否显示异常点
+    isShow(){
+      if(this.checked){
+        this.errorMark()
+      }else{
+        this.clearMark()
+      }
+    },
     handleCommand(val){
       this.sdName=val
-      console.log(val)
+      if(this.timeId){
+        clearTimeout(this.timeId)
+      }
       if(val=="正常速"){
-         setTimeout(()=>{
+         this.timeId=setTimeout(()=>{
           this.oneIndex++;
           this.resetMkPoint(this.oneIndex);
         },600);
       }else if(val=="慢速"){
-        setTimeout(()=>{
+        this.timeId=setTimeout(()=>{
           this.oneIndex++;
           this.resetMkPoint(this.oneIndex);
         },1200);
       }else{
-         setTimeout(()=>{
+         this.timeId=setTimeout(()=>{
           this.oneIndex++;
           this.resetMkPoint(this.oneIndex);
         },300);
       }
-      
     },
     //分页
     sizeChange(val){
     },
     currentChange(val){
       this.page=val
-    },
-    //获取数据
-    getData(){
-      this.loading=true
-      this.$fetchGet("getTraceCar/byPeriod",{
+      if(this.valuenum==0){
+      this.$fetchGet("getTraceCar/error",{
         cNo:this.input3,
-        beginTime:this.beginTime,
-        endTime:this.endTime,
+        beginTime:this.value1[0],
+        endTime:this.value1[1],
         page:this.page,
         pageSize:this.pageSize
       }).then(res=>{
         if(res.content.list.length>0){
-          // this.getLine(res.content)
+          this.errorCount=res.content.list
+          if(this.valuenum==0){
+            this.count=this.errorCount
+            this.total=res.content.total
+          }
+          this.errorTotal=res.content.total
+        }
+      })
+      }else{
+        this.$fetchGet("getTraceCar/byPeriod",{
+        cNo:this.input3,
+        beginTime:this.value1[0],
+        endTime:this.value1[1],
+        page:this.page,
+        pageSize:this.pageSize
+        }).then(res=>{
+          if(res.content.list.length>0){
+          this.normalCount=res.content.list
+            if(this.valuenum==1){
+              this.count=this.normalCount
+              this.total=res.content.total
+            }
+            this.normalTotal=res.content.total
+          }
+        })
+      }
+    },
+    //异常点
+    getErrorData(){
+      this.$fetchGet("getTraceCar/error",{
+        cNo:this.input3,
+        beginTime:this.value1[0],
+        endTime:this.value1[1],
+        page:this.page,
+        pageSize:this.pageSize
+      }).then(res=>{
+        if(res.content.list.length>0){
+          this.errorCount=res.content.list
+          if(this.valuenum==0){
+            this.count=this.errorCount
+            this.total=res.content.total
+          }
+          this.errorTotal=res.content.total
+        }else{
+        }
+      })
+      this.$fetchGet("getTraceCar/error",{
+        cNo:this.input3,
+        beginTime:this.value1[0],
+        endTime:this.value1[1],
+        page:0,
+        pageSize:0
+      }).then(res=>{
+        if(res.content.error.length>0){
+          this.ageTime=res.content.time
+          this.statusError=res.content.error
+          
+        }else{
+          this.$message.error('暂无数据！请检查！');
+        }
+        
+      })
+    },
+    //异常点的点的渲染
+    errorMark(){
+      this.statusError.forEach(iteam=>{
+        let point = new BMap.Point(iteam.lon,iteam.lat);
+        let opts = {
+            icon : new BMap.Icon(require('../../assets/image/lx.png'), new BMap.Size(30,30)),    // 指定文本标注所在的地理位置
+            offset : new BMap.Size(0,0)    //设置文本偏移量
+        }
+        let marker = new BMap.Marker(point, opts);  // 创建文本标注对象
+        marker.addEventListener("click",()=>{
+          this.showInform(iteam,1)
+        })
+        this.cityMarker.push(marker);
+        this.myMap.addOverlay(marker);   
+      })
+
+    },
+     //显示异常点的车辆的信息
+    showInform(row,type){
+      if(this.activeInfow){
+        this.myMap.removeOverlay(this.activeInfow); 
+      }
+      let activep1 = {
+            position: new BMap.Point(row.lon,row.lat),    // 指定文本标注所在的地理位置
+            offset: new BMap.Size(-180, -250)    //设置文本偏移量
+      }
+      var sContent=`<div style="width:360px;height:200px;background:#ffffff;position:relative;box-shadow:0px 0px 12px 0px rgba(51,51,51,0.3);border-radius:4px;z-index:800">
+                        <div style="display:flex;width:100%;height:50px;background:rgba(188,216,252,1); justify-content: space-between;align-items: center;box-sizing: border-box;
+                        padding:10px 20px;">
+                          <img src="${require('../../assets/image/qc.png')}" width="30" height="22">
+                          <span style="font-size:22px;color:#307CFC">${row.cNo}</span>
+                          <img id="close2" style="cursor: pointer;" src="${require('../../assets/image/close.png')}" width="16" height="16">
+                        </div>
+                        <div style="width:100%;height:210px;overflow:hidden;box-sizing:border-box;padding:10px">
+                          <div style="display:flex;justify-content:flex-start;font-size:16px;color:#7B7D7F;margin-bottom:6px;display:${type==2?'none':''}">
+                            <div style="width:66px">停车时长</div>
+                            <div style="margin-left:16px;flex:1">${row.eDur}分钟</div>
+                          </div>
+                          
+                          <div style="display:flex;justify-content:flex-start;font-size:16px;color:#7B7D7F;margin-bottom:6px;">
+                            <div style="width:66px">定位时间</div>
+                            <div style="margin-left:16px">${new Date(row.utc*1000).Format('yyyy-MM-dd hh:mm:ss')}</div>
+                          </div>
+                          <div style="display:flex;justify-content:flex-start;font-size:16px;color:#7B7D7F;">
+                            <div style="width:66px">最后定位</div>
+                            <div style="margin-left:16px;word-break:break-all;flex:1"">${row.adr}</div>
+                          </div>
+                          
+                        </div>
+                        <div style="position: absolute;bottom:-12px;left:165px;border-left: 8px solid transparent;border-right: 8px solid transparent;border-top: 12px solid #ffffff;"></div>
+                    </div>`
+      var infoWindow = new BMap.Label(sContent, activep1);  // 创建信息窗口对象
+      infoWindow.setZIndex(900)
+      this.activeInfow=infoWindow
+      this.myMap.addOverlay(this.activeInfow); 
+    },
+    //异常点的现实隐藏
+    clearMark(){
+      if(this.cityMarker){
+         this.cityMarker.forEach(iteam=>{
+          this.myMap.removeOverlay(iteam);  
+        })
+      }
+      
+    },
+
+    //获取数据
+    getData(){
+      this.loading=true
+      this.clearPoline()
+      this.$fetchGet("getTraceCar/byPeriodWithPage",{
+        cNo:this.input3,
+        beginTime:this.value1[0],
+        endTime:this.value1[1],
+        page:this.page,
+        pageSize:this.pageSize
+      }).then(res=>{
+        if(res.content.list.length>0){
+         this.normalCount=res.content.list
+          if(this.valuenum==1){
+            this.count=this.normalCount
+            this.total=res.content.total
+          }
+          this.normalTotal=res.content.total
+          
         }else{
 
         }
@@ -312,19 +482,54 @@ export default {
       })
       this.$fetchGet("getTraceCar/byPeriod",{
         cNo:this.input3,
-        beginTime:this.beginTime,
-        endTime:this.endTime,
+        beginTime:this.value1[0],
+        endTime:this.value1[1],
         page:0,
         pageSize:0
       }).then(res=>{
         this.loading=false
         if(res.content.data.length>0){
           this.getLine(res.content.data)
+          this.ageSpeed=res.content.speed
         }else{
-          this.$message.error('暂无数据！请重试');
+          this.$message.error('暂无数据！请检查');
+          this.clearPoline()
         }
         
       })
+    },
+    //清除线路和起点终点异常点
+    clearPoline(){
+      if(this.polylinearr){
+          this.polylinearr.forEach(iteam=>{
+            this.myMap.removeOverlay(iteam);  
+          })
+      }
+      if(this.timeId){
+        clearTimeout(this.timeId)
+      }
+      this.normalCount=[]
+      this.ageTime=0
+      this.ageSpeed=0
+      this.total=0
+      this.normalTotal=0,
+      this.errorTotal=0,
+      this.errorCount=[]
+      this.count=[]
+      console.log(this.count.length)
+      this.ptsdata=[]
+      if(this.carMk){
+        this.myMap.removeOverlay(this.carMk);  
+      }//路书的重置
+      this.clearMark()
+      this.checked=false
+      this.oneIndex=0//路书的重置
+      this.isbf=true//路书的重置
+      if(this.stendMark.length>0){
+        this.stendMark.forEach(iteam=>{
+          this.myMap.removeOverlay(iteam);  
+        })
+      }
     },
     initMap() {
       this.myMap = new BMap.Map("mymap2");
@@ -364,157 +569,100 @@ export default {
     mapFullEvent () {
       screenfull.toggle(this.$refs.compreMap)
     },
-    //加载更多
-    loadAll() {
-      return [
-        { "value": "油厂1", "address": "长宁区新渔路144号" },
-        { "value": "油厂2", "address": "上海市长宁区淞虹路661号" },
-        { "value": "油厂3", "address": "上海市普陀区真北路988号创邑金沙谷6号楼113" },
-        { "value": "油厂4", "address": "天山西路438号" },
-      ];
-      },
-    querySearchAsync(queryString, cb) {
-      var restaurants = this.restaurants;
-      var results = queryString ? restaurants.filter(this.createStateFilter(queryString)) : restaurants;
-
-      clearTimeout(this.timeout);
-      this.timeout = setTimeout(() => {
-        cb(results);
-      }, 100 * Math.random());
-    },
-    createStateFilter(queryString) {
-      return (state) => {
-        return (state.value.toLowerCase().indexOf(queryString.toLowerCase()) === 0);
-      };
-    },
+ 
     handleSelect(item) {
     },
     //路书
     getLine(data){
       this.ptsdata1=data
+      if(this.polyline){
+        this.myMap.removeOverlay(this.polyline); 
+      }
       let markdata=[]//起点和终点
       let arrPois =[]
+      let arrPois1 =[]
       let lineColor=""
       let drv = new BMap.DrivingRoute()
-      data.forEach(iteam=>{
-        arrPois.push(new BMap.Point(iteam.lon,iteam.lat))
+       for(var i=0;i<data.length-1;i++){
+         arrPois1.push(new BMap.Point(data[i].lon,data[i].lat))
+          arrPois.splice(0,arrPois.length);//清空数组,如若不清空，会在原来基础上每次在重复的增加一边。这儿是让每两个点画线，否则第二次进来的时候就成四个数据了，第二个重复了一次
+          arrPois.push(new BMap.Point(data[i].lon,data[i].lat));
+          arrPois.push(new BMap.Point(data[i+1].lon,data[i+1].lat));
           //区间颜色
-        if(iteam.spd<26){
+         if(data[i].spd<26){
             lineColor="#4ACFFF";
-        }else if(iteam.spd>25&&iteam.spd<50){
-            lineColor="#307CFC";
-        }else if(iteam.spd>50&&iteam.spd<75){
-            lineColor="#21c434";
-        }else if(iteam.spd>75&&iteam.spd<100) {
-            lineColor="#FFD201";
-        }else{
-          lineColor="#BD0301";
-        }
-        //创建线路
-  
-      })
-      let polyline = new BMap.Polyline(
-          arrPois,//所有的GPS坐标点
-          {
-            strokeColor : lineColor, //线路颜色
-            strokeOpacity:1,
-            strokeWeight :6,//线路大小
-          });
-        //绘制线路
+          }else if(data[i].spd>25&&data[i].spd<50){
+              lineColor="#307CFC";
+          }else if(data[i].spd>50&&data[i].spd<75){
+              lineColor="#21c434";
+          }else if(data[i].spd>75&&data[i].spd<100) {
+              lineColor="#FFD201";
+          }else{
+            lineColor="#BD0301";
+          }
+          //创建线路
+          var polyline = new BMap.Polyline(
+              arrPois,//所有的GPS坐标点
+              {
+                  strokeColor : lineColor, //线路颜色
+                  strokeWeight : 6,//线路大小
+                  });
+      //绘制线路
+      this.polylinearr.push(polyline)
         this.myMap.addOverlay(polyline);
-        let start=new BMap.Point(data[0].lon,data[0].lat);
-        let end=new BMap.Point(data[data.length-1].lon,data[data.length-1].lat);
-        this.startDance=this.myMap.getDistance(start,new BMap.Point(data[0].lon,data[0].lat))
-        this.endDance=this.myMap.getDistance(start,end)
+      }
+        let start=new BMap.Point(data[data.length-1].lon,data[data.length-1].lat);
+        let end=new BMap.Point(data[0].lon,data[0].lat);
+        this.startDance=this.myMap.getDistance(end,new BMap.Point(data[0].lon,data[0].lat))
+        this.endDance=this.myMap.getDistance(end,start)
         markdata.push(start,end)
         this.setStendMark(markdata)
-        this.myMap.setViewport(arrPois);
-        this.ptsdata=arrPois
+        this.myMap.setViewport(arrPois1);
+        this.ptsdata=arrPois1
        
     },
-
-    //播放点的速度
-    playMark(){
-      var that=this
-      var myP1 = new BMap.Point(116.380967,39.913285);    //起点
-      var myP2 = new BMap.Point(116.424374,39.914668);    //终点
-      var driving2 = new BMap.DrivingRoute(this.myMap, {renderOptions:{map: this.myMap, autoViewport: true}});    //驾车实例
-      driving2.search(myP1, myP2);    //显示一条公交线路
-      window.run =  ()=>{
-        var driving = new BMap.DrivingRoute(that.myMap);    //驾车实例
-        driving.search(myP1, myP2);
-        driving.setSearchCompleteCallback(()=>{
-          var pts = driving.getResults().getPlan(0).getRoute(0).getPath();
-          console.log(44)
-          console.log(pts) 
-          this.ptsdata=pts
-          // this.startlushu(pts)   //通过驾车实例，获得一系列点的数组
-          // var paths = pts.length;    //获得有几个点
-          // var carMk = new BMap.Marker(pts[0],{icon:myIcon});
-          // carMk.addEventListener("click",(e)=>{
-          // })
-          // that.myMap.addOverlay(carMk);
-          // let i=0;
-          // function resetMkPoint(i){
-          //   carMk.setPosition(pts[i]);
-          //   carMk.setRotation(90)
-          //   if(i < paths){
-          //     setTimeout(function(){
-          //       i++;
-          //       resetMkPoint(i);
-          //     },100);
-          //   }
-          // }
-          // setTimeout(function(){
-          //   resetMkPoint(0);
-          // },100)
-
-        });
-      }
-      run();
-      // setTimeout(function(){
-      //   run();
-      // },1500);
-
-    },
-
     startlushu(pts){
       this.allIndex = pts.length
-      if(this.carMk){
-        this.myMap.removeOverlay(this.carMk);  
-      }
-       var myIcon = new BMap.Icon(require('../../assets/image/xs.png'), new BMap.Size(30,30), {    //小车图片
-        //offset: new BMap.Size(0, -5),    //相当于CSS精灵
-        imageOffset: new BMap.Size(0, 0)    //图片的偏移量。为了是图片底部中心对准坐标点。
-        });
-      this.carMk  = new BMap.Marker(pts[this.oneIndex],{icon:myIcon});
-      if(this.oneIndex==0){
-        this.carMk.setAnimation(BMAP_ANIMATION_DROP);
-      }
-        
-        this.myMap.addOverlay(this.carMk );
+      if(this.allIndex==0){
+        return
+      }else{
+        if(this.carMk){
+          this.myMap.removeOverlay(this.carMk);  
+        }
+        var myIcon = new BMap.Icon(require('../../assets/image/xs.png'), new BMap.Size(30,30), {    //小车图片
+          //offset: new BMap.Size(0, -5),    //相当于CSS精灵
+          imageOffset: new BMap.Size(0, 0)    //图片的偏移量。为了是图片底部中心对准坐标点。
+          });
+        this.carMk  = new BMap.Marker(pts[this.oneIndex],{icon:myIcon});
+        this.carMk.addEventListener("click",()=>{
+          console.log(this.ptsdata1[this.oneIndex])
+          this.getDeatil(this.ptsdata1[this.oneIndex])
+        })
+        if(this.oneIndex==0){
+          this.carMk.setAnimation(BMAP_ANIMATION_DROP);
+        }
+        this.myMap.addOverlay(this.carMk);
         this.resetMkPoint()
-
-        // setTimeout(()=>{
-        //   this.resetMkPoint(this.oneIndex);
-        // },1500)
-     
+      }
+    },
+    //点击移动的点的详细信息（
+    getDeatil(row){
+      this.$fetchGet("getTraceCar/detail",{
+        cNo:row.cNo,
+        utc:row.utc,
+      }).then(res=>{
+        this.showInform(res.content,2)
+      })
     },
     resetMkPoint(){
       this.carMk.setPosition(this.ptsdata[this.oneIndex]);
-      this.carMk.setRotation(this.ptsdata1[this.oneIndex].drc+180)
-      // this.carMk.setRotation(225)
-      console.log(this.oneIndex)
+      this.carMk.setRotation(this.ptsdata1[this.oneIndex].drc)
       if(this.oneIndex < this.allIndex){
-        // setTimeout(()=>{
-        //   this.oneIndex++;
-        //   this.resetMkPoint(this.oneIndex);
-        // },600);
         this.handleCommand(this.sdName)
       }
     },
     start(){
-      //  this.lushu.start();
+      console.log("开始播放了")
       this.startlushu(this.ptsdata)
     },
     //路书重置
@@ -523,20 +671,13 @@ export default {
       this.startlushu(this.ptsdata)
     },
     stop(){
-      // this.lushu.pause();
-      console.log(this.oneIndex)
       this.allIndex=this.oneIndex
     },
     //设置起点和终点
     setStendMark(data){
-      if(this.stendMark.length>0){
-         this.stendMark.forEach(iteam=>{
-          this.myMap.removeOverlay(iteam);  
-        })
-      }else{
         data.forEach((iteam,index)=>{
             let icon;
-            if(index==0){
+            if(index==1){
               icon=require('../../assets/image/kas.png')
             }else{
               icon=require('../../assets/image/zd1.png')
@@ -551,10 +692,6 @@ export default {
             this.stendMark.push(marker);
             this.myMap.addOverlay(marker);  
         })
-      }
-     
-      
-     
     },
      //加大地图级别
     addZoom(params) {
@@ -566,6 +703,15 @@ export default {
     },
     changePoint(index){
         this.valuenum=index
+        if(index==1){
+          this.count=this.normalCount
+          this.total=this.normalTotal
+        }else{
+          this.count=this.errorCount
+          this.total=this.errorTotal
+        }
+
+        
     },
     //时间间隔不能大于3天
     timeUpdatethree(val){
@@ -579,19 +725,33 @@ export default {
 
     timedataBtn(val) {
         let timeUpdate=this.timeUpdatethree
-        this.beginTime=val[0]
-        this.endTime=val[1]
+        this.getErrorData()
         if(val!=null){
-          
             if(timeUpdate(val)){
               this.$message.error('查询天数不能大于3天');
             }else{
-            //   this.$message.success('查询成功');
-                this.getData()
+              this.getData()
             }
-
         }
+    },
 
+    //点击左侧操作的按钮
+    setLeftMark(iteam){
+      if(this.leftMark){
+        this.myMap.removeOverlay(this.leftMark);
+      }
+        let point = new BMap.Point(iteam.lon,iteam.lat);
+        let opts = {
+            icon : new BMap.Icon(require('../../assets/image/xs.png'), new BMap.Size(30,30)),    // 指定文本标注所在的地理位置
+            offset : new BMap.Size(0,0)    //设置文本偏移量
+        }
+        this.leftMark = new BMap.Marker(point, opts);  // 创建文本标注对象
+        this.leftMark.addEventListener("click",()=>{
+          // this.showInform(iteam,1)
+        })
+        this.myMap.centerAndZoom(point,14);
+        this.myMap.addOverlay(this.leftMark);  
+      
     },
 
 
