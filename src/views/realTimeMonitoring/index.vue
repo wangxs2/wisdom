@@ -11,7 +11,7 @@
         </el-autocomplete>
       </div>
       <!-- 录入省市的边界 -->
-      <el-select  @change="getXzqu" v-model="inputaas" placeholder="请选择">
+      <!-- <el-select  @change="getXzqu" v-model="inputaas" placeholder="请选择">
         <el-option
           style="width:400px"
           v-for="(item,index) in options"
@@ -28,11 +28,11 @@
           :label="item.name"
           :value="item.center">
         </el-option>
-      </el-select>
+      </el-select> -->
       <!-- 录入省市的边界 -->
       <div class="right-sea">
         <el-button @click="isWaring=!isWaring" type="danger" icon="el-icon-message-solid">报警（{{waringData.length}}）</el-button>
-        <div class="shua"  @click="totalTime=60"> <i class="iconfont icon-shuaxin1"></i>距离下一次刷新 {{totalTime}} 秒</div>
+        <div class="shua"  @click="totalTime=60,getAllCar()"> <i class="iconfont icon-shuaxin1"></i>距离下一次刷新 {{totalTime}} 秒</div>
         <div @click="mapFullEvent" class="box-qunping">
           <img src="../../assets/image/fdicon.png" alt="" srcset="">
         </div>
@@ -134,7 +134,7 @@
                 <li v-for="(iteam,index) in waringData" :key="index" class="list-item">
                   <div class="body-it">{{index+1}}</div>
                   <div class="body-it">{{iteam.cNo}}</div>
-                  <div>{{toHourMinute(iteam.during)}}</div>
+                  <div class="body-it">{{toHourMinute(iteam.during)}}</div>
                   <div class="body-it">
                     <!-- <i  class="iconfont icon-bofang1"></i> -->
                     <img @click="dwMark(iteam)" src="../../assets/image/dw.png">
@@ -313,11 +313,15 @@ export default {
   methods: {
     //倒计时
     countDown() {
+      if(this.totalTimeme){
+        clearTimeout(this.totalTimeme)
+      }
       this.totalTime--
       if(this.totalTime<0){
         this.totalTime=60
+        this.getAllCar()
       }
-      setTimeout( ()=> {
+      this.totalTimeme=setTimeout( ()=> {
 				this.countDown()
 			}, 1000)
     },

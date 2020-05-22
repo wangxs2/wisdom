@@ -30,7 +30,7 @@
             </el-col>
             <el-col :span="8">
                 <div class="grid-content">
-                    <span class="header-tit">地址类型</span>
+                    <span class="header-tit">触发类型</span>
                     <el-select v-model="value" placeholder="请选择">
                         <el-option
                         v-for="item in options"
@@ -58,7 +58,7 @@
             </el-col>
             <el-col :span="8">
                 <div class="grid-content">
-                    <span class="header-tit" style="margin-right:1vw">围栏创建状态</span>
+                    <span class="header-tit">开始时间</span>
                     <el-select v-model="value" placeholder="请选择">
                         <el-option
                         v-for="item in options"
@@ -71,20 +71,39 @@
             </el-col>
             <el-col :span="8">
                 <div class="grid-content">
+                    <span class="header-tit">结束时间</span>
+                    <el-select v-model="value" placeholder="请选择">
+                        <el-option
+                        v-for="item in options"
+                        :key="item.value"
+                        :label="item.label"
+                        :value="item.value">
+                        </el-option>
+                    </el-select>
                 </div>
             </el-col>
         </el-row>
-
+         <el-row :gutter="20" style="margin-top:2vh">
+           <el-col :span="8">
+                <div class="grid-content">
+                    <span class="header-tit" style="margin-right:3.4vw">车牌号</span>
+                    <el-select v-model="value" placeholder="请选择">
+                        <el-option
+                        v-for="item in options"
+                        :key="item.value"
+                        :label="item.label"
+                        :value="item.value">
+                        </el-option>
+                    </el-select>
+                </div>
+            </el-col>
+        </el-row>
         <el-row :gutter="20">
            <div class="grid-content grid-content1">
                 <el-button type="primary">搜索</el-button>
                 <el-button>重置</el-button>
             </div>
         </el-row>
-      </div>
-      <div class="center-head">
-        <el-button type="primary">添加</el-button>
-        <el-button>批量导入</el-button>
       </div>
       <div class="table-box">
         <div class="table-tit" style="color:#303133">地址列表</div>
@@ -103,7 +122,7 @@
             <el-table-column
             prop="name"
             align="center"
-            label="地址编码"
+            label="车牌号"
             >
             </el-table-column>
             <el-table-column
@@ -121,51 +140,30 @@
             <el-table-column
             prop="name"
             align="center"
-            label="地址类型"
+            label="触发类型"
             >
             </el-table-column>
             <el-table-column
             prop="name"
             align="center"
-            label="地址状态"
+            label="触发时间"
             >
             </el-table-column>
             <el-table-column
             prop="name"
             align="center"
-            label="围栏创建状态"
+            label="触发数据源"
             >
             </el-table-column>
              <el-table-column
             prop="name"
             align="center"
-            label="触发次数">
+            label="触发位置1">
             </el-table-column>
             <el-table-column
             prop="name"
             align="center"
-            label="操作时间">
-            </el-table-column>
-            <el-table-column
-            prop="name"
-            align="center"
-            label="操作人">
-            </el-table-column>
-            <el-table-column align="center" label="位置">
-                <template slot-scope="scope">
-                    <img src="../../assets/image/dw.png">
-                </template>
-            </el-table-column>
-            <el-table-column label="操作">
-                <template slot-scope="scope">
-                    <el-button
-                    size="mini"
-                    >编辑</el-button>
-                    <el-button
-                    size="mini"
-                    type="danger"
-                    删除</el-button>
-                </template>
+            label="触发位置2">
             </el-table-column>
         </el-table>
 
@@ -263,7 +261,7 @@ export default {
          box-sizing: border-box;
          padding: vw(20);
         width: 100%;
-        height: vh(200);
+        height: vh(240);
         background: #ffffff;
         // border: 1px solid red;
         border-radius:4px;
@@ -276,7 +274,8 @@ export default {
         }
         .grid-content1{
             text-align:right;
-            margin-right:vw(20)
+            margin-right:vw(20);
+            margin-top:vw(-20)
         }
     }
     .center-head{
@@ -285,7 +284,8 @@ export default {
     }
     .table-box{
         width:100%;
-        height: vh(655);
+        height: vh(654);
+        margin-top:vh(20);
         background: #ffffff;
         box-shadow:1px 1px 4px 0px rgba(213,213,213,1);
          box-sizing: border-box;

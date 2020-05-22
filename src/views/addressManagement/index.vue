@@ -83,7 +83,7 @@
         </el-row>
       </div>
       <div class="center-head">
-        <el-button type="primary">添加</el-button>
+        <el-button type="primary" @click="dialogFormVisible=true">添加</el-button>
         <el-button>批量导入</el-button>
       </div>
       <div class="table-box">
@@ -156,15 +156,11 @@
                     <img src="../../assets/image/dw.png">
                 </template>
             </el-table-column>
-            <el-table-column label="操作">
+            <el-table-column width="160" align="center" label="操作">
                 <template slot-scope="scope">
-                    <el-button
-                    size="mini"
-                    >编辑</el-button>
-                    <el-button
-                    size="mini"
-                    type="danger"
-                    删除</el-button>
+                    <span style="color:#317AF8;cursor:pointer">查看详情</span>
+                    <span style="color:#317AF8;margin-left:0.5vw;cursor:pointer">修改</span>
+                    <span style="color:#317AF8 ;margin-left:0.5vw;cursor:pointer">禁用</span>
                 </template>
             </el-table-column>
         </el-table>
@@ -181,6 +177,81 @@
             :total="400">
             </el-pagination>
       </div>
+
+      <!-- 添加和修改的弹窗 -->
+       <el-dialog width="70%" :title="title" :close-on-click-modal="false" :visible.sync="dialogFormVisible">
+            <el-form  size="small" :model="form">
+                <el-row :gutter="20">
+                    <el-col :span="12">
+                        <div>
+                            <el-form-item label="地址全称" label-width="100px">
+                                <el-input style="width:400px" v-model="form.name" autocomplete="off"></el-input>
+                            </el-form-item>
+                        </div>
+                    </el-col>
+                    <el-col :span="12">
+                        <div>
+                            <el-form-item label="地址状态" label-width="100px">
+                                <el-input style="width:400px" v-model="form.name" autocomplete="off"></el-input>
+                            </el-form-item>
+                        </div>
+                    </el-col>
+                </el-row>
+                <el-row :gutter="20">
+                    <el-col :span="12">
+                        <div>
+                            <el-form-item label="地址简称" label-width="100px">
+                                <el-input style="width:400px" v-model="form.name" autocomplete="off"></el-input>
+                            </el-form-item>
+                        </div>
+                    </el-col>
+                    <el-col :span="12">
+                        <div>
+                            <el-form-item label="行政区域" label-width="100px">
+                                <el-input style="width:400px" v-model="form.name" autocomplete="off"></el-input>
+                            </el-form-item>
+                        </div>
+                    </el-col>
+                </el-row>
+                <el-row :gutter="20">
+                    <el-col :span="12">
+                        <div>
+                            <el-form-item label="地址编码" label-width="100px">
+                                <el-input style="width:400px" v-model="form.name" autocomplete="off"></el-input>
+                            </el-form-item>
+                        </div>
+                    </el-col>
+                    <el-col :span="12">
+                        <div>
+                            <el-form-item label="所属城市" label-width="100px">
+                                <el-input style="width:400px" v-model="form.name" autocomplete="off"></el-input>
+                            </el-form-item>
+                        </div>
+                    </el-col>
+                </el-row>
+                 <el-row :gutter="20">
+                    <el-col :span="12">
+                        <div>
+                            <el-form-item label="地址类型" label-width="100px">
+                                <el-input style="width:400px" v-model="form.name" autocomplete="off"></el-input>
+                            </el-form-item>
+                        </div>
+                    </el-col>
+                    <el-col :span="12">
+                        <div>
+                            <el-form-item label="详细地址" label-width="100px">
+                                <el-input style="width:400px" type="textarea" :rows="4" v-model="form.region" maxlength="120" show-word-limit autocomplete="off"></el-input>
+                            </el-form-item>
+                        </div>
+                    </el-col>
+                </el-row>
+            </el-form>
+            <div slot="footer" class="dialog-footer">
+                <el-button @click="dialogFormVisible = false">取 消</el-button>
+                <el-button type="primary" @click="dialogFormVisible = false">确 定</el-button>
+            </div>
+        </el-dialog>
+      <!-- 添加和修改的弹窗 -->
     
   </div>
 </template>
@@ -209,7 +280,13 @@ export default {
                 value: '选项5',
                 label: '北京烤鸭'
             }],
-             tableData: [{
+            title:"添加地址",
+            dialogFormVisible:false,
+            form:{
+                name:'',
+                region:'',
+            },
+            tableData: [{
             date: '2016-05-03',
             name: '王小虎',
             address: '上海市普陀区金沙江路 1518 弄'
@@ -252,6 +329,14 @@ export default {
     },
 }
 </script>
+<style>
+.addManage .el-form-item__label{
+    text-align:left;
+}
+.addManage .el-form-item__content{
+    text-align:left;
+}
+</style>
 <style lang="scss" scoped>
 .addManage{
     width: 100%;
