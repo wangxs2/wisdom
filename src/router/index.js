@@ -2,6 +2,8 @@ import Vue from 'vue'
 import VueRouter from 'vue-router'
 import layout from '../views/layout/index.vue'
 import realTimeMonitoring from '../views/realTimeMonitoring/index.vue'//车辆信息
+import addressManagement from '../views/addressManagement/index.vue'//地址管理
+import addressRecord from '../views/addressRecord/index.vue'//地址记录
 import login from '../views/login/index.vue'
 import trajectory from '../views/trajectory/index.vue'//轨迹查询
 import error from '../views/error/index.vue'//轨迹查询
@@ -20,8 +22,18 @@ Vue.use(VueRouter)
       },
       {
         path: '/trajectory',
-        name: '轨迹查询',
+        name: 'trajectory',
         component: trajectory
+      },
+      {
+        path: '/addressManagement',
+        name: '地址管理',
+        component: addressManagement
+      },
+      {
+        path: '/addressRecord',
+        name: '地址记录',
+        component: addressRecord
       },
       {
         path: '/error',

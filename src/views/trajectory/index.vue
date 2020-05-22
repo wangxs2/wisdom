@@ -139,7 +139,7 @@
     <div class="trajectoryBox">
       <div style="color:#307CFC">{{value1[0]}}</div>
       <div style="color:#307CFC;margin-left:20px">{{parseInt(startDance/1000)}}km</div>
-      <div style="margin-left:20px" @click="isbf=!isbf" class="bfbtn">
+      <div style="margin-left:20px" class="bfbtn">
         <i v-if="isbf" @click="start()" class="iconfont iconbofang"></i>
         <i v-if="!isbf" @click="stop()" class="iconfont iconzantingtingzhi"></i>
       </div>
@@ -180,7 +180,7 @@
 import screenfull from 'screenfull';
 import "../../libs/util.js"
 export default {
-  name: "appMain",
+  name: 'trajectory',
   data() {
     return {
       count:[],
@@ -200,7 +200,7 @@ export default {
       checked:false,
       isbf:true,
       value1:[new Date(new Date()-24*60*60*1000).Format('yyyy-MM-dd hh:mm:ss'), new Date().Format('yyyy-MM-dd hh:mm:ss')],//开始时间 结束时间
-      input3:'陕YH0008',//车牌号
+      input3:'',//车牌号
       page:1,
       pageSize:15,
       timeout:null,
@@ -248,6 +248,7 @@ export default {
       titindex:0,
       timeId:null,
       leftMark:null,
+      updateData:{},//从实时监控过来的数据
       // mapstyle:"dark",
     };
   },
@@ -280,7 +281,11 @@ export default {
     
   },
   created() {
-   
+     if (this.$route.params.type == 'update') {
+      this.updateData= this.$route.params.updateData
+      console.log(this.updateData)
+      this.input3=this.updateData.cNo
+    }
   },
   methods: {
     //是否显示异常点
@@ -336,7 +341,7 @@ export default {
         }
       })
       }else{
-        this.$fetchGet("getTraceCar/byPeriod",{
+        this.$fetchGet("getTraceCar/byPeriodWithPage",{
         cNo:this.input3,
         beginTime:this.value1[0],
         endTime:this.value1[1],
@@ -385,7 +390,7 @@ export default {
           this.statusError=res.content.error
           
         }else{
-          this.$message.error('暂无数据！请检查！');
+          //this.$message.error('暂无数据！请检查！');
         }
         
       })
@@ -492,7 +497,7 @@ export default {
           this.getLine(res.content.data)
           this.ageSpeed=res.content.speed
         }else{
-          this.$message.error('暂无数据！请检查');
+          // this.$message.error('暂无数据！请检查');
           this.clearPoline()
         }
         
@@ -516,7 +521,6 @@ export default {
       this.errorTotal=0,
       this.errorCount=[]
       this.count=[]
-      console.log(this.count.length)
       this.ptsdata=[]
       if(this.carMk){
         this.myMap.removeOverlay(this.carMk);  
@@ -635,7 +639,6 @@ export default {
           });
         this.carMk  = new BMap.Marker(pts[this.oneIndex],{icon:myIcon});
         this.carMk.addEventListener("click",()=>{
-          console.log(this.ptsdata1[this.oneIndex])
           this.getDeatil(this.ptsdata1[this.oneIndex])
         })
         if(this.oneIndex==0){
@@ -662,15 +665,18 @@ export default {
       }
     },
     start(){
-      console.log("开始播放了")
+      this.isbf=!this.isbf
       this.startlushu(this.ptsdata)
+
     },
     //路书重置
     refresh(){
       this.oneIndex=0
+      this.isbf=false
       this.startlushu(this.ptsdata)
     },
     stop(){
+      this.isbf=!this.isbf
       this.allIndex=this.oneIndex
     },
     //设置起点和终点
@@ -742,12 +748,17 @@ export default {
       }
         let point = new BMap.Point(iteam.lon,iteam.lat);
         let opts = {
-            icon : new BMap.Icon(require('../../assets/image/xs.png'), new BMap.Size(30,30)),    // 指定文本标注所在的地理位置
+            icon : new BMap.Icon(this.valuenum==0?require('../../assets/image/lx.png'):require('../../assets/image/xs.png'), new BMap.Size(30,30)),    // 指定文本标注所在的地理位置
             offset : new BMap.Size(0,0)    //设置文本偏移量
         }
         this.leftMark = new BMap.Marker(point, opts);  // 创建文本标注对象
         this.leftMark.addEventListener("click",()=>{
           // this.showInform(iteam,1)
+          if(this.valuenum==0){
+            this.showInform(iteam,1)
+          }else{
+            this.getDeatil(iteam)
+          }
         })
         this.myMap.centerAndZoom(point,14);
         this.myMap.addOverlay(this.leftMark);  
@@ -1106,7 +1117,7 @@ export default {
       cursor: pointer;
       i{
         color:#ffffff;
-        font-size:9px;
+        font-size:16px;
       }
     }
   }

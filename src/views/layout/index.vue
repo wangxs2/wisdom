@@ -39,7 +39,7 @@
           <div class="route-tit">
             <el-breadcrumb separator="/">
               <template v-for="(item,index) in getRouterName">
-                <el-breadcrumb-item :key="index">{{ item.name }}</el-breadcrumb-item>
+                <el-breadcrumb-item :key="index">{{ item.name=='trajectory'?'轨迹查询':item.name }}</el-breadcrumb-item>
               </template>
             </el-breadcrumb>
           </div>

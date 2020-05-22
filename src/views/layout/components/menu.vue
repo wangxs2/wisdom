@@ -106,11 +106,11 @@ export default {
           children:[
             {
               name:"地址管理",
-              url:"/error"
+              url:"/addressManagement"
             },
             {
               name:"围栏记录",
-              url:"/error"
+              url:"/addressRecord"
             }
           ]
         },

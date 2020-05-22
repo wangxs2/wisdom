@@ -10,7 +10,7 @@
           <el-button  slot="append" icon="el-icon-search"></el-button>
         </el-autocomplete>
       </div>
-      <!-- <el-input v-model="inputaas" style="width:200px" @blur="getXzqu" placeholder="请输入内容"></el-input> -->
+      <!-- 录入省市的边界 -->
       <el-select  @change="getXzqu" v-model="inputaas" placeholder="请选择">
         <el-option
           style="width:400px"
@@ -20,7 +20,7 @@
           :value="item.name">
         </el-option>
       </el-select>
-       <el-select  @change="postName" v-model="value" placeholder="请选择">
+      <el-select  @change="postName" v-model="value" placeholder="请选择">
         <el-option
           style="width:400px"
           v-for="(item,index) in options"
@@ -29,8 +29,9 @@
           :value="item.center">
         </el-option>
       </el-select>
+      <!-- 录入省市的边界 -->
       <div class="right-sea">
-        <el-button @click="isWaring=!isWaring" type="danger" icon="el-icon-message-solid">报警（126）</el-button>
+        <el-button @click="isWaring=!isWaring" type="danger" icon="el-icon-message-solid">报警（{{waringData.length}}）</el-button>
         <div class="shua"  @click="totalTime=60"> <i class="iconfont icon-shuaxin1"></i>距离下一次刷新 {{totalTime}} 秒</div>
         <div @click="mapFullEvent" class="box-qunping">
           <img src="../../assets/image/fdicon.png" alt="" srcset="">
@@ -73,13 +74,13 @@
             <el-scrollbar style="height:100%">
               <ul
                 class="list">
-                <li v-for="i in count" :key="i" class="list-item">
-                  <div class="body-it">{{i}}</div>
-                  <div class="body-it">赣JS5129</div>
-                  <div class="body-it"><span :class="i==1?'body-it0':i==2?'body-it1':'body-it2'">{{i==1?'行驶':i==2?'静止':'离线'}}</span></div>
+                <li v-for="(itam,index) in countLeft" :key="index" class="list-item">
+                  <div class="body-it">{{index+1}}</div>
+                  <div class="body-it">{{itam.cNo}}</div>
+                  <div class="body-it"><span :class="itam.onLine==1?'body-it0':itam.onLine==2?'body-it1':'body-it2'">{{itam.onLine==1?'行驶':itam.onLine==2?'静止':'离线'}}</span></div>
                   <div class="body-it">
-                    <img src="../../assets/image/bf.png">
-                    <img style="margin-left:14px" src="../../assets/image/dw.png">
+                    <img @click="guiji(itam)" src="../../assets/image/bf.png">
+                    <img style="margin-left:14px" @click="dwMark(itam)" src="../../assets/image/dw.png">
                   </div>
                 </li>
               </ul>
@@ -130,13 +131,13 @@
             <el-scrollbar style="height:100%">
               <ul
                 class="list">
-                <li v-for="i in count" class="list-item">
-                  <div class="body-it">{{i}}</div>
-                  <div class="body-it">赣JS5129</div>
-                  <div>1小时45分钟</div>
+                <li v-for="(iteam,index) in waringData" :key="index" class="list-item">
+                  <div class="body-it">{{index+1}}</div>
+                  <div class="body-it">{{iteam.cNo}}</div>
+                  <div>{{toHourMinute(iteam.during)}}</div>
                   <div class="body-it">
                     <!-- <i  class="iconfont icon-bofang1"></i> -->
-                    <img src="../../assets/image/dw.png">
+                    <img @click="dwMark(iteam)" src="../../assets/image/dw.png">
                   </div>
                 </li>
               </ul>
@@ -151,6 +152,10 @@
     <!-- 报警的列表 -->
     <!-- 缩放的按钮 -->
     <div class="zoomBtn">
+      <div class="box-big" @click="addLk()">
+        <img v-if="islk" src="../../assets/image/lk1.png" width="26" height="26">
+        <img v-if="!islk" src="../../assets/image/lk2.png"  width="26" height="26">
+      </div>
       <div class="box-big" id="box-big1" @click="addZoom()">
         <img src="../../assets/image/big.png">
       </div>
@@ -180,7 +185,9 @@ export default {
   name: "appMain",
   data() {
     return {
-      count: 40,
+      countLeft:[],//左侧
+      oilData:[],
+      waringData:[],
       value:'',
       inputaas:'',
       totalTime: 60, //倒计时
@@ -194,7 +201,7 @@ export default {
       isCar: false,//图例
       myMap: null,
       ZoomNum: null,
-      valuenum:12,
+      valuenum:0,
       isLeft:true,//是否隐藏左侧的车辆信息
       mapstyle: "normal",
       searchinput:"",
@@ -225,73 +232,33 @@ export default {
       ],
       cltitData:[
         {
-          name:"全部(126)",
+          name:"全部",
           id:0,
         },
         {
-          name:"行驶(126)",
+          name:"行驶",
           id:1,
         },
         {
-          name:"静止(126)",
+          name:"静止",
           id:2,
         },
         {
-          name:"离线(126)",
+          name:"离线",
           id:-1,
         },
          {
-          name:"未入网(126)",
+          name:"未入网",
+          id:3,
         },
       ],
-      allData:[
-        {
-          lng:114.527637,
-          lat:38.099299,
-          num:9,
-          name:'河北',
-        },
-        {
-          lng:116.367366,
-          lat:39.964568,
-          num:19,
-          name:'北京',
-        },
-        {
-          lng:113.681361,
-          lat:34.830886,
-          num:119,
-          name:'河南',
-        },
-        {
-          lng:121.487899486,
-          lat:31.24916171,
-          num:1119,
-          name:'上海',
-        },
-
-      ],
-      statusData:[
-         {
-          lng:114.292029,
-          lat:30.57571,
-          status:1,
-          name:'行驶',
-        },
-        {
-          lng:115.852242,
-          lat:28.803303,
-          status:2,
-          name:'静止',
-        },
-        {
-          lng:119.274139,
-          lat:26.145259,
-          status:3,
-          name:'离线',
-        }
-      ],
+      allData:[],
+      statusData:[],
+      onLine:"",
       titindex:0,
+      islk:true,//路况
+      tiadata:{},//轨迹回放
+      ctrl:null,
       // mapstyle:"dark",
     };
   },
@@ -308,17 +275,23 @@ export default {
         $("#box-big2").css({"cursor": "pointer"});
       }
     },
+    "select":function(val,old){
+      console.log(val)
+      if(val==2){
+        
+      }
+    }
   },
   computed: {
       noMore () {
-        return this.count >= 40
+        return this.statusData >= this.statusData.length
       },
       disabled () {
         return this.loading || this.noMore
       }
     },
   mounted() {
-    this.restaurants = this.loadAll();
+    this.getstaData()
     this.initMap();
     this.getZmap();
     $('.map-content').on("click", "#close1",  ()=> {
@@ -326,7 +299,7 @@ export default {
       this.myMap.removeOverlay(this.activeLab); 
     })
     $('.map-content').on("click", "#trajectory",  ()=> {
-       this.$router.push("/trajectory")
+       this.guiji(this.tiadata)
     })
     
   },
@@ -334,6 +307,8 @@ export default {
     this.options=cityName
     this.countDown()
     this.getAllCar()
+   
+    
   },
   methods: {
     //倒计时
@@ -346,29 +321,78 @@ export default {
 				this.countDown()
 			}, 1000)
     },
+    addLk(){
+      this.islk=!this.islk
+      if(!this.islk){
+        this.ctrl.showTraffic({predictDate:{hour:15, weekday: 5}});
+      }else{
+        this.ctrl.hideTraffic();
+      }
+    },
+    //轨迹回放
+    guiji(row){
+       this.$router.push({
+        name: 'trajectory',
+        params: {
+          type: 'update',
+          updateData: row
+        }
+      });
+    },
+    //定位到当前的点
+    dwMark(row){
+      this.myMap.centerAndZoom(new BMap.Point(row.lon,row.lat),19);
+      this.showInform(row)
+    },
     //切换车辆的状态
     carStatus(){
-       this.$fetchGet("monitor/getRealInfo",{
-        online:this.valuenum,
-      }).then(res=>{
+      if(this.select=="1"){
+        this.getAllCar()
+      }
+    },
+    getstaData(){
+      this.$fetchGet("monitor/getFooBar").then(res=>{
+        res.content[0].forEach((iteam,index)=>{
+          this.cltitData[index].name=this.cltitData[index].name+'('+iteam+')'
+        })
+      })
 
+
+      this.$fetchGet("monitor/getAllCNo").then(res=>{
+        // this.restaurants=res.content
+        res.content.forEach((iteam,index)=>{
+          this.restaurants.push({value:iteam})
+        })
       })
     },
     getAllCar(){
+      this.waringData=[]
+      this.statusData=[]
+      this.allData=[]
+      this.countLeft=[]
       this.$fetchGet("monitor/getLinkage",{
         cNo:this.searchinput,
-         status:''
+        stat:this.valuenum
       }).then(res=>{
           if(res.content){
-
+            this.allData=res.content.graph
+            this.countLeft=this.cloneObj(res.content.cars)
+            this.statusData=this.cloneObj(res.content.cars)
+            this.statusData.forEach((iteam,index)=>{
+              if(iteam.during>10){
+                this.waringData.push(iteam)
+              }
+            })
           }else{
 
           }
+          this.makeBigcel()
       })
     },
     initMap() {
+      // 108.933051,34.546597
       this.myMap = new BMap.Map("mymap");
-      this.myMap.centerAndZoom(new BMap.Point(108.933051,34.546597), 5);
+      this.myMap.centerAndZoom(new BMap.Point(121.644624,31.205915), 5);  
       this.myMap.enableScrollWheelZoom(); //地图缩放的功能
       this.myMap.addControl(
         new BMap.ScaleControl({ anchor: BMAP_ANCHOR_BOTTOM_LEFT })
@@ -376,14 +400,17 @@ export default {
       this.myMap.setMapStyleV2({     
         styleId: '877fcc51379e35af5063374cd7687818'
       });
-      this.makeBigcel()
+
+      this.ctrl = new BMapLib.TrafficControl({showPanel: false});
+      this.ctrl.setAnchor(BMAP_ANCHOR_BOTTOM_RIGHT);  
+      this.myMap.addControl(this.ctrl);
+      
       // this.statuMark()
     },
     //地图的缩放时间
     getZmap() {
       this.myMap.addEventListener("zoomend", () => {
         this.ZoomNum = this.myMap.getZoom();
-        console.log(this.ZoomNum)
         if(this.ZoomNum>8){
           this.isCar=true
           this.clearBig()
@@ -407,23 +434,11 @@ export default {
     },
     //全屏
     mapFullEvent () {
-      console.log(screenfull)
       screenfull.toggle(this.$refs.compreMap)
-
     },
-    //加载更多
-    loadAll() {
-      return [
-        { "value": "油厂1", "address": "长宁区新渔路144号" },
-        { "value": "油厂2", "address": "上海市长宁区淞虹路661号" },
-        { "value": "油厂3", "address": "上海市普陀区真北路988号创邑金沙谷6号楼113" },
-        { "value": "油厂4", "address": "天山西路438号" },
-      ];
-      },
     querySearchAsync(queryString, cb) {
       var restaurants = this.restaurants;
       var results = queryString ? restaurants.filter(this.createStateFilter(queryString)) : restaurants;
-
       clearTimeout(this.timeout);
       this.timeout = setTimeout(() => {
         cb(results);
@@ -435,7 +450,12 @@ export default {
       };
     },
     handleSelect(item) {
-      console.log(item);
+      console.log(item.value)
+      this.statusData.forEach((iteam,index)=>{
+        if(item.value==iteam.cNo){
+            this.dwMark(iteam)
+        }
+      })
     },
      //加大地图级别
     addZoom(params) {
@@ -448,7 +468,7 @@ export default {
     //大圆圈的点
     makeBigcel(){
       this.allData.forEach(iteam=>{
-        var point = new BMap.Point(iteam.lng,iteam.lat);
+        var point = new BMap.Point(iteam.centerLongitude,iteam.centerLatitude);
         let opts = {
             position : point,    // 指定文本标注所在的地理位置
             offset   : new BMap.Size(-20, -30)    //设置文本偏移量
@@ -492,11 +512,11 @@ export default {
     //各个状态的点
     statuMark(){
       this.statusData.forEach(iteam=>{
-        let point = new BMap.Point(iteam.lng,iteam.lat);
+        let point = new BMap.Point(iteam.lon,iteam.lat);
         let icon;
-        if(iteam.status==1){
+        if(iteam.onLine==1){
           icon=require('../../assets/image/xs.png')
-        }else if(iteam.status==2){
+        }else if(iteam.onLine==2){
           icon=require('../../assets/image/jz.png')
         }else{
           icon=require('../../assets/image/lx.png')
@@ -525,10 +545,10 @@ export default {
                                   border:2px solid rgba(48,124,252,1);
                                   border-radius:50%;"></div>`
           let label1 = new BMap.Label(conten1, activep);  // 创建文本标注对象
-          console.log(conten1, activep)
           this.activeLab=label1
           this.myMap.addOverlay(label1); 
-          this.showInform(new BMap.Point(obj.lng,obj.lat))
+          this.showInform(iteam)
+
         
         });
         this.cityMarker.push(marker);
@@ -548,31 +568,35 @@ export default {
       }
     },
     //显示车辆的信息
-    showInform(point){
+    showInform(row){
+      if(this.activeInfow){
+        this.myMap.removeOverlay(this.activeInfow); 
+      }
       let activep1 = {
-            position: point,    // 指定文本标注所在的地理位置
+            position: new BMap.Point(row.lon,row.lat),    // 指定文本标注所在的地理位置
             offset: new BMap.Size(-180, -310)    //设置文本偏移量
       }
+      this.tiadata=row
       var sContent=`<div style="width:360px;height:260px;background:#ffffff;position:relative;box-shadow:0px 0px 12px 0px rgba(51,51,51,0.3);border-radius:4px;z-index:800">
                         <div style="display:flex;width:100%;height:50px;background:rgba(188,216,252,1); justify-content: space-between;align-items: center;box-sizing: border-box;
                         padding:10px 20px;">
                           <img src="${require('../../assets/image/qc.png')}" width="30" height="22">
-                          <span style="font-size:22px;color:#307CFC">京A123666</span>
+                          <span style="font-size:22px;color:#307CFC">${row.cNo}</span>
                           <img id="close1" style="cursor: pointer;" src="${require('../../assets/image/close.png')}" width="16" height="16">
                         </div>
                         <div style="width:100%;height:210px;overflow:hidden;box-sizing:border-box;padding:10px">
                           <div style="display:flex;justify-content:flex-start;font-size:16px;color:#7B7D7F;margin-bottom:6px;">
                             <div style="width:66px">时速</div>
-                            <div style="margin-left:16px;flex:1">68 km/h</div>
+                            <div style="margin-left:16px;flex:1">${row.spd} km/h</div>
                           </div>
                           
                           <div style="display:flex;justify-content:flex-start;font-size:16px;color:#7B7D7F;margin-bottom:6px;">
                             <div style="width:66px">定位时间</div>
-                            <div style="margin-left:16px">68 km/h</div>
+                            <div style="margin-left:16px">${new Date(row.utc*1000).Format('yyyy-MM-dd hh:mm:ss')}</div>
                           </div>
                           <div style="display:flex;justify-content:flex-start;font-size:16px;color:#7B7D7F;">
                             <div style="width:66px">最后定位</div>
-                            <div style="margin-left:16px;word-break:break-all;flex:1"">浙江省 嘉善县 惠民镇G15浙江省 嘉善县 惠民镇G15（嘉敏高速）嘉善县 惠民镇G15（嘉敏高速）</div>
+                            <div style="margin-left:16px;word-break:break-all;flex:1"">${row.adr}</div>
                           </div>
                           <div style="display:flex;justify-content:center;margin-top:20px">
                              <div id="trajectory" style="cursor: pointer;width:110px;height:30px;background:rgba(48,124,252,1);border-radius:4px;color:#ffffff;display:flex;justify-content:center;align-items:center;">
@@ -619,9 +643,19 @@ export default {
         polygonGeom:this.mapo,
         centerLongitude:this.value
       },'json').then(res=>{
-        console.log(res)
       })
     },
+
+    // 将分钟数量转换为小时和分知钟字符串道
+   toHourMinute(minutes){
+      if(minutes/60<1){
+        return (minutes + "分" );
+      }else{
+        return (Math.floor(minutes/60) + "小时" + (minutes%60) + "分" );
+      }
+    },
+// 使用示属例
+
     //搜索行政区录入数据库
     getXzqu(){
       var bdary = new BMap.Boundary();
@@ -641,9 +675,7 @@ export default {
           this.mapo=rs.boundaries[i]
         }    
         this.myMap.setViewport(pointArray);    //调整视野  
-        console.log(this.formattingCharacters(pointArray))
         this.mapo=this.formattingCharacters(pointArray)
-
         // addlabel();               
       });  
     },
@@ -660,10 +692,7 @@ export default {
       arr2 = arr1.join(',')
       let arr3 = `POLYGON((${arr2}))`
       return arr3
-
     },
-
-
 
   }
 };
