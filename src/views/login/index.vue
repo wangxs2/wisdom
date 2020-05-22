@@ -44,7 +44,7 @@
           <div class="bigquan"></div>
           <el-form-item style="margin-top:44px">
             <el-button
-              style="width:320px;height:44px;background:#395BB2;color:#ffffff"
+              style="width:16vw;height:44px;background:#395BB2;color:#ffffff"
               :loading="loading"
               @click="submitForm()"
             >登录</el-button>
@@ -57,7 +57,7 @@
 
 <script>
 // @ is an alias to /src
-
+import base64 from "@/libs/base.js";
 export default {
   components: {},
   data(){
@@ -84,8 +84,8 @@ export default {
     };
       return{
         ruleForm2: {
-            username: "root",
-            password: "root"
+            username: "",
+            password: ""
         },
         message: "",
         nameMess: "",
@@ -114,7 +114,33 @@ export default {
   },
   methods:{
       submitForm(){
-        this.$router.push("/realTimeMonitoring")
+        // let b = new base64();
+        let Basesa = require('js-base64').Base64;
+        this.$refs.ruleForm2.validate(valid => {
+          if (valid) {
+            let data={
+              username:this.ruleForm2.username,
+              password:Basesa.encode(this.ruleForm2.password)
+            }
+            this.$fetchPost("login", data).then(res=>{
+              console.log(res.slice(6,7))
+                console.log(res.code)
+                if(res.slice(6,7)==1){
+                  this.$router.push("/realTimeMonitoring")
+                }else{
+                   this.$message({
+                      message: "用户名或密码错误",
+                      type: "warning"
+                    });
+                }
+            })
+          }else{
+            this.$message({
+                message: "完善信息",
+                type: "warning"
+              });
+          }
+        })
       },
       forget(){
 

@@ -65,8 +65,8 @@
         </div>
         <div class="table-box">
           <div class="table-head">
-            <div class="head-it">序号</div>
-            <div class="head-it">车牌号</div>
+            <div class="head-it" style="width:15%">序号</div>
+            <div class="head-it" style="width:35%">车牌号</div>
             <div class="head-it">车辆状态</div>
             <div class="head-it">操作</div>
           </div>
@@ -75,8 +75,8 @@
               <ul
                 class="list">
                 <li v-for="(itam,index) in countLeft" :key="index" class="list-item">
-                  <div class="body-it">{{index+1}}</div>
-                  <div class="body-it">{{itam.cNo}}</div>
+                  <div class="body-it" style="width:15%">{{index+1}}</div>
+                  <div class="body-it" style="width:35%">{{itam.cNo}}</div>
                   <div class="body-it"><span :class="itam.onLine==1?'body-it0':itam.onLine==2?'body-it1':'body-it2'">{{itam.onLine==1?'行驶':itam.onLine==2?'静止':'离线'}}</span></div>
                   <div class="body-it">
                     <img @click="guiji(itam)" src="../../assets/image/bf.png">
@@ -122,8 +122,8 @@
         <div class="tit">报警对象：静止超过10分钟的车辆</div>
         <div class="table-box">
           <div class="table-head">
-            <div class="head-it">序号</div>
-            <div class="head-it">车牌号</div>
+            <div class="head-it" style="width:15%">序号</div>
+            <div class="head-it" style="width:35%">车牌号</div>
             <div class="head-it">停留时长</div>
             <div class="head-it">操作</div>
           </div>
@@ -132,8 +132,8 @@
               <ul
                 class="list">
                 <li v-for="(iteam,index) in waringData" :key="index" class="list-item">
-                  <div class="body-it">{{index+1}}</div>
-                  <div class="body-it">{{iteam.cNo}}</div>
+                  <div class="body-it" style="width:15%">{{index+1}}</div>
+                  <div class="body-it" style="width:35%">{{iteam.cNo}}</div>
                   <div class="body-it">{{toHourMinute(iteam.during)}}</div>
                   <div class="body-it">
                     <!-- <i  class="iconfont icon-bofang1"></i> -->
@@ -390,7 +390,12 @@ export default {
           }else{
 
           }
-          this.makeBigcel()
+          if(this.ZoomNum>8){
+            this.statuMark()
+          }else{
+            this.makeBigcel()
+          }
+          
       })
     },
     initMap() {
@@ -408,7 +413,6 @@ export default {
       this.ctrl = new BMapLib.TrafficControl({showPanel: false});
       this.ctrl.setAnchor(BMAP_ANCHOR_BOTTOM_RIGHT);  
       this.myMap.addControl(this.ctrl);
-      
       // this.statuMark()
     },
     //地图的缩放时间
@@ -471,6 +475,7 @@ export default {
     },
     //大圆圈的点
     makeBigcel(){
+      this.clearBig()
       this.allData.forEach(iteam=>{
         var point = new BMap.Point(iteam.centerLongitude,iteam.centerLatitude);
         let opts = {
@@ -505,7 +510,6 @@ export default {
         this.cityPoint.push(label);
         this.myMap.addOverlay(label);   
       })
-      
     },
     //清除大圆圈
     clearBig(){
@@ -515,6 +519,7 @@ export default {
     },
     //各个状态的点
     statuMark(){
+      this.clearMark()
       this.statusData.forEach(iteam=>{
         let point = new BMap.Point(iteam.lon,iteam.lat);
         let icon;
@@ -530,6 +535,7 @@ export default {
             offset : new BMap.Size(-15, -15)    //设置文本偏移量
         }
         let marker = new BMap.Marker(point, opts);  // 创建文本标注对象
+        marker.setRotation(iteam.drc)
         marker.addEventListener("click",()=>{
           if(this.activeLab){
             this.myMap.removeOverlay(this.activeLab); 
@@ -552,8 +558,6 @@ export default {
           this.activeLab=label1
           this.myMap.addOverlay(label1); 
           this.showInform(iteam)
-
-        
         });
         this.cityMarker.push(marker);
         this.myMap.addOverlay(marker);   
@@ -658,8 +662,7 @@ export default {
         return (Math.floor(minutes/60) + "小时" + (minutes%60) + "分" );
       }
     },
-// 使用示属例
-
+    // 使用示属例
     //搜索行政区录入数据库
     getXzqu(){
       var bdary = new BMap.Boundary();
@@ -889,7 +892,7 @@ export default {
         box-sizing:border-box;
         padding:vh(6) 0;
         .head-it{
-          flex:1;
+          width:25%;
         }
       }
       .table-body{
@@ -911,7 +914,7 @@ export default {
         cursor: pointer;
         padding:vh(6) 0;
         .body-it{
-          flex:1;
+          width:25%;
           .iconfont{
             cursor: pointer;
             font-size:vw(20);
