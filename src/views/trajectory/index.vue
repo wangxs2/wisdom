@@ -699,6 +699,7 @@ export default {
     refresh(){
       this.oneIndex=0
       this.isbf=false
+      this.myMap.setViewport(this.ptsdata)
       this.startlushu(this.ptsdata)
     },
     stop(){
