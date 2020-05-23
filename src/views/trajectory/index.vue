@@ -6,13 +6,18 @@
     >
     <div class="top-search">
       <div class="left-sea">
-        <el-input style="width:20vw" placeholder="请输入车牌号" v-model="input3" class="input-with-select">
+        <!-- <el-input style="width:20vw" placeholder="请输入车牌号" v-model="input3" class="input-with-select">
           <el-select v-model="select" slot="prepend" placeholder="请选择">
             <el-option label="车牌号" value="1"></el-option>
-            <!-- <el-option label="组织" value="2"></el-option> -->
           </el-select>
-          <el-button @click="getData()"  slot="append" icon="el-icon-search"></el-button>
-        </el-input>
+          <el-button @click="getData()"  slot="append" icon="el-icon-search"></el-button>  @select="handleSelect"
+        </el-input> -->
+        <el-autocomplete  v-model="input3"  :fetch-suggestions="querySearchAsync" placeholder="请输入车牌号"  class="input-with-select">
+          <el-select v-model="select" slot="prepend" placeholder="请选择">
+            <el-option label="车辆" value="1"></el-option>
+          </el-select>
+          <el-button class="searchbtn" style="backgorund:#E6F1FC"  slot="append" icon="el-icon-search"></el-button>
+        </el-autocomplete>
          <el-date-picker
             v-model="value1"
             @blur="timedataBtn(value1)"
@@ -138,10 +143,10 @@
     <!-- 轨迹播放 -->
     <div class="trajectoryBox">
       <div style="color:#307CFC">{{startTimesa}}</div>
-      <div style="color:#307CFC;margin-left:20px">{{parseInt(startDance/1000)}}km</div>
-      <div style="margin-left:20px" class="bfbtn">
-        <i v-if="isbf" @click="start()" class="iconfont iconbofang"></i>
-        <i v-if="!isbf" @click="stop()" class="iconfont iconzantingtingzhi"></i>
+      <div style="color:#307CFC;margin-left:20px">{{(startDance/1000).toFixed(2)}}km</div>
+      <div style="margin-left:20px" @click="istop()" class="bfbtn">
+        <i v-if="isbf" class="iconfont iconbofang"></i>
+        <i v-if="!isbf" class="iconfont iconzantingtingzhi"></i>
       </div>
       <img @click="refresh()" style="margin-left:30px;cursor: pointer;" src="../../assets/image/sx.png" width="30" height="30">
       <div style="color:#303133;margin-left:20px">{{value1[1]}}</div>
@@ -204,6 +209,7 @@ export default {
       page:1,
       pageSize:15,
       timeout:null,
+      restaurants: [],
       lushu:null,//路书
       loading: false,
       myMap:null,
@@ -283,6 +289,7 @@ export default {
     
   },
   created() {
+    this.getstaData()
      if (this.$route.params.type == 'update') {
       this.updateData= this.$route.params.updateData
       console.log(this.updateData)
@@ -506,6 +513,15 @@ export default {
         
       })
     },
+    istop(){
+      if(this.isbf){
+        this.isbf=false
+        this.start()
+      }else{
+        this.isbf=true
+        this.stop()
+      }
+    },
     //清除线路和起点终点异常点
     clearPoline(){
       if(this.polylinearr){
@@ -665,14 +681,17 @@ export default {
       this.carMk.setPosition(this.ptsdata[this.oneIndex]);
       this.carMk.setRotation(this.ptsdata1[this.oneIndex].drc)
       this.startTimesa=this.ptsdata1[this.oneIndex].time
-      this.startDance=this.myMap.getDistance(this.startDancesa,new BMap.Point(this.ptsdata[this.oneIndex]))
+      this.startDance=this.myMap.getDistance(this.startDancesa,new BMap.Point(this.ptsdata1[this.oneIndex].lon,this.ptsdata1[this.oneIndex].lat))
+      // this.myMap.setViewport([new BMap.Point(this.ptsdata1[this.oneIndex].lon,this.ptsdata1[this.oneIndex].lat)])
+      // this.myMap.setZoom(10)
       console.log(this.startDance)
       if(this.oneIndex < this.allIndex){
         this.handleCommand(this.sdName)
       }
     },
     start(){
-      this.isbf=!this.isbf
+      this.myMap.setViewport(this.ptsdata)
+      // this.isbf=!this.isbf
       this.startlushu(this.ptsdata)
 
     },
@@ -683,7 +702,7 @@ export default {
       this.startlushu(this.ptsdata)
     },
     stop(){
-      this.isbf=!this.isbf
+      // this.isbf=!this.isbf
       this.allIndex=this.oneIndex
     },
     //设置起点和终点
@@ -746,6 +765,29 @@ export default {
               this.getData()
             }
         }
+    },
+
+    querySearchAsync(queryString, cb) {
+      var restaurants = this.restaurants;
+      var results = queryString ? restaurants.filter(this.createStateFilter(queryString)) : restaurants;
+      clearTimeout(this.timeout);
+      this.timeout = setTimeout(() => {
+        cb(results);
+      }, 100 * Math.random());
+    },
+    createStateFilter(queryString) {
+      return (state) => {
+        return (state.value.toLowerCase().indexOf(queryString.toLowerCase()) === 0);
+      };
+    },
+
+    getstaData(){
+      this.$fetchGet("monitor/getAllCNo").then(res=>{
+        // this.restaurants=res.content
+        res.content.forEach((iteam,index)=>{
+          this.restaurants.push({value:iteam})
+        })
+      })
     },
 
     //点击左侧操作的按钮

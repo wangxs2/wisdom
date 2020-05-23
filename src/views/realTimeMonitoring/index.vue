@@ -2,7 +2,7 @@
   <div class="map-content" ref="compreMap">
     <div class="top-search">
       <div class="left-sea">
-        <el-autocomplete  v-model="searchinput"  :fetch-suggestions="querySearchAsync" placeholder="请输入内容" @select="handleSelect" class="input-with-select">
+        <el-autocomplete  v-model="searchinput"  :fetch-suggestions="querySearchAsync" :placeholder="select=='1'?'请输入车牌号':'请输入油厂名称'" @select="handleSelect" class="input-with-select">
           <el-select v-model="select" slot="prepend" placeholder="请选择">
             <el-option label="车辆" value="1"></el-option>
             <el-option label="组织" value="2"></el-option>

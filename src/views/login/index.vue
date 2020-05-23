@@ -38,7 +38,7 @@
           </el-form-item>
           <div class="passwordSa">
             <!-- <el-checkbox v-model="checked" style="float:left">自动登录</el-checkbox> -->
-            <span style="float:right;color:#2ba3ff;cursor: pointer" @click="forget">忘记密码？</span>
+            <!-- <span style="float:right;color:#2ba3ff;cursor: pointer" @click="forget">忘记密码？</span> -->
             <div style="clear:both"></div>
           </div>
           <div class="bigquan"></div>
@@ -120,7 +120,8 @@ export default {
           if (valid) {
             let data={
               username:this.ruleForm2.username,
-              password:Basesa.encode(this.ruleForm2.password)
+              password:this.ruleForm2.password
+              // password:Basesa.encode(this.ruleForm2.password)
             }
             this.$fetchPost("login", data).then(res=>{
               console.log(res.slice(6,7))

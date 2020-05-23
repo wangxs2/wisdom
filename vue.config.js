@@ -20,7 +20,7 @@ module.exports = {
       '/': {
         // target: 'http://10.1.4.68:8080/vehiclerepair',
         target: 'http://47.101.212.226:80/lhana',
-        // target: 'http://10.1.4.76:1111/lhana',
+        // target: 'http://10.1.4.108:1111/lhana',
         changeOrigin: true,
         pathRewrite: {
           '^/lhana': '/'
