@@ -7,7 +7,7 @@
             <el-option label="车辆" value="1"></el-option>
             <el-option label="组织" value="2"></el-option>
           </el-select>
-          <el-button  slot="append" icon="el-icon-search"></el-button>
+          <el-button class="searchbtn" style="backgorund:#E6F1FC"  slot="append" icon="el-icon-search"></el-button>
         </el-autocomplete>
       </div>
       <!-- 录入省市的边界 -->
@@ -67,7 +67,9 @@
           <div class="table-head">
             <div class="head-it" style="width:15%">序号</div>
             <div class="head-it" style="width:35%">车牌号</div>
-            <div class="head-it">车辆状态</div>
+            <div class="head-it" v-if="valuenum!==1&&valuenum!==2">车辆状态</div>
+            <div class="head-it" v-if="valuenum==1">速度</div>
+            <div class="head-it" v-if="valuenum==2">静止时长</div>
             <div class="head-it">操作</div>
           </div>
           <div class="table-body">
@@ -77,7 +79,9 @@
                 <li v-for="(itam,index) in countLeft" :key="index" class="list-item">
                   <div class="body-it" style="width:15%">{{index+1}}</div>
                   <div class="body-it" style="width:35%">{{itam.cNo}}</div>
-                  <div class="body-it"><span :class="itam.onLine==1?'body-it0':itam.onLine==2?'body-it1':'body-it2'">{{itam.onLine==1?'行驶':itam.onLine==2?'静止':'离线'}}</span></div>
+                  <div class="body-it" v-if="valuenum!==1&&valuenum!==2"><span :class="itam.onLine==1?'body-it0':itam.onLine==2?'body-it1':'body-it2'">{{itam.onLine==1?'行驶':itam.onLine==2?'静止':'离线'}}</span></div>
+                  <div class="body-it" v-if="valuenum==1">{{itam.spd}}km/h</div>
+                  <div class="body-it" v-if="valuenum==2">{{toHourMinute(itam.during)}}</div>
                   <div class="body-it">
                     <img @click="guiji(itam)" src="../../assets/image/bf.png">
                     <img style="margin-left:14px" @click="dwMark(itam)" src="../../assets/image/dw.png">
@@ -715,6 +719,13 @@ export default {
 .el-scrollbar__wrap{
   overflow-x: hidden !important;
   overflow-y: scroll;
+}
+.searchbtn{
+  background:rgba(230,241,252,1);
+  .el-icon-search{
+    font-weight:800;
+    color:#307CFC;
+  }
 }
 </style>
 <style lang="scss" scoped>

@@ -137,7 +137,7 @@
     <!-- 右下角的车辆状态 -->
     <!-- 轨迹播放 -->
     <div class="trajectoryBox">
-      <div style="color:#307CFC">{{value1[0]}}</div>
+      <div style="color:#307CFC">{{startTimesa}}</div>
       <div style="color:#307CFC;margin-left:20px">{{parseInt(startDance/1000)}}km</div>
       <div style="margin-left:20px" class="bfbtn">
         <i v-if="isbf" @click="start()" class="iconfont iconbofang"></i>
@@ -248,6 +248,8 @@ export default {
       titindex:0,
       timeId:null,
       leftMark:null,
+      startTimesa:"",//随时变化的里程数和时间
+      startDancesa:'',//随时变化的里程数和时间
       updateData:{},//从实时监控过来的数据
       // mapstyle:"dark",
     };
@@ -496,6 +498,7 @@ export default {
         if(res.content.data.length>0){
           this.getLine(res.content.data)
           this.ageSpeed=res.content.speed
+          this.startTimesa=res.content.data[0].time
         }else{
           // this.$message.error('暂无数据！请检查');
           this.clearPoline()
@@ -617,6 +620,7 @@ export default {
       }
         let start=new BMap.Point(data[data.length-1].lon,data[data.length-1].lat);
         let end=new BMap.Point(data[0].lon,data[0].lat);
+        this.startDancesa=new BMap.Point(data[0].lon,data[0].lat)
         this.startDance=this.myMap.getDistance(end,new BMap.Point(data[0].lon,data[0].lat))
         this.endDance=this.myMap.getDistance(end,start)
         markdata.push(start,end)
@@ -660,6 +664,9 @@ export default {
     resetMkPoint(){
       this.carMk.setPosition(this.ptsdata[this.oneIndex]);
       this.carMk.setRotation(this.ptsdata1[this.oneIndex].drc)
+      this.startTimesa=this.ptsdata1[this.oneIndex].time
+      this.startDance=this.myMap.getDistance(this.startDancesa,new BMap.Point(this.ptsdata[this.oneIndex]))
+      console.log(this.startDance)
       if(this.oneIndex < this.allIndex){
         this.handleCommand(this.sdName)
       }
