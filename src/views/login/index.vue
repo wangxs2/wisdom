@@ -112,6 +112,14 @@ export default {
         }
       }
   },
+  mounted(){
+    document.onkeydown = event => {
+      if (event.keyCode === 13) {
+        this.submitForm();
+      }
+    };
+
+  },
   methods:{
       submitForm(){
         // let b = new base64();

@@ -84,7 +84,7 @@ export default {
   },
   mounted(){
     if(this.menuFlag==true){
-      $(".toptMenu").width("64px");
+      $(".toptMenu").width("100px");
     }
   },
   created(){
@@ -98,9 +98,9 @@ export default {
       //侧边栏显示隐藏
       this.$store.commit("SET_FLAG");
       if (this.menuFlag) {
-        $(".toptMenu").width("64px");
+        $(".toptMenu").width("100px");
       } else {
-        $(".toptMenu").width("210px");
+        $(".toptMenu").width("300px");
       }
     }
   }
@@ -114,6 +114,10 @@ export default {
         color: #ffffff;
       }
     }
+  .el-breadcrumb{
+    font-size:18px !important;
+  }
+
 </style>
 <style lang="scss" scoped>
 .layout {
@@ -136,7 +140,7 @@ export default {
     }
   }
   .toptMenu {
-    width: 210px;
+    width: 300px;
     height: 100%;
     background: #222530;
     display: flex;
@@ -149,7 +153,7 @@ export default {
     }
     .logo{
       width: 100%;
-      height: vh(100);
+      height: 128px;
       display: flex;
       justify-content: center;
       align-items: center;

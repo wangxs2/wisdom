@@ -10,8 +10,8 @@
       @close="handleClose"
       @select="selectMenu"
       :collapse="menuFlag"
-      active-text-color="#ffffff"
-      background-color="#222530"
+      active-text-color="#307CFC"
+      background-color="transparent"
       text-color="#fff"
     >
       <!-- <el-submenu index="1">
@@ -149,19 +149,19 @@ export default {
 
 <style lang="scss" scoped>
 .treeleft {
-  width: 210px;
+  width: 300px;
 }
 .el-menu-item.is-active {
-  background-color: #2ba3ff !important;
+  // background-color: #2ba3ff !important;
 }
 .el-menu-item{
-    font-size: vw(16);
+    font-size: 18px;
 
 }
 
 .el-submenu__title{
   span{
-    font-size: vw(16);
+    font-size:  18px;
   }
 }
 .el-icon-locations{
@@ -195,5 +195,18 @@ export default {
     font-size: 16px;
   }
 }
+
+  .el-menu-item:hover{
+    background:rgba(0,0,0,0.3) !important;
+  }
+  .el-submenu__title:hover{
+    background:rgba(0,0,0,0.3) !important;
+  }
+  .el-menu--collapse{
+    width:100px !important;
+  }
+  .el-menu--popup-right-start{
+    background:#1E292F !important
+  }
 </style>
 

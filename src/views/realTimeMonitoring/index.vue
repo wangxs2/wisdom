@@ -2,7 +2,7 @@
   <div class="map-content" ref="compreMap">
     <div class="top-search">
       <div class="left-sea">
-        <el-autocomplete  v-model="searchinput"  :fetch-suggestions="querySearchAsync" :placeholder="select=='1'?'请输入车牌号':'请输入油厂名称'" @select="handleSelect" class="input-with-select">
+        <el-autocomplete style="width:380px"  v-model="searchinput"  :fetch-suggestions="querySearchAsync" :placeholder="select=='1'?'请输入车牌号':'请输入油厂名称'" @select="handleSelect" class="input-with-select">
           <el-select v-model="select" slot="prepend" placeholder="请选择">
             <el-option label="车辆" value="1"></el-option>
             <el-option label="组织" value="2"></el-option>
@@ -31,8 +31,8 @@
       </el-select> -->
       <!-- 录入省市的边界 -->
       <div class="right-sea">
-        <el-button @click="isWaring=!isWaring" type="danger" icon="el-icon-message-solid">报警（{{waringData.length}}）</el-button>
-        <div class="shua"  @click="totalTime=60,getAllCar()"> <i class="iconfont icon-shuaxin1"></i>距离下一次刷新 {{totalTime}} 秒</div>
+        <div class="bjbtn" @click="isWaring=!isWaring" type="danger"><img src="../../assets/image/bjicon.png"> 报警（{{waringData.length}}）</div>
+        <div class="shua"  @click="totalTime=60,getAllCar()"> <i class="iconfont icon-shuaxin1"></i>距离下一次刷新 <span style="color:#1989FA"> {{totalTime}} </span> 秒</div>
         <div @click="mapFullEvent" class="box-qunping">
           <img src="../../assets/image/fdicon.png" alt="" srcset="">
         </div>
@@ -79,7 +79,7 @@
                 <li v-for="(itam,index) in countLeft" :key="index" class="list-item">
                   <div class="body-it" style="width:15%">{{index+1}}</div>
                   <div class="body-it" style="width:35%">{{itam.cNo}}</div>
-                  <div class="body-it" v-if="valuenum!==1&&valuenum!==2"><span :class="itam.onLine==1?'body-it0':itam.onLine==2?'body-it1':'body-it2'">{{itam.onLine==1?'行驶':itam.onLine==2?'静止':'离线'}}</span></div>
+                  <div class="body-it" v-if="valuenum!==1&&valuenum!==2"><span :class="itam.onLine==1?'body-it0':itam.onLine==2?'body-it1':'body-it2'">{{itam.net==-1?"未入网":itam.onLine==1?'行驶':itam.onLine==2?'静止':itam.onLine==-1?'离线':''}}</span></div>
                   <div class="body-it" v-if="valuenum==1">{{itam.spd}}km/h</div>
                   <div class="body-it" v-if="valuenum==2">{{toHourMinute(itam.during)}}</div>
                   <div class="body-it">
@@ -88,8 +88,8 @@
                   </div>
                 </li>
               </ul>
-              <p v-if="loading">加载中...</p>
-              <p v-if="noMore">没有更多了</p>
+              <!-- <p v-if="loading">加载中...</p>
+              <p v-if="noMore">没有更多了</p> -->
             </el-scrollbar>
           </div>
         </div>
@@ -145,8 +145,8 @@
                   </div>
                 </li>
               </ul>
-              <p v-if="loading">加载中...</p>
-              <p v-if="noMore">没有更多了</p>
+              <!-- <p v-if="loading">加载中...</p>
+              <p v-if="noMore">没有更多了</p> -->
             </el-scrollbar>
           </div>
         </div>
@@ -190,6 +190,7 @@ export default {
   data() {
     return {
       countLeft:[],//左侧
+      myCno:'',
       oilData:[],
       waringData:[],
       value:'',
@@ -199,6 +200,7 @@ export default {
       activeInfow:null,//选中车辆详细信息
       activemillInfow:null,//选中油厂详细信息
       restaurants: [],
+      restaurants1: [],
       timeout:  null,
       loading: false,
       isWaring: false,
@@ -257,12 +259,17 @@ export default {
         },
       ],
       allData:[],
+      OilFacData:[],
       statusData:[],
+      myOilFac:[],
+      activeLab1:null,
+      myAllCp:[],
       onLine:"",
       titindex:0,
       islk:true,//路况
       tiadata:{},//轨迹回放
       ctrl:null,
+      myMapTwo:null,
       // mapstyle:"dark",
     };
   },
@@ -280,9 +287,10 @@ export default {
       }
     },
     "select":function(val,old){
-      console.log(val)
       if(val==2){
-        
+        this.restaurants=this.myOilFac
+      }else{
+        this.restaurants=this.restaurants1
       }
     }
   },
@@ -301,6 +309,10 @@ export default {
     $('.map-content').on("click", "#close1",  ()=> {
       this.myMap.removeOverlay(this.activeInfow); 
       this.myMap.removeOverlay(this.activeLab); 
+    })
+    $('.map-content').on("click", "#close2",  ()=> {
+      this.myMap.removeOverlay(this.activemillInfow); 
+      this.myMap.removeOverlay(this.activeLab1); 
     })
     $('.map-content').on("click", "#trajectory",  ()=> {
        this.guiji(this.tiadata)
@@ -350,7 +362,14 @@ export default {
     //定位到当前的点
     dwMark(row){
       this.myMap.centerAndZoom(new BMap.Point(row.lon,row.lat),19);
-      this.showInform(row)
+      if(this.select=='1'){
+        this.myCno=row.cNo
+        this.showIclice(row)
+        this.showInform(row)
+      }else{
+        this.showIcl(row)
+        this.showmillInform(row)
+      }
     },
     //切换车辆的状态
     carStatus(){
@@ -359,17 +378,26 @@ export default {
       }
     },
     getstaData(){
+      this.myOilFac=[]
+      this.restaurants1=[]
       this.$fetchGet("monitor/getFooBar").then(res=>{
         res.content[0].forEach((iteam,index)=>{
           this.cltitData[index].name=this.cltitData[index].name+'('+iteam+')'
         })
       })
 
-
       this.$fetchGet("monitor/getAllCNo").then(res=>{
-        // this.restaurants=res.content
+        this.myAllCp=this.cloneObj(res.content)
         res.content.forEach((iteam,index)=>{
-          this.restaurants.push({value:iteam})
+          this.restaurants1.push({value:iteam.cNo})
+        })
+        this.restaurants=this.restaurants1
+        console.log(this.restaurants1)
+      })
+      this.$fetchGet("location/getPageOilFac").then(res=>{
+        this.OilFacData=this.cloneObj(res.content)
+        res.content.forEach((itam,index)=>{
+          this.myOilFac.push({value:itam.fName})
         })
       })
     },
@@ -379,20 +407,38 @@ export default {
       this.allData=[]
       this.countLeft=[]
       this.$fetchGet("monitor/getLinkage",{
-        cNo:this.searchinput,
+        cNo:"",
         stat:this.valuenum
       }).then(res=>{
-          if(res.content){
+          if(res.code=='1'){
             this.allData=res.content.graph
             this.countLeft=this.cloneObj(res.content.cars)
             this.statusData=this.cloneObj(res.content.cars)
-            this.statusData.forEach((iteam,index)=>{
-              if(iteam.during>10){
-                this.waringData.push(iteam)
+            if(this.activeLab){
+              let num=this.statusData.findIndex((element)=>(element.cNo ==this.myCno))
+              if(num==-1){
+                this.myMap.removeOverlay(this.activeLab);
+                this.myMap.removeOverlay(this.activeInfow);
+              }else{
+                this.statusData.forEach((iteam,index)=>{
+                  if(iteam.cNo==this.myCno){
+                    this.activeLab.setPosition(new BMap.Point(iteam.lon,iteam.lat))
+                    this.activeInfow.setPosition(new BMap.Point(iteam.lon,iteam.lat))
+                  }
+                })
               }
-            })
+            }
+            
           }else{
-
+             if(this.ZoomNum>8){
+                this.clearMark()
+              }else{
+                this.clearBig()
+              }
+              if(this.activeLab){
+                this.activeLab.setPosition(new BMap.Point(iteam.lon,iteam.lat))
+                this.activeInfow.setPosition(new BMap.Point(iteam.lon,iteam.lat))
+              }
           }
           if(this.ZoomNum>8){
             this.statuMark()
@@ -401,18 +447,27 @@ export default {
           }
           
       })
+      this.$fetchGet("monitor/getWarn").then(res=>{
+        if(res.code==1){
+          this.waringData=res.content
+        }
+        // this.waringData=res.content
+      })
+
+
     },
     initMap() {
       // 108.933051,34.546597
       this.myMap = new BMap.Map("mymap");
+      // this.myMapTwo = new BMapGL.Map("mymap"); 
       this.myMap.centerAndZoom(new BMap.Point(121.644624,31.205915), 5);  
       this.myMap.enableScrollWheelZoom(); //地图缩放的功能
       this.myMap.addControl(
         new BMap.ScaleControl({ anchor: BMAP_ANCHOR_BOTTOM_LEFT })
       );
-      this.myMap.setMapStyleV2({     
-        styleId: '877fcc51379e35af5063374cd7687818'
-      });
+      // this.myMap.setMapStyleV2({     
+      //   styleId: '877fcc51379e35af5063374cd7687818'
+      // });
 
       this.ctrl = new BMapLib.TrafficControl({showPanel: false});
       this.ctrl.setAnchor(BMAP_ANCHOR_BOTTOM_RIGHT);  
@@ -462,12 +517,27 @@ export default {
       };
     },
     handleSelect(item) {
-      console.log(item.value)
-      this.statusData.forEach((iteam,index)=>{
-        if(item.value==iteam.cNo){
+      if(this.select=='1'){
+        this.statusData.forEach((iteam,index)=>{
+          if(item.value==iteam.cNo){
+              if(iteam.net==-1){
+                this.$notify.error({
+                  title: '',
+                  message: '车辆未入网',
+                  position: 'top-left'
+                });
+              }
+              this.dwMark(iteam)
+          }
+        })
+      }else{
+        this.OilFacData.forEach((iteam,index)=>{
+          if(item.value==iteam.fName){
             this.dwMark(iteam)
-        }
-      })
+          }
+        })
+      }
+      
     },
      //加大地图级别
     addZoom(params) {
@@ -541,62 +611,109 @@ export default {
         let marker = new BMap.Marker(point, opts);  // 创建文本标注对象
         marker.setRotation(iteam.drc)
         marker.addEventListener("click",()=>{
-          if(this.activeLab){
-            this.myMap.removeOverlay(this.activeLab); 
-          }
-          if(this.activeInfow){
-            this.myMap.removeOverlay(this.activeInfow); 
-          }
-          let obj=marker.getPosition()
-          let activep = {
-            position : new BMap.Point(obj.lng,obj.lat),    // 指定文本标注所在的地理位置
-            offset   : new BMap.Size(-48, -48)    //设置文本偏移量
-          }
-          let conten1=`<div style="width:60px;
-                                  height:60px;
-                                  background:rgba(188,216,252,0.2);
-                                  box-shadow:0px 2px 2px 0px rgba(0,0,0,0.5);
-                                  border:2px solid rgba(48,124,252,1);
-                                  border-radius:50%;"></div>`
-          let label1 = new BMap.Label(conten1, activep);  // 创建文本标注对象
-          this.activeLab=label1
-          this.myMap.addOverlay(label1); 
+          this.showIclice(iteam)
           this.showInform(iteam)
         });
         this.cityMarker.push(marker);
         this.myMap.addOverlay(marker);   
       })
-    },
-    //清除车辆和组织
-    clearMark(){
-      this.cityMarker.forEach(iteam=>{
-        this.myMap.removeOverlay(iteam);  
+      this.OilFacData.forEach(iteam=>{
+        let point = new BMap.Point(iteam.lon,iteam.lat);
+        let icon=require('../../assets/image/yc3.png');
+        let opts = {
+            icon : new BMap.Icon(icon, new BMap.Size(27,30)),   // 指定文本标注所在的地理位置
+            offset : new BMap.Size(-15, -15)    //设置文本偏移量
+        }
+        let marker = new BMap.Marker(point, opts);  // 创建文本标注对象
+        marker.addEventListener("click",()=>{
+          this.showIcl(iteam)
+          this.showmillInform(iteam)
+        });
+        this.cityMarker.push(marker);
+        this.myMap.addOverlay(marker);   
       })
+    },
+    //显示那个大圆圈
+    showIclice(row){
       if(this.activeLab){
         this.myMap.removeOverlay(this.activeLab); 
       }
-      if(this.activeInfow){
+      this.myCno=row.cNo
+      let activep = {
+            position : new BMap.Point(row.lon,row.lat),    // 指定文本标注所在的地理位置
+            offset   : new BMap.Size(-48, -48)    //设置文本偏移量
+          }
+          let conten1=`<div style="width:60px;
+                                  height:60px;
+                                  background:${row.onLine==1?'rgba(188,216,252,0.4)':row.onLine==2?'rgba(253,226,186,1)':'rgba(223,222,222,1)'}};
+                                  box-shadow:0px 2px 2px 0px rgba(0,0,0,0.5);
+                                  border:2px solid ${row.onLine==1?'rgba(48,124,252,1)':row.onLine==2?'rgba(255,153,0,1)':'rgba(151,151,151,1)'};
+                                  border-radius:50%;"></div>`
+          let label1 = new BMap.Label(conten1, activep);  // 创建文本标注对象
+          this.activeLab=label1
+          this.myMap.addOverlay(label1); 
+
+    },
+     //显示那个大圆圈
+    showIcl(row){
+      if(this.activeLab1){
+        this.myMap.removeOverlay(this.activeLab1); 
+      }
+      let activep = {
+            position : new BMap.Point(row.lon,row.lat),    // 指定文本标注所在的地理位置
+            offset   : new BMap.Size(-48, -48)    //设置文本偏移量
+          }
+          let conten1=`<div style="width:60px;
+                                  height:60px;
+                                  background:rgba(188,216,252,0.4);
+                                  box-shadow:0px 2px 2px 0px rgba(0,0,0,0.5);
+                                  border:2px solid rgba(37,205,119,1);
+                                  border-radius:50%;"></div>`
+          let label1 = new BMap.Label(conten1, activep);  // 创建文本标注对象
+          this.activeLab1=label1
+          this.myMap.addOverlay(this.activeLab1); 
+
+    },
+    //清除车辆和组织
+    clearMark(){
+      console.log(this.ZoomNum)
+      this.cityMarker.forEach(iteam=>{
+        this.myMap.removeOverlay(iteam);  
+      })
+      if(this.activeLab&&(this.ZoomNum<8||this.ZoomNum==8)){
+        this.myMap.removeOverlay(this.activeLab); 
+      }
+      if(this.activeInfow&&(this.ZoomNum<8||this.ZoomNum==8)){
         this.myMap.removeOverlay(this.activeInfow); 
       }
+
+      if(this.activeLab1&&(this.ZoomNum<8||this.ZoomNum==8)){
+        this.myMap.removeOverlay(this.activeLab1); 
+      }
+      if(this.activemillInfow&&(this.ZoomNum<8||this.ZoomNum==8)){
+        this.myMap.removeOverlay(this.activemillInfow); 
+      }
     },
+    
     //显示车辆的信息
     showInform(row){
       if(this.activeInfow){
         this.myMap.removeOverlay(this.activeInfow); 
       }
+     
       let activep1 = {
             position: new BMap.Point(row.lon,row.lat),    // 指定文本标注所在的地理位置
-            offset: new BMap.Size(-180, -310)    //设置文本偏移量
+            offset: new BMap.Size(-180, -270)    //设置文本偏移量
       }
       this.tiadata=row
-      var sContent=`<div style="width:360px;height:260px;background:#ffffff;position:relative;box-shadow:0px 0px 12px 0px rgba(51,51,51,0.3);border-radius:4px;z-index:800">
+      var sContent=`<div style="width:360px;background:#ffffff;position:relative;box-shadow:0px 0px 12px 0px rgba(51,51,51,0.3);border-radius:4px;z-index:800">
                         <div style="display:flex;width:100%;height:50px;background:rgba(188,216,252,1); justify-content: space-between;align-items: center;box-sizing: border-box;
                         padding:10px 20px;">
                           <img src="${require('../../assets/image/qc.png')}" width="30" height="22">
                           <span style="font-size:22px;color:#307CFC">${row.cNo}</span>
                           <img id="close1" style="cursor: pointer;" src="${require('../../assets/image/close.png')}" width="16" height="16">
                         </div>
-                        <div style="width:100%;height:210px;overflow:hidden;box-sizing:border-box;padding:10px">
+                        <div style="width:100%;overflow:hidden;box-sizing:border-box;padding:10px">
                           <div style="display:flex;justify-content:flex-start;font-size:16px;color:#7B7D7F;margin-bottom:6px;">
                             <div style="width:66px">时速</div>
                             <div style="margin-left:16px;flex:1">${row.spd} km/h</div>
@@ -610,7 +727,7 @@ export default {
                             <div style="width:66px">最后定位</div>
                             <div style="margin-left:16px;word-break:break-all;flex:1"">${row.adr}</div>
                           </div>
-                          <div style="display:flex;justify-content:center;margin-top:20px">
+                          <div style="display:flex;justify-content:center;margin-top:14px">
                              <div id="trajectory" style="cursor: pointer;width:110px;height:30px;background:rgba(48,124,252,1);border-radius:4px;color:#ffffff;display:flex;justify-content:center;align-items:center;">
                                    <img style="margin-right:6px" src="${require('../../assets/image/bf1.png')}" width="16" height="20">轨迹回放
                              </div>
@@ -624,22 +741,25 @@ export default {
       this.myMap.addOverlay(this.activeInfow); 
     },
     //显示油厂的的信息
-    showmillInform(point){
-      let activep1 = {
-            position: point,    // 指定文本标注所在的地理位置
-            offset: new BMap.Size(-180, -210)    //设置文本偏移量
+    showmillInform(row){
+       if(this.activemillInfow){
+        this.myMap.removeOverlay(this.activemillInfow); 
       }
-      var sContent=`<div style="width:360px;height:160px;background:#ffffff;position:relative;box-shadow:0px 0px 12px 0px rgba(51,51,51,0.3);border-radius:4px;z-index:800">
+      let activep1 = {
+            position: new BMap.Point(row.lon,row.lat),    // 指定文本标注所在的地理位置
+            offset: new BMap.Size(-180, -140)    //设置文本偏移量
+      }
+      var sContent=`<div style="width:400px;background:#ffffff;position:relative;box-shadow:0px 0px 12px 0px rgba(51,51,51,0.3);border-radius:4px;z-index:800">
                         <div style="display:flex;width:100%;height:50px;background:rgba(208,250,228,1); justify-content: space-between;align-items: center;box-sizing: border-box;
-                        padding:10px 20px;">
+                        padding:8px 16px;">
                           <img src="${require('../../assets/image/yt1.png')}" width="28" height="16">
-                          <span style="font-size:22px;color:#25CD77">华东油厂</span>
-                          <img id="close1" style="cursor: pointer;" src="${require('../../assets/image/close1.png')}" width="16" height="16">
+                          <span style="font-size:18px;color:#25CD77">${row.fName}</span>
+                          <img id="close2" style="cursor: pointer;" src="${require('../../assets/image/close1.png')}" width="16" height="16">
                         </div>
-                        <div style="width:100%;height:150px;overflow:hidden;box-sizing:border-box;padding:10px">
+                        <div style="width:100%;overflow:hidden;box-sizing:border-box;padding:10px">
                           <div style="display:flex;justify-content:flex-start;font-size:16px;color:#7B7D7F;">
                             <div style="width:36px">地址</div>
-                            <div style="margin-left:16px;word-break:break-all;flex:1"">浙江省 嘉善县 惠民镇G15浙江省 嘉善县 惠民镇G15（嘉敏高速）嘉善县 惠民镇G15（嘉敏高速）</div>
+                            <div style="margin-left:16px;word-break:break-all;flex:1"">${row.adr}</div>
                           </div>
                         </div>
                         <div style="position: absolute;bottom:-12px;left:165px;border-left: 8px solid transparent;border-right: 8px solid transparent;border-top: 12px solid #ffffff;"></div>
@@ -727,6 +847,13 @@ export default {
     color:#307CFC;
   }
 }
+.el-icon-message-solid{
+  // display: inline-block;
+  // width: 18px;
+  // height: 22px;
+  // background: url("../../assets/image/bjicon.png") no-repeat;
+  // background-size: 100% 100%;
+}
 </style>
 <style lang="scss" scoped>
 .map-content {
@@ -756,6 +883,29 @@ export default {
     .right-sea{
       display: flex;
       align-items: center;
+      .bjbtn{
+        width:136px;
+        height:40px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background:rgba(221,39,38,1);
+        box-shadow:1px 1px 2px 0px rgba(181,181,181,1);
+        border-radius:4px;
+        font-size:16px;
+        font-family:PingFangSC-Medium,PingFang SC;
+        font-weight:500;
+        color:rgba(249,249,249,1);
+        cursor: pointer;
+        img{
+          margin-top:-2px;
+          margin-right:10px;
+          
+        }
+      }
+      .bjbtn:hover{
+        background:rgba(221,39,38,0.8);
+      }
       .box-qunping{
         width:vw(40);
         height:vw(40);
@@ -978,8 +1128,9 @@ export default {
   }
   .waring-box{
     padding:vw(0);
+    width:vw(464);
     height: 80%;
-    right: vw(52);
+    right: vw(20);
     box-shadow:vw(2) vw(2) vw(2) vw(4) rgba(51,51,51,0.1);
     .table-box{
       box-sizing: border-box;
@@ -1001,7 +1152,7 @@ export default {
   .sideslip1{
     position: absolute;
     top: 46%;
-    left: 0px;
+    left: -2px;
     z-index:10;
     cursor: pointer;
   }

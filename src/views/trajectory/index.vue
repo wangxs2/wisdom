@@ -12,11 +12,11 @@
           </el-select>
           <el-button @click="getData()"  slot="append" icon="el-icon-search"></el-button>  @select="handleSelect"
         </el-input> -->
-        <el-autocomplete  v-model="input3"  :fetch-suggestions="querySearchAsync" placeholder="请输入车牌号"  class="input-with-select">
+        <el-autocomplete  v-model="input3"  :fetch-suggestions="querySearchAsync" @select="getData(),getErrorData()" placeholder="请输入车牌号"  class="input-with-select">
           <el-select v-model="select" slot="prepend" placeholder="请选择">
             <el-option label="车辆" value="1"></el-option>
           </el-select>
-          <el-button class="searchbtn" style="backgorund:#E6F1FC"  slot="append" icon="el-icon-search"></el-button>
+          <el-button class="searchbtn" style="backgorund:#E6F1FC" @click="getData(),getErrorData()"  slot="append" icon="el-icon-search"></el-button>
         </el-autocomplete>
          <el-date-picker
             v-model="value1"
@@ -143,14 +143,14 @@
     <!-- 轨迹播放 -->
     <div class="trajectoryBox">
       <div style="color:#307CFC">{{startTimesa}}</div>
-      <div style="color:#307CFC;margin-left:20px">{{(startDance/1000).toFixed(2)}}km</div>
+      <div style="color:#307CFC;margin-left:20px">{{startDance}}km</div>
       <div style="margin-left:20px" @click="istop()" class="bfbtn">
         <i v-if="isbf" class="iconfont iconbofang"></i>
         <i v-if="!isbf" class="iconfont iconzantingtingzhi"></i>
       </div>
       <img @click="refresh()" style="margin-left:30px;cursor: pointer;" src="../../assets/image/sx.png" width="30" height="30">
       <div style="color:#303133;margin-left:20px">{{value1[1]}}</div>
-      <div style="color:#303133;margin-left:20px">{{parseInt(endDance/1000)}}km</div>
+      <div style="color:#303133;margin-left:20px">{{(ageTime*ageSpeed).toFixed(2)}}km</div>
       <div style="margin-left:40px">
         <el-dropdown @command="handleCommand">
           <span class="el-dropdown-link">
@@ -413,6 +413,7 @@ export default {
             offset : new BMap.Size(0,0)    //设置文本偏移量
         }
         let marker = new BMap.Marker(point, opts);  // 创建文本标注对象
+        marker.setRotation(iteam.drc)
         marker.addEventListener("click",()=>{
           this.showInform(iteam,1)
         })
@@ -473,6 +474,7 @@ export default {
     //获取数据
     getData(){
       this.loading=true
+      this.startDance=0
       this.clearPoline()
       this.$fetchGet("getTraceCar/byPeriodWithPage",{
         cNo:this.input3,
@@ -627,17 +629,17 @@ export default {
           var polyline = new BMap.Polyline(
               arrPois,//所有的GPS坐标点
               {
-                  strokeColor : lineColor, //线路颜色
-                  strokeWeight : 6,//线路大小
-                  });
+                strokeColor : lineColor, //线路颜色
+                strokeWeight : 10,//线路大小
+              });
       //绘制线路
       this.polylinearr.push(polyline)
         this.myMap.addOverlay(polyline);
       }
-        let start=new BMap.Point(data[data.length-1].lon,data[data.length-1].lat);
-        let end=new BMap.Point(data[0].lon,data[0].lat);
+        let start=new BMap.Point(data[0].lon,data[0].lat);
+        let end=new BMap.Point(data[data.length-1].lon,data[data.length-1].lat);
         this.startDancesa=new BMap.Point(data[0].lon,data[0].lat)
-        this.startDance=this.myMap.getDistance(end,new BMap.Point(data[0].lon,data[0].lat))
+        
         this.endDance=this.myMap.getDistance(end,start)
         markdata.push(start,end)
         this.setStendMark(markdata)
@@ -678,13 +680,14 @@ export default {
       })
     },
     resetMkPoint(){
+      let dursa=((new Date(this.ptsdata1[this.oneIndex].time)-new Date(this.ptsdata1[0].time))/1000)/60/60
+      this.startDance=(dursa*this.ageSpeed).toFixed(2)
       this.carMk.setPosition(this.ptsdata[this.oneIndex]);
       this.carMk.setRotation(this.ptsdata1[this.oneIndex].drc)
       this.startTimesa=this.ptsdata1[this.oneIndex].time
-      this.startDance=this.myMap.getDistance(this.startDancesa,new BMap.Point(this.ptsdata1[this.oneIndex].lon,this.ptsdata1[this.oneIndex].lat))
+      //this.startDance=this.myMap.getDistance(this.startDancesa,new BMap.Point(this.ptsdata1[this.oneIndex].lon,this.ptsdata1[this.oneIndex].lat))
       // this.myMap.setViewport([new BMap.Point(this.ptsdata1[this.oneIndex].lon,this.ptsdata1[this.oneIndex].lat)])
       // this.myMap.setZoom(10)
-      console.log(this.startDance)
       if(this.oneIndex < this.allIndex){
         this.handleCommand(this.sdName)
       }
@@ -710,7 +713,7 @@ export default {
     setStendMark(data){
         data.forEach((iteam,index)=>{
             let icon;
-            if(index==1){
+            if(index==0){
               icon=require('../../assets/image/kas.png')
             }else{
               icon=require('../../assets/image/zd1.png')
@@ -1069,7 +1072,6 @@ export default {
         }
     }
   }
-  
   .sideslip{
     position: absolute;
     top: 46%;
@@ -1080,7 +1082,7 @@ export default {
   .sideslip1{
     position: absolute;
     top: 46%;
-    left: 0px;
+    left: -2px;
     z-index:10;
     cursor: pointer;
   }
