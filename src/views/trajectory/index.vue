@@ -630,6 +630,7 @@ export default {
               arrPois,//所有的GPS坐标点
               {
                 strokeColor : lineColor, //线路颜色
+                strokeOpacity:1,
                 strokeWeight : 10,//线路大小
               });
       //绘制线路

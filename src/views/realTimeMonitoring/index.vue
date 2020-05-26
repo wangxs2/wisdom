@@ -84,7 +84,7 @@
                   <div class="body-it" v-if="valuenum==2">{{toHourMinute(itam.during)}}</div>
                   <div class="body-it">
                     <img @click="guiji(itam)" src="../../assets/image/bf.png">
-                    <img style="margin-left:14px" @click="dwMark(itam)" src="../../assets/image/dw.png">
+                    <img style="margin-left:14px" @click="dwMark(itam,2)" src="../../assets/image/dw.png">
                   </div>
                 </li>
               </ul>
@@ -141,7 +141,7 @@
                   <div class="body-it">{{toHourMinute(iteam.during)}}</div>
                   <div class="body-it">
                     <!-- <i  class="iconfont icon-bofang1"></i> -->
-                    <img @click="dwMark(iteam)" src="../../assets/image/dw.png">
+                    <img @click="dwMark(iteam,2)" src="../../assets/image/dw.png">
                   </div>
                 </li>
               </ul>
@@ -360,16 +360,23 @@ export default {
       });
     },
     //定位到当前的点
-    dwMark(row){
+    dwMark(row,type){
       this.myMap.centerAndZoom(new BMap.Point(row.lon,row.lat),19);
-      if(this.select=='1'){
+      if(type==1){
+        if(this.select=='1'){
+          this.myCno=row.cNo
+          this.showIclice(row)
+          this.showInform(row)
+        }else{
+          this.showIcl(row)
+          this.showmillInform(row)
+        }
+      }else{
         this.myCno=row.cNo
         this.showIclice(row)
         this.showInform(row)
-      }else{
-        this.showIcl(row)
-        this.showmillInform(row)
       }
+     
     },
     //切换车辆的状态
     carStatus(){
@@ -517,6 +524,7 @@ export default {
       };
     },
     handleSelect(item) {
+      this.searchinput=""
       if(this.select=='1'){
         this.statusData.forEach((iteam,index)=>{
           if(item.value==iteam.cNo){
@@ -527,13 +535,13 @@ export default {
                   position: 'top-left'
                 });
               }
-              this.dwMark(iteam)
+              this.dwMark(iteam,1)
           }
         })
       }else{
         this.OilFacData.forEach((iteam,index)=>{
           if(item.value==iteam.fName){
-            this.dwMark(iteam)
+            this.dwMark(iteam,1)
           }
         })
       }
