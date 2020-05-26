@@ -158,8 +158,11 @@ export default {
     font-size: 18px;
 
 }
-
+.el-submenu{
+  // text-align:center;
+}
 .el-submenu__title{
+  padding:0 0 !important;
   span{
     font-size:  18px;
   }
