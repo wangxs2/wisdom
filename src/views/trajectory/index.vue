@@ -183,6 +183,7 @@
 </template>
 
 <script>
+import Clipboard from 'clipboard'
 import screenfull from 'screenfull';
 import "../../libs/util.js"
 export default {
@@ -204,6 +205,7 @@ export default {
       startDance:0,
       endDance:0,
       checked:true,
+      mycopy:"",
       isbf:true,
       value1:[new Date(new Date()-24*60*60*1000).Format('yyyy-MM-dd hh:mm:ss'), new Date().Format('yyyy-MM-dd hh:mm:ss')],//开始时间 结束时间
       input3:'',//车牌号
@@ -459,16 +461,16 @@ export default {
       }
       let activep1 = {
             position: new BMap.Point(row.lon,row.lat),    // 指定文本标注所在的地理位置
-            offset: new BMap.Size(-180, -220)    //设置文本偏移量
+            offset: new BMap.Size(-180, -210)    //设置文本偏移量
       }
-      var sContent=`<div id="copy" style="width:360px;height:200px;background:#ffffff;position:relative;box-shadow:0px 0px 12px 0px rgba(51,51,51,0.3);border-radius:4px;z-index:800">
+      var sContent=`<div id="copysa" data-clipboard-text='${row.cNo},停车时长：${row.eDur}分钟,定位时间：${new Date(row.utc*1000).Format('yyyy-MM-dd hh:mm:ss')},最后定位:${row.adr}' style="width:360px;background:#ffffff;position:relative;box-shadow:0px 0px 12px 0px rgba(51,51,51,0.3);border-radius:4px;z-index:800">
                         <div style="display:flex;width:100%;height:50px;background:${type==1?'rgba(151,151,151,1)':'rgba(48,124,252,1)'}; justify-content: space-between;align-items: center;box-sizing: border-box;
                         padding:10px 20px;">
                           <img src="${require('../../assets/image/qc1.png')}" width="32" height="32">
                           <span style="font-size:22px;color:#ffffff">${row.cNo}</span>
                           <img id="close2" style="cursor: pointer;" src="${require('../../assets/image/close2.png')}" width="16" height="16">
                         </div>
-                        <div style="width:100%;height:210px;overflow:hidden;box-sizing:border-box;padding:10px">
+                        <div style="width:100%;overflow:hidden;box-sizing:border-box;padding:10px">
                           <div style="display:flex;justify-content:flex-start;font-size:16px;color:#7B7D7F;margin-bottom:6px;display:${type==2?'none':''}">
                             <div style="width:66px">停车时长</div>
                             <div style="margin-left:16px;flex:1">${row.eDur}分钟</div>
@@ -488,9 +490,20 @@ export default {
                     </div>`
       var infoWindow = new BMap.Label(sContent, activep1);  // 创建信息窗口对象
       infoWindow.setZIndex(900)
-      infoWindow.addEventListener("rightclick",()=>{
-        console.log('右键复制')
-        // this.copyUrl(); 
+      infoWindow.addEventListener("dblclick",()=>{
+        var clipboard = new Clipboard('#copysa')
+        console.log(clipboard)
+        clipboard.on('success', e => {
+          this.$message({
+            message: '复制成功',
+            type: 'success'
+          });
+          clipboard.destroy()
+        })
+         clipboard.on('error', e => {
+          this.$message.error('该浏览器不支持自动复制');
+          clipboard.destroy()
+        })
       });
       this.activeInfow=infoWindow
       this.myMap.addOverlay(this.activeInfow); 
@@ -829,8 +842,12 @@ export default {
 
     //点击左侧操作的按钮
     setLeftMark(iteam){
+      console.log(iteam)
       if(this.leftMark){
         this.myMap.removeOverlay(this.leftMark);
+      }
+      if(this.activeInfow){
+        this.myMap.removeOverlay(this.activeInfow);
       }
         let point = new BMap.Point(iteam.lon,iteam.lat);
         let opts = {

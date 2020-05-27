@@ -189,6 +189,7 @@
 
 <script>
 import screenfull from 'screenfull';
+import Clipboard from 'clipboard'
 import cityName from './city.js';
 export default {
   name: "appMain",
@@ -720,7 +721,7 @@ export default {
             offset: new BMap.Size(-180, -270)    //设置文本偏移量
       }
       this.tiadata=row
-      var sContent=`<div style="width:360px;background:#ffffff;position:relative;box-shadow:0px 0px 12px 0px rgba(51,51,51,0.3);border-radius:4px;z-index:800">
+      var sContent=`<div id="copysa1" data-clipboard-text='${row.cNo},时速:${row.spd}km/h,定位时间：${new Date(row.utc*1000).Format('yyyy-MM-dd hh:mm:ss')},最后定位:${row.adr}' style="width:360px;background:#ffffff;position:relative;box-shadow:0px 0px 12px 0px rgba(51,51,51,0.3);border-radius:4px;z-index:800">
                         <div style="display:flex;width:100%;height:50px;background:${row.onLine==1?'rgba(48,124,252,1)':row.onLine==2?'rgba(255,153,0,1)':'rgba(151,151,151,1)'}; justify-content: space-between;align-items: center;box-sizing: border-box;
                         padding:10px 20px;">
                           <img src="${require('../../assets/image/qc1.png')}" width="32" height="32">
@@ -749,7 +750,23 @@ export default {
                         </div>
                         <div style="position: absolute;bottom:-12px;left:165px;border-left: 8px solid transparent;border-right: 8px solid transparent;border-top: 12px solid #ffffff;"></div>
                     </div>`
-      var infoWindow = new BMap.Label(sContent, activep1);  // 创建信息窗口对象
+      var infoWindow = new BMap.Label(sContent, activep1);
+        // 创建信息窗口对象
+      infoWindow.addEventListener("dblclick",()=>{
+        var clipboard = new Clipboard('#copysa1')
+        console.log(clipboard)
+        clipboard.on('success', e => {
+          this.$message({
+            message: '复制成功',
+            type: 'success'
+          });
+          clipboard.destroy()
+        })
+         clipboard.on('error', e => {
+          this.$message.error('该浏览器不支持自动复制');
+          clipboard.destroy()
+        })
+      });
       infoWindow.setZIndex(900)
       this.activeInfow=infoWindow
       this.myMap.addOverlay(this.activeInfow); 
@@ -763,7 +780,7 @@ export default {
             position: new BMap.Point(row.lon,row.lat),    // 指定文本标注所在的地理位置
             offset: new BMap.Size(-180, -140)    //设置文本偏移量
       }
-      var sContent=`<div style="width:400px;background:#ffffff;position:relative;box-shadow:0px 0px 12px 0px rgba(51,51,51,0.3);border-radius:4px;z-index:800">
+      var sContent=`<div id="copysa2" data-clipboard-text='${row.fName},地址:${row.adr}' style="width:400px;background:#ffffff;position:relative;box-shadow:0px 0px 12px 0px rgba(51,51,51,0.3);border-radius:4px;z-index:800">
                         <div style="display:flex;width:100%;height:50px;background:rgba(208,250,228,1); justify-content: space-between;align-items: center;box-sizing: border-box;
                         padding:8px 16px;">
                           <img src="${require('../../assets/image/yt1.png')}" width="28" height="16">
@@ -779,6 +796,21 @@ export default {
                         <div style="position: absolute;bottom:-12px;left:165px;border-left: 8px solid transparent;border-right: 8px solid transparent;border-top: 12px solid #ffffff;"></div>
                     </div>`
       var infoWindow = new BMap.Label(sContent, activep1);  // 创建信息窗口对象
+      infoWindow.addEventListener("dblclick",()=>{
+        var clipboard = new Clipboard('#copysa2')
+        console.log(clipboard)
+        clipboard.on('success', e => {
+          this.$message({
+            message: '复制成功',
+            type: 'success'
+          });
+          clipboard.destroy()
+        })
+         clipboard.on('error', e => {
+          this.$message.error('该浏览器不支持自动复制');
+          clipboard.destroy()
+        })
+      });
       infoWindow.setZIndex(900)
       this.activemillInfow=infoWindow
       this.myMap.addOverlay(this.activemillInfow); 
