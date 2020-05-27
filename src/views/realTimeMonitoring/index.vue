@@ -659,7 +659,7 @@ export default {
           }
           let conten1=`<div style="width:60px;
                                   height:60px;
-                                  background:${row.onLine==1?'rgba(188,216,252,0.4)':row.onLine==2?'rgba(253,226,186,1)':'rgba(223,222,222,1)'}};
+                                  background:${row.onLine==1?'rgba(188,216,252,0.2)':row.onLine==2?'rgba(253,226,186,0.2)':'rgba(223,222,222,0.2)'};
                                   box-shadow:0px 2px 2px 0px rgba(0,0,0,0.5);
                                   border:2px solid ${row.onLine==1?'rgba(48,124,252,1)':row.onLine==2?'rgba(255,153,0,1)':'rgba(151,151,151,1)'};
                                   border-radius:50%;"></div>`
@@ -721,11 +721,11 @@ export default {
       }
       this.tiadata=row
       var sContent=`<div style="width:360px;background:#ffffff;position:relative;box-shadow:0px 0px 12px 0px rgba(51,51,51,0.3);border-radius:4px;z-index:800">
-                        <div style="display:flex;width:100%;height:50px;background:rgba(188,216,252,1); justify-content: space-between;align-items: center;box-sizing: border-box;
+                        <div style="display:flex;width:100%;height:50px;background:${row.onLine==1?'rgba(48,124,252,1)':row.onLine==2?'rgba(255,153,0,1)':'rgba(151,151,151,1)'}; justify-content: space-between;align-items: center;box-sizing: border-box;
                         padding:10px 20px;">
-                          <img src="${require('../../assets/image/qc.png')}" width="30" height="22">
-                          <span style="font-size:22px;color:#307CFC">${row.cNo}</span>
-                          <img id="close1" style="cursor: pointer;" src="${require('../../assets/image/close.png')}" width="16" height="16">
+                          <img src="${require('../../assets/image/qc1.png')}" width="32" height="32">
+                          <span style="font-size:22px;color:#ffffff">${row.cNo}</span>
+                          <img id="close1" style="cursor: pointer;" src="${require('../../assets/image/close2.png')}" width="16" height="16">
                         </div>
                         <div style="width:100%;overflow:hidden;box-sizing:border-box;padding:10px">
                           <div style="display:flex;justify-content:flex-start;font-size:16px;color:#7B7D7F;margin-bottom:6px;">

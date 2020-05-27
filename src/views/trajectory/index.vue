@@ -51,7 +51,7 @@
       <div class="left-content" style="left:0px" v-if="isLeft">
           <div class="tit" style="color:#333333">轨迹信息</div>
           <div class="cltit">
-            <div>运行总时长  {{ageTime.toFixed(2)}}小时</div>
+            <div>运行总时长  {{ageTime}}小时</div>
             <div>运行里程  {{allDistance}}km</div>
             <div>平均速度  {{ageSpeed}}km/h</div>
           </div>
@@ -144,7 +144,7 @@
     <!-- 轨迹播放 -->
     <div class="trajectoryBox">
       <div style="color:#307CFC">{{startTimesa}}</div>
-      <div style="color:#307CFC;margin-left:20px">{{startDance.toFixed(2)}}km</div>
+      <div style="color:#307CFC;margin-left:20px">{{startDance}}km</div>
       <div style="margin-left:20px" @click="istop()" class="bfbtn">
         <i v-if="isbf" class="iconfont iconbofang"></i>
         <i v-if="!isbf" class="iconfont iconzantingtingzhi"></i>
@@ -287,7 +287,10 @@ export default {
 
     $('.map-content').on("click", "#close2",  ()=> {
       this.myMap.removeOverlay(this.activeInfow); 
-    })
+    }) 
+    // $('.map-content').on("click", "#copy",  ()=> {
+    //   this.copyUrl(); 
+    // })
     
   },
   created() {
@@ -413,7 +416,7 @@ export default {
       this.statusError.forEach(iteam=>{
         let point = new BMap.Point(iteam.lon,iteam.lat);
         let opts = {
-            icon : new BMap.Icon(require('../../assets/image/lx.png'), new BMap.Size(30,30)),    // 指定文本标注所在的地理位置
+            icon : new BMap.Icon(require('../../assets/image/ycd.png'), new BMap.Size(12,12)),    // 指定文本标注所在的地理位置
             offset : new BMap.Size(0,0)    //设置文本偏移量
         }
         let marker = new BMap.Marker(point, opts);  // 创建文本标注对象
@@ -426,6 +429,28 @@ export default {
       })
 
     },
+    copyUrl  () {
+        var div = document.getElementById('copy');
+        if (document.body.createTextRange) {
+            var range = document.body.createTextRange();
+            range.moveToElementText(div);
+            range.select();
+        } else if (window.getSelection) {
+            var selection = window.getSelection();
+            var range = document.createRange();
+            range.selectNodeContents(div);
+            selection.removeAllRanges();
+            selection.addRange(range);
+            /*if(selection.setBaseAndExtent){
+                selection.setBaseAndExtent(text, 0, text, 1);
+            }*/
+        } else {
+            console.warn("none");
+        }
+        document.execCommand("Copy"); // 执行浏览器复制命令
+ 
+        alert("已复制好，可贴粘。");
+    },
      //显示异常点的车辆的信息
     showInform(row,type){
       if(this.activeInfow){
@@ -433,14 +458,14 @@ export default {
       }
       let activep1 = {
             position: new BMap.Point(row.lon,row.lat),    // 指定文本标注所在的地理位置
-            offset: new BMap.Size(-180, -250)    //设置文本偏移量
+            offset: new BMap.Size(-180, -220)    //设置文本偏移量
       }
-      var sContent=`<div style="width:360px;height:200px;background:#ffffff;position:relative;box-shadow:0px 0px 12px 0px rgba(51,51,51,0.3);border-radius:4px;z-index:800">
-                        <div style="display:flex;width:100%;height:50px;background:rgba(188,216,252,1); justify-content: space-between;align-items: center;box-sizing: border-box;
+      var sContent=`<div id="copy" style="width:360px;height:200px;background:#ffffff;position:relative;box-shadow:0px 0px 12px 0px rgba(51,51,51,0.3);border-radius:4px;z-index:800">
+                        <div style="display:flex;width:100%;height:50px;background:${type==1?'rgba(151,151,151,1)':'rgba(48,124,252,1)'}; justify-content: space-between;align-items: center;box-sizing: border-box;
                         padding:10px 20px;">
-                          <img src="${require('../../assets/image/qc.png')}" width="30" height="22">
-                          <span style="font-size:22px;color:#307CFC">${row.cNo}</span>
-                          <img id="close2" style="cursor: pointer;" src="${require('../../assets/image/close.png')}" width="16" height="16">
+                          <img src="${require('../../assets/image/qc1.png')}" width="32" height="32">
+                          <span style="font-size:22px;color:#ffffff">${row.cNo}</span>
+                          <img id="close2" style="cursor: pointer;" src="${require('../../assets/image/close2.png')}" width="16" height="16">
                         </div>
                         <div style="width:100%;height:210px;overflow:hidden;box-sizing:border-box;padding:10px">
                           <div style="display:flex;justify-content:flex-start;font-size:16px;color:#7B7D7F;margin-bottom:6px;display:${type==2?'none':''}">
@@ -462,6 +487,10 @@ export default {
                     </div>`
       var infoWindow = new BMap.Label(sContent, activep1);  // 创建信息窗口对象
       infoWindow.setZIndex(900)
+      infoWindow.addEventListener("rightclick",()=>{
+        console.log('右键复制')
+        // this.copyUrl(); 
+      });
       this.activeInfow=infoWindow
       this.myMap.addOverlay(this.activeInfow); 
     },
@@ -684,7 +713,7 @@ export default {
       })
     },
     resetMkPoint(){
-      this.startDance=this.startDance+(this.ptsdata1[this.oneIndex].drc)/1000
+      this.startDance=this.startDance+(this.ptsdata1[this.oneIndex].drc)
       this.carMk.setPosition(this.ptsdata[this.oneIndex]);
       this.carMk.setRotation(this.ptsdata1[this.oneIndex].drc)
       this.startTimesa=this.ptsdata1[this.oneIndex].time
@@ -804,7 +833,7 @@ export default {
       }
         let point = new BMap.Point(iteam.lon,iteam.lat);
         let opts = {
-            icon : new BMap.Icon(this.valuenum==0?require('../../assets/image/lx.png'):require('../../assets/image/xs.png'), new BMap.Size(30,30)),    // 指定文本标注所在的地理位置
+            icon : new BMap.Icon(this.valuenum==0?require('../../assets/image/ycd.png'):require('../../assets/image/xs.png'), this.valuenum==0?new BMap.Size(12,12):new BMap.Size(30,30)),    // 指定文本标注所在的地理位置
             offset : new BMap.Size(0,0)    //设置文本偏移量
         }
         this.leftMark = new BMap.Marker(point, opts);  // 创建文本标注对象
