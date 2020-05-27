@@ -144,7 +144,7 @@
     <!-- 轨迹播放 -->
     <div class="trajectoryBox">
       <div style="color:#307CFC">{{startTimesa}}</div>
-      <div style="color:#307CFC;margin-left:20px">{{startDance}}km</div>
+      <div style="color:#307CFC;margin-left:20px">{{startDance.toFixed(2)}}km</div>
       <div style="margin-left:20px" @click="istop()" class="bfbtn">
         <i v-if="isbf" class="iconfont iconbofang"></i>
         <i v-if="!isbf" class="iconfont iconzantingtingzhi"></i>
@@ -203,7 +203,7 @@ export default {
       stendMark:[],//起点和终点
       startDance:0,
       endDance:0,
-      checked:false,
+      checked:true,
       isbf:true,
       value1:[new Date(new Date()-24*60*60*1000).Format('yyyy-MM-dd hh:mm:ss'), new Date().Format('yyyy-MM-dd hh:mm:ss')],//开始时间 结束时间
       input3:'',//车牌号
@@ -295,6 +295,7 @@ export default {
   },
   created() {
     this.getstaData()
+    
      if (this.$route.params.type == 'update') {
       this.updateData= this.$route.params.updateData
       console.log(this.updateData)
@@ -404,7 +405,7 @@ export default {
           this.ageSpeed=res.content.avg
           this.allDistance=res.content.distance
           this.statusError=res.content.error
-          
+          this.errorMark()
         }else{
           //this.$message.error('暂无数据！请检查！');
         }
@@ -579,8 +580,8 @@ export default {
       if(this.carMk){
         this.myMap.removeOverlay(this.carMk);  
       }//路书的重置
-      this.clearMark()
-      this.checked=false
+      // this.clearMark()
+      // this.checked=true
       this.oneIndex=0//路书的重置
       this.isbf=true//路书的重置
       if(this.stendMark.length>0){
@@ -713,7 +714,7 @@ export default {
       })
     },
     resetMkPoint(){
-      this.startDance=this.startDance+(this.ptsdata1[this.oneIndex].drc)
+      this.startDance=this.startDance+(this.ptsdata1[this.oneIndex].mil)
       this.carMk.setPosition(this.ptsdata[this.oneIndex]);
       this.carMk.setRotation(this.ptsdata1[this.oneIndex].drc)
       this.startTimesa=this.ptsdata1[this.oneIndex].time
