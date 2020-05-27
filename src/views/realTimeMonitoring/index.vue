@@ -1137,7 +1137,7 @@ export default {
   .waring-box{
     padding:vw(0);
     width:vw(464);
-    height: 80%;
+    height: 76%;
     right: vw(20);
     box-shadow:vw(2) vw(2) vw(2) vw(4) rgba(51,51,51,0.1);
     .table-box{

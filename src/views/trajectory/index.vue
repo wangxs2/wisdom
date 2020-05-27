@@ -51,8 +51,8 @@
           <div class="tit" style="color:#333333">轨迹信息</div>
           <div class="cltit">
             <div>运行总时长  {{ageTime.toFixed(2)}}小时</div>
-            <div>运行里程  {{(ageTime*ageSpeed).toFixed(2)}}km</div>
-            <div>平均速度  {{ageSpeed.toFixed(2)}}km/h</div>
+            <div>运行里程  {{allDistance}}km</div>
+            <div>平均速度  {{ageSpeed}}km/h</div>
           </div>
           <div class="point">
               <div @click="changePoint(index)" :class="valuenum==index?'itampoint active':'itampoint'" v-for="(itam,index) in pointData" :key="index">{{itam}}</div>
@@ -143,14 +143,14 @@
     <!-- 轨迹播放 -->
     <div class="trajectoryBox">
       <div style="color:#307CFC">{{startTimesa}}</div>
-      <div style="color:#307CFC;margin-left:20px">{{startDance}}km</div>
+      <div style="color:#307CFC;margin-left:20px">{{startDance.toFixed(2)}}km</div>
       <div style="margin-left:20px" @click="istop()" class="bfbtn">
         <i v-if="isbf" class="iconfont iconbofang"></i>
         <i v-if="!isbf" class="iconfont iconzantingtingzhi"></i>
       </div>
       <img @click="refresh()" style="margin-left:30px;cursor: pointer;" src="../../assets/image/sx.png" width="30" height="30">
       <div style="color:#303133;margin-left:20px">{{value1[1]}}</div>
-      <div style="color:#303133;margin-left:20px">{{(ageTime*ageSpeed).toFixed(2)}}km</div>
+      <div style="color:#303133;margin-left:20px">{{allDistance}}km</div>
       <div style="margin-left:40px">
         <el-dropdown @command="handleCommand">
           <span class="el-dropdown-link">
@@ -220,6 +220,7 @@ export default {
       polylinearr:[],
       valuenum:0,
       ptsdata:[],
+      allDistance:'',
       ptsdata1:[],//取旋转的角度
       oneIndex:0,//起始点
       allIndex:0,//轨迹点总的长度
@@ -395,7 +396,9 @@ export default {
         pageSize:0
       }).then(res=>{
         if(res.content.error.length>0){
-          this.ageTime=res.content.time
+          this.ageTime=res.content.alltime
+          this.ageSpeed=res.content.avg
+          this.allDistance=res.content.distance
           this.statusError=res.content.error
           
         }else{
@@ -506,7 +509,7 @@ export default {
         this.loading=false
         if(res.content.data.length>0){
           this.getLine(res.content.data)
-          this.ageSpeed=res.content.speed
+          
           this.startTimesa=res.content.data[0].time
         }else{
           // this.$message.error('暂无数据！请检查');
@@ -640,7 +643,6 @@ export default {
         let start=new BMap.Point(data[0].lon,data[0].lat);
         let end=new BMap.Point(data[data.length-1].lon,data[data.length-1].lat);
         this.startDancesa=new BMap.Point(data[0].lon,data[0].lat)
-        
         this.endDance=this.myMap.getDistance(end,start)
         markdata.push(start,end)
         this.setStendMark(markdata)
@@ -681,8 +683,7 @@ export default {
       })
     },
     resetMkPoint(){
-      let dursa=((new Date(this.ptsdata1[this.oneIndex].time)-new Date(this.ptsdata1[0].time))/1000)/60/60
-      this.startDance=(dursa*this.ageSpeed).toFixed(2)
+      this.startDance=this.startDance+(this.ptsdata1[this.oneIndex].drc)/1000
       this.carMk.setPosition(this.ptsdata[this.oneIndex]);
       this.carMk.setRotation(this.ptsdata1[this.oneIndex].drc)
       this.startTimesa=this.ptsdata1[this.oneIndex].time
@@ -790,7 +791,7 @@ export default {
       this.$fetchGet("monitor/getAllCNo").then(res=>{
         // this.restaurants=res.content
         res.content.forEach((iteam,index)=>{
-          this.restaurants.push({value:iteam})
+          this.restaurants.push({value:iteam.cNo})
         })
       })
     },
