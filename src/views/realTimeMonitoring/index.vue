@@ -2,13 +2,18 @@
   <div class="map-content" ref="compreMap">
     <div class="top-search">
       <div class="left-sea">
-        <el-autocomplete style="width:380px"  v-model="searchinput"  :fetch-suggestions="querySearchAsync" :placeholder="select=='1'?'请输入车牌号':'请输入油厂名称'" @select="handleSelect" class="input-with-select">
-          <el-select v-model="select" slot="prepend" placeholder="请选择">
-            <el-option label="车辆" value="1"></el-option>
-            <el-option label="组织" value="2"></el-option>
+        <el-select style="width:80px" @change="searchinput=''" v-model="select" slot="prepend" placeholder="请选择">
+          <el-option label="车辆" value="1"></el-option>
+          <el-option label="组织" value="2"></el-option>
+        </el-select>
+         <el-select style="width:300px" v-model="searchinput" @change="handleSelect" filterable :placeholder="select=='1'?'请输入车牌号':'请输入油厂名称'">
+            <el-option
+              v-for="(item,index) in restaurants"
+              :key="index"
+              :label="item.value"
+              :value="item.value">
+            </el-option>
           </el-select>
-          <el-button class="searchbtn" style="backgorund:#E6F1FC"  slot="append" icon="el-icon-search"></el-button>
-        </el-autocomplete>
       </div>
       <!-- 录入省市的边界 -->
       <!-- <el-select  @change="getXzqu" v-model="inputaas" placeholder="请选择">
@@ -524,10 +529,11 @@ export default {
       };
     },
     handleSelect(item) {
-      this.searchinput=""
+      // this.searchinput=""
+      console.log(item)
       if(this.select=='1'){
         this.statusData.forEach((iteam,index)=>{
-          if(item.value==iteam.cNo){
+          if(item==iteam.cNo){
               if(iteam.net==-1){
                 this.$notify.error({
                   title: '',
@@ -540,7 +546,7 @@ export default {
         })
       }else{
         this.OilFacData.forEach((iteam,index)=>{
-          if(item.value==iteam.fName){
+          if(item==iteam.fName){
             this.dwMark(iteam,1)
           }
         })
@@ -841,8 +847,11 @@ export default {
   border:none !important;
   background-color:transparent !important;
 }
+.el-input__inner{
+  border-radius:0!important;
+}
 .top-search .el-select .el-input {
-    width: vw(100);
+    // width: vw(100);
 }
 .el-scrollbar__wrap{
   overflow-x: hidden !important;

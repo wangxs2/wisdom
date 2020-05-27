@@ -6,18 +6,23 @@
     >
     <div class="top-search">
       <div class="left-sea">
-        <!-- <el-input style="width:20vw" placeholder="请输入车牌号" v-model="input3" class="input-with-select">
-          <el-select v-model="select" slot="prepend" placeholder="请选择">
-            <el-option label="车牌号" value="1"></el-option>
-          </el-select>
-          <el-button @click="getData()"  slot="append" icon="el-icon-search"></el-button>  @select="handleSelect"
-        </el-input> -->
-        <el-autocomplete  v-model="input3"  :fetch-suggestions="querySearchAsync" @select="getData(),getErrorData()" placeholder="请输入车牌号"  class="input-with-select">
+        <!-- <el-autocomplete  v-model="input3"  :fetch-suggestions="querySearchAsync" @select="getData(),getErrorData()" placeholder="请输入车牌号"  class="input-with-select">
           <el-select v-model="select" slot="prepend" placeholder="请选择">
             <el-option label="车辆" value="1"></el-option>
           </el-select>
           <el-button class="searchbtn" style="backgorund:#E6F1FC" @click="getData(),getErrorData()"  slot="append" icon="el-icon-search"></el-button>
-        </el-autocomplete>
+        </el-autocomplete> -->
+         <el-select style="width:80px" @change="input3=''" v-model="select" slot="prepend" placeholder="请选择">
+          <el-option label="车辆" value="1"></el-option>
+        </el-select>
+         <el-select style="width:300px" v-model="input3" @change="getData(),getErrorData()" filterable placeholder="请输入车牌号">
+            <el-option
+              v-for="(item,index) in restaurants"
+              :key="index"
+              :label="item.value"
+              :value="item.value">
+            </el-option>
+          </el-select>
          <el-date-picker
             v-model="value1"
             @blur="timedataBtn(value1)"
@@ -29,11 +34,7 @@
             format="yyyy-MM-dd HH:mm:ss"
             start-placeholder="开始日期"
             end-placeholder="结束日期">
-            <!-- <el-button  slot="append" icon="el-icon-search"></el-button> -->
         </el-date-picker>
-        <!-- <div class="search">
-          <img @click="timedataBtn(value1)" src="../../assets/image/sear.png" alt="" srcset="">
-        </div> -->
       </div>
       <div class="right-sea">
         <div @click="mapFullEvent" class="box-qunping">
@@ -512,7 +513,11 @@ export default {
           
           this.startTimesa=res.content.data[0].time
         }else{
-          // this.$message.error('暂无数据！请检查');
+          this.$notify.error({
+            title: '',
+            message: '该时间段内没有可展示的轨迹',
+            position: 'top-left'
+          });
           this.clearPoline()
         }
         
@@ -827,7 +832,7 @@ export default {
 </script>
 <style lang="scss">
 .top-search .el-select .el-input {
-    width: vw(100);
+    // width: vw(100);
 }
 .el-scrollbar__wrap{
   overflow-x: hidden !important;
