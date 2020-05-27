@@ -513,11 +513,7 @@ export default {
           
           this.startTimesa=res.content.data[0].time
         }else{
-          this.$notify.error({
-            title: '',
-            message: '该时间段内没有可展示的轨迹',
-            position: 'top-left'
-          });
+          this.$message.error('该时间段内没有可展示的轨迹');
           this.clearPoline()
         }
         
