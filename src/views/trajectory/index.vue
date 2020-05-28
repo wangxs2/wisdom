@@ -310,6 +310,9 @@ export default {
       if(this.checked){
         this.errorMark()
       }else{
+        if(this.activeInfow){
+          this.myMap.removeOverlay(this.activeInfow); 
+        }
         this.clearMark()
       }
     },
@@ -480,7 +483,7 @@ export default {
                             <div style="width:66px">定位时间</div>
                             <div style="margin-left:16px">${new Date(row.utc*1000).Format('yyyy-MM-dd hh:mm:ss')}</div>
                           </div>
-                          <div style="display:flex;justify-content:flex-start;font-size:16px;color:#7B7D7F;">
+                          <div style="display:flex;justify-content:flex-start;font-size:16px;color:#7B7D7F;display:${row.adr==undefined?'none':''}">
                             <div style="width:66px">最后定位</div>
                             <div style="margin-left:16px;word-break:break-all;flex:1"">${row.adr}</div>
                           </div>
@@ -556,7 +559,9 @@ export default {
           
           this.startTimesa=res.content.data[0].time
         }else{
-          this.$message.error('该时间段内没有可展示的轨迹');
+          if(this.input3!==''){
+            this.$message.error('该时间段内没有可展示的轨迹');
+          }
           this.clearPoline()
         }
         
@@ -594,8 +599,8 @@ export default {
       if(this.carMk){
         this.myMap.removeOverlay(this.carMk);  
       }//路书的重置
-      // this.clearMark()
-      // this.checked=true
+      this.clearMark()
+      this.checked=true
       this.oneIndex=0//路书的重置
       this.isbf=true//路书的重置
       if(this.stendMark.length>0){
@@ -748,6 +753,7 @@ export default {
     //路书重置
     refresh(){
       this.oneIndex=0
+      this.startDance=0
       this.isbf=false
       this.myMap.setViewport(this.ptsdata)
       this.startlushu(this.ptsdata)
@@ -844,29 +850,30 @@ export default {
     //点击左侧操作的按钮
     setLeftMark(iteam){
       console.log(iteam)
-      if(this.leftMark){
-        this.myMap.removeOverlay(this.leftMark);
-      }
-      if(this.activeInfow){
-        this.myMap.removeOverlay(this.activeInfow);
-      }
-        let point = new BMap.Point(iteam.lon,iteam.lat);
-        let opts = {
-            icon : new BMap.Icon(this.valuenum==0?require('../../assets/image/ycd.png'):require('../../assets/image/xs.png'), this.valuenum==0?new BMap.Size(12,12):new BMap.Size(30,30)),    // 指定文本标注所在的地理位置
-            offset : new BMap.Size(0,0)    //设置文本偏移量
-        }
-        this.leftMark = new BMap.Marker(point, opts);  // 创建文本标注对象
-        this.leftMark.addEventListener("click",()=>{
-          // this.showInform(iteam,1)
-          if(this.valuenum==0){
-            this.showInform(iteam,1)
-          }else{
-            this.getDeatil(iteam)
-          }
-        })
-        this.myMap.centerAndZoom(point,14);
-        this.myMap.addOverlay(this.leftMark);  
-      
+      this.checked=true
+      this.errorMark()
+      this.myMap.centerAndZoom(new BMap.Point(iteam.lon,iteam.lat),19);
+      this.showInform(iteam,1)
+      // if(this.leftMark){
+      //   this.myMap.removeOverlay(this.leftMark);
+      // }
+      // if(this.activeInfow){
+      //   this.myMap.removeOverlay(this.activeInfow);
+      // }
+      //   let point = new BMap.Point(iteam.lon,iteam.lat);
+      //   let opts = {
+      //       icon : new BMap.Icon(this.valuenum==0?require('../../assets/image/ycd.png'):require('../../assets/image/xs.png'), this.valuenum==0?new BMap.Size(12,12):new BMap.Size(30,30)),    // 指定文本标注所在的地理位置
+      //       offset : new BMap.Size(0,0)    //设置文本偏移量
+      //   }
+      //   this.leftMark = new BMap.Marker(point, opts);  // 创建文本标注对象
+      //   this.leftMark.addEventListener("click",()=>{
+      //     // this.showInform(iteam,1)
+      //     if(this.valuenum==0){
+      //       this.showInform(iteam,1)
+      //     }else{
+      //       this.getDeatil(iteam)
+      //     }
+      //   })
     },
 
 

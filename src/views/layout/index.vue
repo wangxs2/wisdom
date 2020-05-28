@@ -20,8 +20,9 @@
         <top-tag></top-tag>
       </div> -->
       <div class="logo">
-        <img src="../../assets/image/logo2.png" width="48" height="60">
-        <span v-if="!menuFlag">粮运运</span>
+        <img v-if="!menuFlag" src="../../assets/image/logoleft.png">
+        <img v-if="menuFlag" src="../../assets/image/leftnor.png">
+        <!-- <span v-if="!menuFlag">粮运运</span> -->
       </div>
       <div class="left-menu">
         <menu-nav></menu-nav>

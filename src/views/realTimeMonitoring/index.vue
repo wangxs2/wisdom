@@ -738,7 +738,7 @@ export default {
                             <div style="width:66px">定位时间</div>
                             <div style="margin-left:16px">${new Date(row.utc*1000).Format('yyyy-MM-dd hh:mm:ss')}</div>
                           </div>
-                          <div style="display:flex;justify-content:flex-start;font-size:16px;color:#7B7D7F;">
+                          <div style="display:flex;justify-content:flex-start;font-size:16px;color:#7B7D7F;display:${row.adr==undefined?'none':''}">
                             <div style="width:66px">最后定位</div>
                             <div style="margin-left:16px;word-break:break-all;flex:1"">${row.adr}</div>
                           </div>
