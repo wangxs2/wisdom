@@ -583,6 +583,7 @@ export default {
       }
       this.normalCount=[]
       this.ageTime=0
+      this.allDistance=0
       this.ageSpeed=0
       this.total=0
       this.normalTotal=0,

@@ -83,8 +83,8 @@
         </el-row>
       </div>
       <div class="center-head">
-        <el-button type="primary" @click="dialogFormVisible=true">添加</el-button>
-        <el-button>批量导入</el-button>
+        <el-button type="primary" @click="add()">添加</el-button>
+        <el-button @click="dialogVisible1=true">批量导入</el-button>
       </div>
       <div class="table-box">
         <div class="table-tit" style="color:#303133">地址列表</div>
@@ -159,7 +159,7 @@
             <el-table-column width="160" align="center" label="操作">
                 <template slot-scope="scope">
                     <span style="color:#317AF8;cursor:pointer">查看详情</span>
-                    <span style="color:#317AF8;margin-left:0.5vw;cursor:pointer">修改</span>
+                    <span style="color:#317AF8;margin-left:0.5vw;cursor:pointer" @click='updute()'>修改</span>
                     <span style="color:#317AF8 ;margin-left:0.5vw;cursor:pointer">禁用</span>
                 </template>
             </el-table-column>
@@ -179,68 +179,104 @@
       </div>
 
       <!-- 添加和修改的弹窗 -->
-       <el-dialog width="70%" :title="title" :close-on-click-modal="false" :visible.sync="dialogFormVisible">
-            <el-form  size="small" :model="form">
-                <el-row :gutter="20">
-                    <el-col :span="12">
+       <el-dialog :title="title" :close-on-click-modal="false" :visible.sync="dialogFormVisible">
+            <el-form  size="small" :rules="rules" :model="form">
+                <el-row>
+                    <el-col>
                         <div>
-                            <el-form-item label="地址全称" label-width="100px">
-                                <el-input style="width:400px" v-model="form.name" autocomplete="off"></el-input>
-                            </el-form-item>
-                        </div>
-                    </el-col>
-                    <el-col :span="12">
-                        <div>
-                            <el-form-item label="地址状态" label-width="100px">
-                                <el-input style="width:400px" v-model="form.name" autocomplete="off"></el-input>
+                            <el-form-item label="地址全称" label-width="100px" prop="fullName">
+                                <el-input v-model="form.fullName"></el-input>
                             </el-form-item>
                         </div>
                     </el-col>
                 </el-row>
-                <el-row :gutter="20">
-                    <el-col :span="12">
+                <el-row>
+                    <el-col>
                         <div>
-                            <el-form-item label="地址简称" label-width="100px">
-                                <el-input style="width:400px" v-model="form.name" autocomplete="off"></el-input>
+                            <el-form-item label="地址状态" label-width="100px" prop="status">
+                                <el-select style="width:100%" v-model="form.status" placeholder="请选择">
+                                  <el-option label="启用" value="1"></el-option>
+                                  <el-option label="不启用" value="0"></el-option>
+                                </el-select>
                             </el-form-item>
                         </div>
                     </el-col>
-                    <el-col :span="12">
+                </el-row>
+                <el-row>
+                    <el-col>
+                        <div>
+                            <el-form-item label="地址简称" label-width="100px" prop="shortName">
+                                <el-input  v-model="form.shortName"></el-input>
+                            </el-form-item>
+                        </div>
+                    </el-col>
+                </el-row>
+                <el-row>
+                    <el-col>
                         <div>
                             <el-form-item label="行政区域" label-width="100px">
-                                <el-input style="width:400px" v-model="form.name" autocomplete="off"></el-input>
+                                <el-input  v-model="quyu" :disabled="true" autocomplete="off"></el-input>
                             </el-form-item>
                         </div>
                     </el-col>
                 </el-row>
-                <el-row :gutter="20">
-                    <el-col :span="12">
+                <el-row>
+                    <el-col>
                         <div>
                             <el-form-item label="地址编码" label-width="100px">
-                                <el-input style="width:400px" v-model="form.name" autocomplete="off"></el-input>
-                            </el-form-item>
-                        </div>
-                    </el-col>
-                    <el-col :span="12">
-                        <div>
-                            <el-form-item label="所属城市" label-width="100px">
-                                <el-input style="width:400px" v-model="form.name" autocomplete="off"></el-input>
+                                <el-input  v-model="bianma" :disabled="true" autocomplete="off"></el-input>
                             </el-form-item>
                         </div>
                     </el-col>
                 </el-row>
-                 <el-row :gutter="20">
-                    <el-col :span="12">
+                <el-row>
+                    <el-col>
                         <div>
-                            <el-form-item label="地址类型" label-width="100px">
-                                <el-input style="width:400px" v-model="form.name" autocomplete="off"></el-input>
+                            <el-form-item label="所属城市" label-width="100px" prop="province">
+                                <el-select style="margin-right:10px" filterable v-model="form.province" @change="changecity(1)" placeholder="请选择">
+                                    <el-option
+                                    v-for="(item,i) in myAllProince"
+                                    :key="item.code"
+                                    :label="item.name"
+                                    :value="item.name">
+                                    </el-option>
+                                </el-select>
+                                <el-select style="margin-right:10px" filterable v-model="form.city" @change="changecity(2)" placeholder="请选择">
+                                    <el-option
+                                    v-for="item in myAllcity"
+                                    :key="item.code"
+                                    :label="item.name"
+                                    :value="item.name">
+                                    </el-option>
+                                </el-select>
+                                <el-select v-model="form.country" filterable placeholder="请选择">
+                                    <el-option
+                                    v-for="item in myAllarez"
+                                    :key="item.code"
+                                    :label="item.name"
+                                    :value="item.name">
+                                    </el-option>
+                                </el-select>
                             </el-form-item>
                         </div>
                     </el-col>
-                    <el-col :span="12">
+                </el-row>
+                 <el-row>
+                    <el-col>
                         <div>
-                            <el-form-item label="详细地址" label-width="100px">
-                                <el-input style="width:400px" type="textarea" :rows="4" v-model="form.region" maxlength="120" show-word-limit autocomplete="off"></el-input>
+                            <el-form-item label="地址类型" label-width="100px" prop="type">
+                                <el-select style="width:100%" v-model="form.type" placeholder="请选择">
+                                  <el-option label="油厂" value="1"></el-option>
+                                </el-select>
+                            </el-form-item>
+                        </div>
+                    </el-col>
+                </el-row>
+                <el-row>
+                    <el-col>
+                        <div>
+                            <el-form-item label="详细地址" label-width="100px" prop="adr">
+                                <el-input  type="textarea" :rows="4" v-model="form.adr" maxlength="120" ></el-input>
                             </el-form-item>
                         </div>
                     </el-col>
@@ -248,91 +284,151 @@
             </el-form>
             <div slot="footer" class="dialog-footer">
                 <el-button @click="dialogFormVisible = false">取 消</el-button>
-                <el-button type="primary" @click="dialogFormVisible = false">确 定</el-button>
+                <el-button type="primary" @click="sunmitAll">确 定</el-button>
             </div>
         </el-dialog>
       <!-- 添加和修改的弹窗 -->
+
+      <!-- 导入的弹窗 -->
+      <el-dialog
+        title="地址导入"
+        align="left"
+        :visible.sync="dialogVisible1"
+        width="30%">
+        <el-upload
+        class="upload-demo"
+        ref="upload"
+        accept=".xlsx"
+        action="/lhana/location/importLocation"
+        :on-success="successFile"
+        :on-error="errorFile"
+        :auto-upload="false"
+        :file-list="fileList">
+        <el-button size="small" icon="el-icon-plus" type="primary">点击上传</el-button>
+        <div slot="tip" class="el-upload__tip">支持xlsx格式，文件打下不超过2M</div>
+        </el-upload>
+        <span slot="footer" class="dialog-footer">
+            <span style="color:rgba(48, 124, 252, 1);margin-right:20px">下载模版</span>
+            <el-button type="primary" @click="submitUpload">确认上传</el-button>
+        </span>
+        </el-dialog>
+            
     
   </div>
 </template>
 
 <script>
 // @ is an alias to /src
-
+import cityData from './city_code.json';
 export default {
-  components: {
-  },
-  data(){
+    components: {
+    },
+    data(){
         return{
-            options: [{
-                value: '选项1',
-                label: '黄金糕'
-                }, {
-                value: '选项2',
-                label: '双皮奶'
-                }, {
-                value: '选项3',
-                label: '蚵仔煎'
-                }, {
-                value: '选项4',
-                label: '龙须面'
-                }, {
-                value: '选项5',
-                label: '北京烤鸭'
-            }],
+            options: [],
             title:"添加地址",
             dialogFormVisible:false,
+            dialogVisible1:false,//导入的弹窗
             form:{
-                name:'',
-                region:'',
+                fullName:'',
+                shortName:'',
+                status:'1',
+                province:'',
+                city:'',
+                country:'',
+                adr:'',
+                type:'1',
             },
-            tableData: [{
-            date: '2016-05-03',
-            name: '王小虎',
-            address: '上海市普陀区金沙江路 1518 弄'
-            }, {
-            date: '2016-05-02',
-            name: '王小虎',
-            address: '上海市普陀区金沙江路 1518 弄'
-            }, {
-            date: '2016-05-04',
-            name: '王小虎',
-            address: '上海市普陀区金沙江路 1518 弄'
-            }, {
-            date: '2016-05-01',
-            name: '王小虎',
-            address: '上海市普陀区金沙江路 1518 弄'
-            }, {
-            date: '2016-05-08',
-            name: '王小虎',
-            address: '上海市普陀区金沙江路 1518 弄'
-            }, {
-            date: '2016-05-06',
-            name: '王小虎',
-            address: '上海市普陀区金沙江路 1518 弄'
-            }, {
-            date: '2016-05-07',
-            name: '王小虎',
-            address: '上海市普陀区金沙江路 1518 弄'
-            }],
+            quyu:'',
+            bianma:'',
+            tableData: [],
+            city:0,
+            area:0,
+            myAllcity:[],
+            myAllProince:[],
+            myAllarez:[],
+            rules: {
+                fullName: [
+                    { required: true, message: '请输入地址全称', trigger: 'blur' },
+                ],
+                shortName: [
+                    { required: true, message: '请输入地址简称', trigger: 'blur' },
+                ],
+                adr: [
+                    { required: true, message: '请输入详细地址', trigger: 'blur' },
+                ],
+                status: [
+                    { required: true, message: '请选择状态', trigger: 'change' },
+                ],
+                type: [
+                    { required: true, message: '请输入选择类型', trigger: 'change' },
+                ],
+            },
             value: '',
-            currentPage4: 4
+            currentPage4: 4,
+            fileList:[],
         }
     },
-     methods: {
-      handleSizeChange(val) {
+    created(){
+        this.myAllProince=cityData
+    },
+    methods: {
+        handleSizeChange(val) {
         console.log(`每页 ${val} 条`);
-      },
-      handleCurrentChange(val) {
+        },
+        handleCurrentChange(val) {
         console.log(`当前页: ${val}`);
-      }
+        },
+        successFile(val){
+           if(val.code==1){
+            this.$message({
+            message: '上传成功！',
+            type: 'success'
+            });
+           }
+        },
+        errorFile(){
+            if(val.code==0){
+               this.$message.error('上传失败！');
+           }
+        },
+        submitUpload() {
+            this.$refs.upload.submit();
+        },
+        changecity(type){
+            console.log(this.form.province)
+            if(type==1){
+                this.form.city=''
+                this.form.country=''
+                this.city = this.myAllProince.findIndex((value, index) => {
+                   return  value.name==this.form.province
+                }) 
+                this.myAllcity=this.myAllProince[this.city].city
+            }else{
+                this.form.country=''
+                this.area = this.myAllcity.findIndex((value, index) => {
+                   return  value.name==this.form.city
+                })
+                this.myAllarez=this.myAllcity[this.area].area
+            }
+        },
+        //保存或者修改
+        sunmitAll(){
+
+        },
+        updute(){
+            this.title="添加地址"
+            this.dialogFormVisible=true
+        },
+        add(){
+            this.title="修改地址"
+            this.dialogFormVisible=true
+        },
+        
     },
 }
 </script>
 <style>
-.addManage .el-form-item__label{
-    text-align:left;
-}
 .addManage .el-form-item__content{
     text-align:left;
 }
