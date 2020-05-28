@@ -381,6 +381,9 @@ export default {
     },
     //异常点
     getErrorData(){
+      if(this.activeInfow){
+          this.myMap.removeOverlay(this.activeInfow); 
+        }
       this.$fetchGet("getTraceCar/error",{
         cNo:this.input3,
         beginTime:this.value1[0],
@@ -616,9 +619,9 @@ export default {
       this.myMap.addControl(
         new BMap.ScaleControl({ anchor: BMAP_ANCHOR_BOTTOM_LEFT })
       );
-      this.myMap.setMapStyleV2({     
-        styleId: '877fcc51379e35af5063374cd7687818'
-      });
+      // this.myMap.setMapStyleV2({     
+      //   styleId: '877fcc51379e35af5063374cd7687818'
+      // });
       
     },
     
@@ -735,6 +738,8 @@ export default {
     resetMkPoint(){
       this.startDance=this.startDance+(this.ptsdata1[this.oneIndex].mil)
       this.carMk.setPosition(this.ptsdata[this.oneIndex]);
+      console.log(this.oneIndex)
+      console.log(this.allIndex)
       this.carMk.setRotation(this.ptsdata1[this.oneIndex].drc)
       this.startTimesa=this.ptsdata1[this.oneIndex].time
       //this.startDance=this.myMap.getDistance(this.startDancesa,new BMap.Point(this.ptsdata1[this.oneIndex].lon,this.ptsdata1[this.oneIndex].lat))
@@ -742,7 +747,13 @@ export default {
       // this.myMap.setZoom(10)
       if(this.oneIndex < this.allIndex){
         this.handleCommand(this.sdName)
+      }else{
+        this.carMk.setPosition(new BMap.Point(this.ptsdata1[this.ptsdata1.length-1].lon,this.ptsdata1[this.ptsdata1.length-1].lat));
+        this.oneIndex=0
+        this.startDance=0
+        this.isbf=true
       }
+      
     },
     start(){
       this.myMap.setViewport(this.ptsdata)
@@ -850,10 +861,30 @@ export default {
     //点击左侧操作的按钮
     setLeftMark(iteam){
       console.log(iteam)
-      this.checked=true
-      this.errorMark()
       this.myMap.centerAndZoom(new BMap.Point(iteam.lon,iteam.lat),19);
-      this.showInform(iteam,1)
+      if(this.valuenum==0){
+        this.checked=true
+        this.errorMark()
+        this.showInform(iteam,1)
+      }else{
+        if(this.leftMark){
+          this.myMap.removeOverlay(this.leftMark);
+        }
+        if(this.activeInfow){
+          this.myMap.removeOverlay(this.activeInfow);
+        }
+        // this.getDeatil(iteam)
+          let point = new BMap.Point(iteam.lon,iteam.lat);
+          let opts = {
+              icon : new BMap.Icon(require('../../assets/image/xs.png'),new BMap.Size(30,30)),    // 指定文本标注所在的地理位置
+              offset : new BMap.Size(0,0)    //设置文本偏移量
+          }
+          this.leftMark = new BMap.Marker(point, opts);  // 创建文本标注对象
+          this.leftMark.addEventListener("click",()=>{
+           this.getDeatil(iteam)
+          })
+          this.myMap.addOverlay(this.leftMark)
+      }
       // if(this.leftMark){
       //   this.myMap.removeOverlay(this.leftMark);
       // }

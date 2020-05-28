@@ -9,7 +9,7 @@
         </div>
       </div>
       <div class="right-form">
-        <h3><img src="../../assets/image/logo2.png" alt="" srcset="">运输监控系统</h3>
+        <h3>运输监控系统</h3>
         <el-form
           :model="ruleForm2"
           :show-message="false"
