@@ -99,9 +99,9 @@ export default {
       //侧边栏显示隐藏
       this.$store.commit("SET_FLAG");
       if (this.menuFlag) {
-        $(".toptMenu").width("100px");
+        $(".toptMenu").width("64px");
       } else {
-        $(".toptMenu").width("300px");
+        $(".toptMenu").width("200px");
       }
     }
   }
@@ -141,7 +141,7 @@ export default {
     }
   }
   .toptMenu {
-    width: 300px;
+    width: 200px;
     height: 100%;
     background: #222530;
     display: flex;
@@ -154,7 +154,7 @@ export default {
     }
     .logo{
       width: 100%;
-      height: 128px;
+      height: 100px;
       display: flex;
       justify-content: center;
       align-items: center;

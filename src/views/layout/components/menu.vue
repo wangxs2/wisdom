@@ -149,7 +149,7 @@ export default {
 
 <style lang="scss" scoped>
 .treeleft {
-  width: 300px;
+  width: 200px;
 }
 .el-menu-item.is-active {
   // background-color: #2ba3ff !important;
@@ -158,15 +158,11 @@ export default {
     font-size: 18px;
 
 }
+
 .el-submenu{
   // text-align:center;
 }
-.el-submenu__title{
-  padding:0 0 !important;
-  span{
-    font-size:  18px;
-  }
-}
+
 .el-icon-locations{
   width: vw(19);
   height: vw(20);

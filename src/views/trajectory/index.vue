@@ -753,6 +753,7 @@ export default {
       this.carMk.setPosition(this.ptsdata[this.oneIndex]);
       console.log(this.oneIndex)
       console.log(this.allIndex)
+      console.log(this.ptsdata.length)
       this.carMk.setRotation(this.ptsdata1[this.oneIndex].drc)
       this.startTimesa=this.ptsdata1[this.oneIndex].time
       //this.startDance=this.myMap.getDistance(this.startDancesa,new BMap.Point(this.ptsdata1[this.oneIndex].lon,this.ptsdata1[this.oneIndex].lat))
@@ -760,17 +761,28 @@ export default {
       // this.myMap.setZoom(10)
       if(this.oneIndex < this.allIndex){
         this.handleCommand(this.sdName)
-      }else{
-        this.carMk.setPosition(new BMap.Point(this.ptsdata1[this.ptsdata1.length-1].lon,this.ptsdata1[this.ptsdata1.length-1].lat));
-        this.oneIndex=0
-        this.startDance=0
-        this.isbf=true
       }
+      if(this.oneIndex == this.ptsdata.length){
+        this.isbf=true
+        this.carMk.setPosition(new BMap.Point(this.ptsdata1[this.ptsdata1.length-1].lon,this.ptsdata1[this.ptsdata1.length-1].lat));
+      }
+      // else if(this.oneIndex > this.allIndex){
+      //   console.log(this.oneIndex)
+      //   console.log(this.allIndex)
+      //   this.carMk.setPosition(new BMap.Point(this.ptsdata1[this.ptsdata1.length-1].lon,this.ptsdata1[this.ptsdata1.length-1].lat));
+      //   this.oneIndex=0
+      //   this.startDance=0
+      //   this.isbf=true
+      // }
       
     },
     start(){
       this.myMap.setViewport(this.ptsdata)
       // this.isbf=!this.isbf
+      if(this.oneIndex == this.ptsdata.length){
+        this.oneIndex=0
+        this.startDance=0
+      }
       this.startlushu(this.ptsdata)
 
     },

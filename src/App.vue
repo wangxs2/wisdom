@@ -28,4 +28,11 @@ ul,li{
   margin: 0;
   padding: 0
 }
+input:focus {
+  border: 2px solid #317AF8 !important;
+  border-radius:4px;
+}
+.el-pager li.active{
+  color:#317AF8 !important;
+}
 </style>

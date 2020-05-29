@@ -84,7 +84,7 @@
                 class="list">
                 <li v-for="(itam,index) in countLeft" :key="index" class="list-item">
                   <div class="body-it" style="width:15%">{{index+1}}</div>
-                  <div class="body-it" style="width:35%">{{itam.cNo}}</div>
+                  <div class="body-it chepai" style="width:35%">{{itam.cNo}}</div>
                   <div class="body-it" v-if="valuenum==0"><span :class="itam.onLine==1?'body-it0':itam.onLine==2?'body-it1':'body-it2'">{{itam.net==-1?"未入网":itam.onLine==1?'行驶':itam.onLine==2?'静止':itam.onLine==-1?'离线':''}}</span></div>
                   <div class="body-it" v-if="valuenum==1" ><span style="background:rgba(48,124,252,1);border-radius:4px;color:#ffffff;display:inline-block;width:60px;height:20px;font-size:12px">{{itam.spd}}km/h</span></div>
                   <div class="body-it" v-if="valuenum==2||valuenum==-1"><span :style="{'background':valuenum==-1?'rgba(151,151,151,1)':'rgba(255,153,0,1)','border-radius':'4px','color':'#ffffff','display':'inline-block','width':'62px','height':'20px','font-size':'12px'}">{{toHourMinute(itam.during)}}</span></div>
@@ -467,8 +467,6 @@ export default {
         }
         // this.waringData=res.content
       })
-
-
     },
     initMap() {
       // 108.933051,34.546597
@@ -960,6 +958,7 @@ export default {
       }
       .bjbtn:hover{
         background:rgba(221,39,38,0.8);
+       
       }
       .box-qunping{
         width:vw(40);
@@ -1168,6 +1167,7 @@ export default {
       }
       .list-item:hover{
         background: rgba(188,216,252,0.6);
+        color:#307CFC;
       }
     }
     .cltit{
