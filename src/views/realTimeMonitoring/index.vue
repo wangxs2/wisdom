@@ -2,11 +2,11 @@
   <div class="map-content" ref="compreMap">
     <div class="top-search">
       <div class="left-sea">
-        <el-select style="width:80px" @change="searchinput=''" v-model="select" slot="prepend" placeholder="请选择">
+        <el-select :popper-append-to-body="false" style="width:80px" @change="searchinput=''" v-model="select" slot="prepend" placeholder="请选择">
           <el-option label="车辆" value="1"></el-option>
           <el-option label="组织" value="2"></el-option>
         </el-select>
-         <el-select style="width:300px" v-model="searchinput" @change="handleSelect" filterable :placeholder="select=='1'?'请输入车牌号':'请输入油厂名称'">
+         <el-select :popper-append-to-body="false" style="width:300px" v-model="searchinput" @change="handleSelect" filterable :placeholder="select=='1'?'请输入车牌号':'请输入油厂名称'">
             <el-option
               v-for="(item,index) in restaurants"
               :key="index"
@@ -54,7 +54,7 @@
         <div class="cltit">
           <div style="margin-right:1vw">车辆状态</div>
           <div style="flex:1">
-             <el-select style="width:100%" size="small" @change="carStatus()" v-model="valuenum" placeholder="请选择">
+             <el-select :popper-append-to-body="false" style="width:100%" size="small" @change="carStatus()" v-model="valuenum" placeholder="请选择">
                 <el-option
                   v-for="item in cltitData"
                   :key="item.id"
@@ -72,10 +72,11 @@
           <div class="table-head">
             <div class="head-it" style="width:15%">序号</div>
             <div class="head-it" style="width:35%">车牌号</div>
-            <div class="head-it" v-if="valuenum!==1&&valuenum!==2">车辆状态</div>
+            <div class="head-it" v-if="valuenum==0">车辆状态</div>
             <div class="head-it" v-if="valuenum==1">速度</div>
             <div class="head-it" v-if="valuenum==2">静止时长</div>
-            <div class="head-it">操作</div>
+            <div class="head-it" v-if="valuenum==-1">离线时长</div>
+            <div class="head-it" v-if="valuenum!==3">操作</div>
           </div>
           <div class="table-body">
             <el-scrollbar style="height:100%">
@@ -84,11 +85,11 @@
                 <li v-for="(itam,index) in countLeft" :key="index" class="list-item">
                   <div class="body-it" style="width:15%">{{index+1}}</div>
                   <div class="body-it" style="width:35%">{{itam.cNo}}</div>
-                  <div class="body-it" v-if="valuenum!==1&&valuenum!==2"><span :class="itam.onLine==1?'body-it0':itam.onLine==2?'body-it1':'body-it2'">{{itam.net==-1?"未入网":itam.onLine==1?'行驶':itam.onLine==2?'静止':itam.onLine==-1?'离线':''}}</span></div>
-                  <div class="body-it" v-if="valuenum==1">{{itam.spd}}km/h</div>
-                  <div class="body-it" v-if="valuenum==2">{{toHourMinute(itam.during)}}</div>
-                  <div class="body-it">
-                    <img @click="guiji(itam)" src="../../assets/image/bf.png">
+                  <div class="body-it" v-if="valuenum==0"><span :class="itam.onLine==1?'body-it0':itam.onLine==2?'body-it1':'body-it2'">{{itam.net==-1?"未入网":itam.onLine==1?'行驶':itam.onLine==2?'静止':itam.onLine==-1?'离线':''}}</span></div>
+                  <div class="body-it" v-if="valuenum==1" ><span style="background:rgba(48,124,252,1);border-radius:4px;color:#ffffff;display:inline-block;width:60px;height:20px;font-size:12px">{{itam.spd}}km/h</span></div>
+                  <div class="body-it" v-if="valuenum==2||valuenum==-1"><span :style="{'background':valuenum==-1?'rgba(151,151,151,1)':'rgba(255,153,0,1)','border-radius':'4px','color':'#ffffff','display':'inline-block','width':'62px','height':'20px','font-size':'12px'}">{{toHourMinute(itam.during)}}</span></div>
+                  <div class="body-it" v-if="valuenum!==3">
+                    <img @click="guiji(itam)" src="../../assets/image/bf.png">                                         
                     <img style="margin-left:14px" @click="dwMark(itam,2)" src="../../assets/image/dw.png">
                   </div>
                 </li>
@@ -625,7 +626,9 @@ export default {
         }
         let marker = new BMap.Marker(point, opts);  // 创建文本标注对象
         marker.setRotation(iteam.drc)
+        marker.setZIndex(999)
         marker.addEventListener("click",()=>{
+          
           this.showIclice(iteam)
           this.showInform(iteam)
         });
@@ -640,6 +643,7 @@ export default {
             offset : new BMap.Size(-15, -15)    //设置文本偏移量
         }
         let marker = new BMap.Marker(point, opts);  // 创建文本标注对象
+        marker.setZIndex(999)
         marker.addEventListener("click",()=>{
           this.showIcl(iteam)
           this.showmillInform(iteam)
@@ -660,12 +664,14 @@ export default {
           }
           let conten1=`<div style="width:60px;
                                   height:60px;
-                                  background:${row.onLine==1?'rgba(188,216,252,0.2)':row.onLine==2?'rgba(253,226,186,0.2)':'rgba(223,222,222,0.2)'};
+                                  background:${row.onLine==1?'rgba(188, 216, 252, 0.2)':row.onLine==2?'rgba(253,226,186,0.2)':'rgba(223,222,222,0.2)'};
                                   box-shadow:0px 2px 2px 0px rgba(0,0,0,0.5);
                                   border:2px solid ${row.onLine==1?'rgba(48,124,252,1)':row.onLine==2?'rgba(255,153,0,1)':'rgba(151,151,151,1)'};
                                   border-radius:50%;"></div>`
-          let label1 = new BMap.Label(conten1, activep);  // 创建文本标注对象
+          let label1 = new BMap.Label(conten1, activep);
+           // 创建文本标注对象
           this.activeLab=label1
+          this.activeLab.setZIndex(-1) 
           this.myMap.addOverlay(label1); 
 
     },
@@ -680,7 +686,7 @@ export default {
           }
           let conten1=`<div style="width:60px;
                                   height:60px;
-                                  background:rgba(188,216,252,0.4);
+                                  background:rgba(188,216,252,0.2);
                                   box-shadow:0px 2px 2px 0px rgba(0,0,0,0.5);
                                   border:2px solid rgba(37,205,119,1);
                                   border-radius:50%;"></div>`
@@ -827,9 +833,9 @@ export default {
     // 将分钟数量转换为小时和分知钟字符串道
    toHourMinute(minutes){
       if(minutes/60<1){
-        return (minutes + "分" );
+        return (minutes + "m" );
       }else{
-        return (Math.floor(minutes/60) + "小时" + (minutes%60) + "分" );
+        return (Math.floor(minutes/60) + "h" + (minutes%60) + "m" );
       }
     },
     // 使用示属例
@@ -971,7 +977,7 @@ export default {
         display: flex;
         justify-content: center;
         align-items: center;
-        width:vw(250);
+        // width:vw(250);
        box-sizing: border-box;
        padding: vh(10) vw(10);
         background:rgba(230,241,252,1);
@@ -1177,7 +1183,7 @@ export default {
   }
   .waring-box{
     padding:vw(0);
-    width:vw(464);
+    width:vw(412);
     height: 76%;
     right: vw(20);
     box-shadow:vw(2) vw(2) vw(2) vw(4) rgba(51,51,51,0.1);

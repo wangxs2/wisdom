@@ -187,6 +187,9 @@ export default {
         display: flex;
         justify-content: flex-start;
         align-items: center;
+        .leftBtn{
+          margin-top:4px;
+        }
       }
       .right-user{
         display: flex;

@@ -1,5 +1,5 @@
 <template>
-  <div class="map-content" ref="compreMap"
+  <div class="map-content" id="full" ref="compreMap"
     v-loading="loading"
     element-loading-text="拼命加载中"
     element-loading-background="rgba(255,255,255, 0.6)"
@@ -12,10 +12,10 @@
           </el-select>
           <el-button class="searchbtn" style="backgorund:#E6F1FC" @click="getData(),getErrorData()"  slot="append" icon="el-icon-search"></el-button>
         </el-autocomplete> -->
-         <el-select style="width:80px" @change="input3=''" v-model="select" slot="prepend" placeholder="请选择">
+         <el-select style="width:80px" @change="input3=''" v-model="select" slot="prepend" :popper-append-to-body="false" placeholder="请选择">
           <el-option label="车辆" value="1"></el-option>
         </el-select>
-         <el-select style="width:300px" v-model="input3" @change="getData(),getErrorData()" filterable placeholder="请输入车牌号">
+         <el-select style="width:300px" v-model="input3" @change="getData(),getErrorData()" :popper-append-to-body="false" filterable placeholder="请输入车牌号">
             <el-option
               v-for="(item,index) in restaurants"
               :key="index"
@@ -27,6 +27,7 @@
             v-model="value1"
             @blur="timedataBtn(value1)"
             type="datetimerange"
+            :popper-append-to-body="false"
             :clearable='false'
             style="margin-left:1vw"
             range-separator="至"
@@ -191,7 +192,9 @@ export default {
   data() {
     return {
       count:[],
+      qweasd:'',
       normalCount:[],
+      restaurants1:[],
       errorCount:[],
       normalTotal:0,
       errorTotal:0,
@@ -200,6 +203,7 @@ export default {
       ageSpeed:"",//运行的平均速度
       ageTime:"",//运行的总时长
       carMk:null,
+      fullscreen:false,
       activeInfow:null,//异常点的信息
       stendMark:[],//起点和终点
       startDance:0,
@@ -563,7 +567,17 @@ export default {
           this.startTimesa=res.content.data[0].time
         }else{
           if(this.input3!==''){
-            this.$message.error('该时间段内没有可展示的轨迹');
+
+              this.restaurants1.forEach((iteam,index)=>{
+                if(this.input3==iteam.cNo){
+                    if(iteam.net==-1){
+                      this.$message.error('车辆未入网');
+                    }else{
+                      this.$message.error('该时间段内没有可展示的轨迹');
+                    }
+                }
+              })
+            
           }
           this.clearPoline()
         }
@@ -650,7 +664,6 @@ export default {
     mapFullEvent () {
       screenfull.toggle(this.$refs.compreMap)
     },
- 
     handleSelect(item) {
     },
     //路书
@@ -851,7 +864,7 @@ export default {
 
     getstaData(){
       this.$fetchGet("monitor/getAllCNo").then(res=>{
-        // this.restaurants=res.content
+        this.restaurants1=res.content
         res.content.forEach((iteam,index)=>{
           this.restaurants.push({value:iteam.cNo})
         })
@@ -935,7 +948,7 @@ export default {
     width: 100%;
     height: vh(60);
     // background: #ffffff;
-    z-index: 20;
+    z-index: 9999;
     display: flex;
     justify-content: space-between;
     align-items: center;
