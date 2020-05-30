@@ -14,8 +14,9 @@
         </el-autocomplete> -->
          <el-select style="width:80px" @change="input3=''" v-model="select" slot="prepend" :popper-append-to-body="false" placeholder="请选择">
           <el-option label="车辆" value="1"></el-option>
+          <el-option label="组织" value="2"></el-option>
         </el-select>
-         <el-select style="width:300px" v-model="input3" @change="getData(),getErrorData()" :popper-append-to-body="false" filterable placeholder="请输入车牌号">
+         <el-select style="width:300px" v-model="input3" @change="getData(),getErrorData()" :popper-append-to-body="false" filterable :placeholder="select=='1'?'请输入车牌号':'请输入油厂名称'">
             <el-option
               v-for="(item,index) in restaurants"
               :key="index"
@@ -265,6 +266,9 @@ export default {
       startTimesa:"",//随时变化的里程数和时间
       startDancesa:'',//随时变化的里程数和时间
       updateData:{},//从实时监控过来的数据
+      OilFacData:[],//油厂
+      cityMarker:[],//油厂
+      myOilFac:[],//油厂
       // mapstyle:"dark",
     };
   },
@@ -281,6 +285,14 @@ export default {
         $("#box-big2").css({"cursor": "pointer"});
       }
     },
+
+    "select":function(val,old){
+      if(val==2){
+        this.restaurants=this.myOilFac
+      }else{
+        this.restaurants=this.restaurants1
+      }
+    }
   },
   computed: {
     },
@@ -288,20 +300,13 @@ export default {
     this.initMap();
     this.getErrorData()
     this.getData()
-    // this.playMark()
     this.getZmap();
-
     $('.map-content').on("click", "#close2",  ()=> {
       this.myMap.removeOverlay(this.activeInfow); 
     }) 
-    // $('.map-content').on("click", "#copy",  ()=> {
-    //   this.copyUrl(); 
-    // })
-    
   },
   created() {
     this.getstaData()
-    
      if (this.$route.params.type == 'update') {
       this.updateData= this.$route.params.updateData
       console.log(this.updateData)
@@ -309,6 +314,35 @@ export default {
     }
   },
   methods: {
+    //油厂
+    statuMark(){
+      console.log(this.OilFacData)
+      this.OilFacData.forEach(iteam=>{
+        let point = new BMap.Point(iteam.lon,iteam.lat);
+        let icon=require('../../assets/image/new/ycnromal.png');
+        let opts = {
+          icon : new BMap.Icon(icon, new BMap.Size(27,30)),// 指定文本标注所在的地理位置
+          offset : new BMap.Size(-13,-15)    //设置文本偏移量
+        }
+        let marker = new BMap.Marker(point, opts);  // 创建文本标注对象
+        marker.addEventListener("click",()=>{
+          // this.showIcl(iteam)
+          // this.showmillInform(iteam)
+        });
+        this.cityMarker.push(marker);
+        console.log(marker)
+        this.myMap.addOverlay(marker);   
+      })
+    },
+    getAllOol(){
+      this.$fetchGet("location/getPageOilFac").then(res=>{
+        this.OilFacData=this.cloneObj(res.content)
+        res.content.forEach((itam,index)=>{
+          this.myOilFac.push({value:itam.fName})
+        })
+        this.statuMark()
+      })
+    },
     //是否显示异常点
     isShow(){
       if(this.checked){
@@ -412,15 +446,18 @@ export default {
         page:0,
         pageSize:0
       }).then(res=>{
-        if(res.content.error.length>0){
-          this.ageTime=res.content.alltime
-          this.ageSpeed=res.content.avg
-          this.allDistance=res.content.distance
-          this.statusError=res.content.error
-          this.errorMark()
-        }else{
-          //this.$message.error('暂无数据！请检查！');
+        if(res.code==1){
+          if(res.content.error.length>0){
+            this.ageTime=res.content.alltime
+            this.ageSpeed=res.content.avg
+            this.allDistance=res.content.distance
+            this.statusError=res.content.error
+            this.errorMark()
+          }else{
+            //this.$message.error('暂无数据！请检查！');
+          }
         }
+        
         
       })
     },
@@ -633,10 +670,10 @@ export default {
       this.myMap.addControl(
         new BMap.ScaleControl({ anchor: BMAP_ANCHOR_BOTTOM_LEFT })
       );
-      // this.myMap.setMapStyleV2({     
-      //   styleId: '877fcc51379e35af5063374cd7687818'
-      // });
-      
+      this.getAllOol()
+      this.myMap.setMapStyleV2({     
+        styleId: '877fcc51379e35af5063374cd7687818'
+      });
     },
     
     //地图的缩放时间
@@ -702,6 +739,12 @@ export default {
                 strokeOpacity:1,
                 strokeWeight : 10,//线路大小
               });
+          this.polyline.addEventListener("mouseover",(type, target, point, pixel)=>{
+            console.log(type)
+            console.log(target)
+            console.log(point)
+            console.log(pixel)
+          })
       //绘制线路
       this.polylinearr.push(polyline)
         this.myMap.addOverlay(polyline);
@@ -751,14 +794,8 @@ export default {
     resetMkPoint(){
       this.startDance=this.startDance+(this.ptsdata1[this.oneIndex].mil)
       this.carMk.setPosition(this.ptsdata[this.oneIndex]);
-      console.log(this.oneIndex)
-      console.log(this.allIndex)
-      console.log(this.ptsdata.length)
       this.carMk.setRotation(this.ptsdata1[this.oneIndex].drc)
       this.startTimesa=this.ptsdata1[this.oneIndex].time
-      //this.startDance=this.myMap.getDistance(this.startDancesa,new BMap.Point(this.ptsdata1[this.oneIndex].lon,this.ptsdata1[this.oneIndex].lat))
-      // this.myMap.setViewport([new BMap.Point(this.ptsdata1[this.oneIndex].lon,this.ptsdata1[this.oneIndex].lat)])
-      // this.myMap.setZoom(10)
       if(this.oneIndex < this.allIndex){
         this.handleCommand(this.sdName)
       }
@@ -766,15 +803,6 @@ export default {
         this.isbf=true
         this.carMk.setPosition(new BMap.Point(this.ptsdata1[this.ptsdata1.length-1].lon,this.ptsdata1[this.ptsdata1.length-1].lat));
       }
-      // else if(this.oneIndex > this.allIndex){
-      //   console.log(this.oneIndex)
-      //   console.log(this.allIndex)
-      //   this.carMk.setPosition(new BMap.Point(this.ptsdata1[this.ptsdata1.length-1].lon,this.ptsdata1[this.ptsdata1.length-1].lat));
-      //   this.oneIndex=0
-      //   this.startDance=0
-      //   this.isbf=true
-      // }
-      
     },
     start(){
       this.myMap.setViewport(this.ptsdata)
@@ -876,10 +904,11 @@ export default {
 
     getstaData(){
       this.$fetchGet("monitor/getAllCNo").then(res=>{
-        this.restaurants1=res.content
         res.content.forEach((iteam,index)=>{
-          this.restaurants.push({value:iteam.cNo})
+          iteam.value=iteam.cNo
+          this.restaurants1.push(iteam)
         })
+        this.restaurants=this.restaurants1
       })
     },
 

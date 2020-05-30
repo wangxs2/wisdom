@@ -219,7 +219,8 @@ export default {
       mapstyle: "normal",
       searchinput:"",
       cityPoint:[],//省的聚合
-      cityMarker:[],//车辆和组织
+      cityMarker:[],//车
+      cityMarker1:[],//组织
       select:"1",
       carData:[
         {
@@ -240,7 +241,7 @@ export default {
         {
           name:"油厂",
           id:4,
-          iurl:require("../../assets/image/yc3.png")
+          iurl:require("../../assets/image/new/ycnromal.png")
         },
       ],
       cltitData:[
@@ -477,9 +478,128 @@ export default {
       this.myMap.addControl(
         new BMap.ScaleControl({ anchor: BMAP_ANCHOR_BOTTOM_LEFT })
       );
-      // this.myMap.setMapStyleV2({     
-      //   styleId: '877fcc51379e35af5063374cd7687818'
-      // });
+      var styleJson = [{
+            "featureType": "water",
+            "elementType": "geometry",
+            "stylers": {
+                "color": "#bde3fdff"
+            }
+        }, {
+            "featureType": "land",
+            "elementType": "geometry",
+            "stylers": {
+                "color": "#f8f8f8ff"
+            }
+        }, {
+            "featureType": "road",
+            "elementType": "geometry",
+            "stylers": {
+                "visibility": "on"
+            }
+        }, {
+            "featureType": "scenicspots",
+            "elementType": "geometry",
+            "stylers": {
+                "visibility": "off"
+            }
+        }, {
+            "featureType": "scenicspots",
+            "elementType": "labels",
+            "stylers": {
+                "visibility": "off"
+            }
+        }, {
+            "featureType": "education",
+            "elementType": "labels",
+            "stylers": {
+                "visibility": "off"
+            }
+        }, {
+            "featureType": "education",
+            "elementType": "geometry",
+            "stylers": {
+                "visibility": "off"
+            }
+        }, {
+            "featureType": "scenicspotslabel",
+            "elementType": "labels",
+            "stylers": {
+                "visibility": "off"
+            }
+        }, {
+            "featureType": "scenicspotslabel",
+            "elementType": "labels.icon",
+            "stylers": {
+                "visibility": "off"
+            }
+        }, {
+            "featureType": "transportationlabel",
+            "elementType": "labels",
+            "stylers": {
+                "visibility": "off"
+            }
+        }, {
+            "featureType": "transportationlabel",
+            "elementType": "labels.icon",
+            "stylers": {
+                "visibility": "off"
+            }
+        }, {
+            "featureType": "businesstowerlabel",
+            "elementType": "labels",
+            "stylers": {
+                "visibility": "off"
+            }
+        }, {
+            "featureType": "businesstowerlabel",
+            "elementType": "labels.icon",
+            "stylers": {
+                "visibility": "off"
+            }
+        }, {
+            "featureType": "shoppinglabel",
+            "elementType": "labels",
+            "stylers": {
+                "visibility": "off"
+            }
+        }, {
+            "featureType": "shoppinglabel",
+            "elementType": "labels.icon",
+            "stylers": {
+                "visibility": "off"
+            }
+        }, {
+            "featureType": "medicallabel",
+            "elementType": "labels",
+            "stylers": {
+                "visibility": "off"
+            }
+        }, {
+            "featureType": "medicallabel",
+            "elementType": "labels.icon",
+            "stylers": {
+                "visibility": "off"
+            }
+        }, {
+            "featureType": "educationlabel",
+            "elementType": "labels",
+            "stylers": {
+                "visibility": "off"
+            }
+        }, {
+            "featureType": "educationlabel",
+            "elementType": "labels.icon",
+            "stylers": {
+                "visibility": "off"
+            }
+        }, {
+            "featureType": "poilabel",
+            "elementType": "labels.icon",
+            "stylers": {
+                "visibility": "off"
+            }
+        }]
+      // this.myMap.setMapStyleV2({styleJson:styleJson});
 
       this.ctrl = new BMapLib.TrafficControl({showPanel: false});
       this.ctrl.setAnchor(BMAP_ANCHOR_BOTTOM_RIGHT);  
@@ -624,9 +744,9 @@ export default {
         }
         let marker = new BMap.Marker(point, opts);  // 创建文本标注对象
         marker.setRotation(iteam.drc)
-        marker.setZIndex(999)
-        marker.addEventListener("click",()=>{
-          
+        // marker.setZIndex(999)
+        marker.addEventListener("click",(e)=>{
+          this.myMap.centerAndZoom(new BMap.Point(iteam.lon,iteam.lat),14);
           this.showIclice(iteam)
           this.showInform(iteam)
         });
@@ -635,18 +755,18 @@ export default {
       })
       this.OilFacData.forEach(iteam=>{
         let point = new BMap.Point(iteam.lon,iteam.lat);
-        let icon=require('../../assets/image/yc3.png');
+        let icon=require('../../assets/image/new/ycnromal.png');
         let opts = {
             icon : new BMap.Icon(icon, new BMap.Size(27,30)),   // 指定文本标注所在的地理位置
-            offset : new BMap.Size(-15, -15)    //设置文本偏移量
+            offset : new BMap.Size(-13, -15)    //设置文本偏移量
         }
         let marker = new BMap.Marker(point, opts);  // 创建文本标注对象
-        marker.setZIndex(999)
-        marker.addEventListener("click",()=>{
+        marker.addEventListener("click",(e)=>{
+          this.myMap.centerAndZoom(new BMap.Point(iteam.lon,iteam.lat),14);
           this.showIcl(iteam)
           this.showmillInform(iteam)
         });
-        this.cityMarker.push(marker);
+        this.cityMarker1.push(marker);
         this.myMap.addOverlay(marker);   
       })
     },
@@ -656,21 +776,23 @@ export default {
         this.myMap.removeOverlay(this.activeLab); 
       }
       this.myCno=row.cNo
-      let activep = {
-            position : new BMap.Point(row.lon,row.lat),    // 指定文本标注所在的地理位置
-            offset   : new BMap.Size(-48, -48)    //设置文本偏移量
-          }
-          let conten1=`<div style="width:60px;
-                                  height:60px;
-                                  background:${row.onLine==1?'rgba(188, 216, 252, 0.2)':row.onLine==2?'rgba(253,226,186,0.2)':'rgba(223,222,222,0.2)'};
-                                  box-shadow:0px 2px 2px 0px rgba(0,0,0,0.5);
-                                  border:2px solid ${row.onLine==1?'rgba(48,124,252,1)':row.onLine==2?'rgba(255,153,0,1)':'rgba(151,151,151,1)'};
-                                  border-radius:50%;"></div>`
-          let label1 = new BMap.Label(conten1, activep);
-           // 创建文本标注对象
-          this.activeLab=label1
-          this.activeLab.setZIndex(-1) 
-          this.myMap.addOverlay(label1); 
+      let point = new BMap.Point(row.lon,row.lat);
+        let icon;
+        if(row.onLine==1){
+          icon=require('../../assets/image/new/xs.png')
+        }else if(row.onLine==2){
+          icon=require('../../assets/image/new/jz.png')
+        }else{
+          icon=require('../../assets/image/new/lx.png')
+        }
+        let opts = {
+            icon : new BMap.Icon(icon, new BMap.Size(30,30)),    // 指定文本标注所在的地理位置
+            offset : new BMap.Size(-15, -15)    //设置文本偏移量
+        }
+        let label1 = new BMap.Marker(point, opts);  // 创建文本标注对象
+        label1.setRotation(row.drc)
+        this.activeLab=label1
+        this.myMap.addOverlay(this.activeLab); 
 
     },
      //显示那个大圆圈
@@ -678,25 +800,23 @@ export default {
       if(this.activeLab1){
         this.myMap.removeOverlay(this.activeLab1); 
       }
-      let activep = {
-            position : new BMap.Point(row.lon,row.lat),    // 指定文本标注所在的地理位置
-            offset   : new BMap.Size(-48, -48)    //设置文本偏移量
-          }
-          let conten1=`<div style="width:60px;
-                                  height:60px;
-                                  background:rgba(188,216,252,0.2);
-                                  box-shadow:0px 2px 2px 0px rgba(0,0,0,0.5);
-                                  border:2px solid rgba(37,205,119,1);
-                                  border-radius:50%;"></div>`
-          let label1 = new BMap.Label(conten1, activep);  // 创建文本标注对象
-          this.activeLab1=label1
-          this.myMap.addOverlay(this.activeLab1); 
+      let point = new BMap.Point(row.lon,row.lat);
+      let opts = {
+          icon : new BMap.Icon(require('../../assets/image/new/ycclick.png'), new BMap.Size(27,30)),    // 指定文本标注所在的地理位置
+          offset : new BMap.Size(-13, -15)    //设置文本偏移量
+      }
+        let marker = new BMap.Marker(point, opts); 
+        this.activeLab1=marker // 创建文本标注对象
+        this.myMap.addOverlay(this.activeLab1); 
 
     },
     //清除车辆和组织
     clearMark(){
       console.log(this.ZoomNum)
       this.cityMarker.forEach(iteam=>{
+        this.myMap.removeOverlay(iteam);  
+      })
+      this.cityMarker1.forEach(iteam=>{
         this.myMap.removeOverlay(iteam);  
       })
       if(this.activeLab&&(this.ZoomNum<8||this.ZoomNum==8)){
@@ -722,10 +842,10 @@ export default {
      
       let activep1 = {
             position: new BMap.Point(row.lon,row.lat),    // 指定文本标注所在的地理位置
-            offset: new BMap.Size(-180, -270)    //设置文本偏移量
+            offset: new BMap.Size(-190, -306)    //设置文本偏移量
       }
       this.tiadata=row
-      var sContent=`<div id="copysa1" data-clipboard-text='${row.cNo},时速:${row.spd}km/h,定位时间：${new Date(row.utc*1000).Format('yyyy-MM-dd hh:mm:ss')},最后定位:${row.adr}' style="width:360px;background:#ffffff;position:relative;box-shadow:0px 0px 12px 0px rgba(51,51,51,0.3);border-radius:4px;z-index:800">
+      var sContent=`<div id="copysa1" data-clipboard-text='${row.cNo},时速:${row.spd}km/h,定位时间：${new Date(row.utc*1000).Format('yyyy-MM-dd hh:mm:ss')},最后定位:${row.adr}' style="width:360px;height:260px;background:#ffffff;position:relative;box-shadow:0px 0px 12px 0px rgba(51,51,51,0.3);border-radius:4px;z-index:800">
                         <div style="display:flex;width:100%;height:50px;background:${row.onLine==1?'rgba(48,124,252,1)':row.onLine==2?'rgba(255,153,0,1)':'rgba(151,151,151,1)'}; justify-content: space-between;align-items: center;box-sizing: border-box;
                         padding:10px 20px;">
                           <img src="${require('../../assets/image/qc1.png')}" width="32" height="32">
@@ -782,14 +902,14 @@ export default {
       }
       let activep1 = {
             position: new BMap.Point(row.lon,row.lat),    // 指定文本标注所在的地理位置
-            offset: new BMap.Size(-180, -140)    //设置文本偏移量
+            offset: new BMap.Size(-186, -166)    //设置文本偏移量
       }
-      var sContent=`<div id="copysa2" data-clipboard-text='${row.fName},地址:${row.adr}' style="width:400px;background:#ffffff;position:relative;box-shadow:0px 0px 12px 0px rgba(51,51,51,0.3);border-radius:4px;z-index:800">
-                        <div style="display:flex;width:100%;height:50px;background:rgba(208,250,228,1); justify-content: space-between;align-items: center;box-sizing: border-box;
+      var sContent=`<div id="copysa2" data-clipboard-text='${row.fName},地址:${row.adr}' style="width:400px;height:120px;background:#ffffff;position:relative;box-shadow:0px 0px 12px 0px rgba(51,51,51,0.3);border-radius:4px;z-index:800">
+                        <div style="display:flex;width:100%;height:50px;background:#1E292F; justify-content: space-between;align-items: center;box-sizing: border-box;
                         padding:8px 16px;">
-                          <img src="${require('../../assets/image/yt1.png')}" width="28" height="16">
-                          <span style="font-size:18px;color:#25CD77">${row.fName}</span>
-                          <img id="close2" style="cursor: pointer;" src="${require('../../assets/image/close1.png')}" width="16" height="16">
+                          <img src="${require('../../assets/image/yt1.png')}" width="22" height="22">
+                          <span style="font-size:17px;color:#ffffff">${row.fName}</span>
+                          <img id="close2" style="cursor: pointer;" src="${require('../../assets/image/close2.png')}" width="16" height="16">
                         </div>
                         <div style="width:100%;overflow:hidden;box-sizing:border-box;padding:10px">
                           <div style="display:flex;justify-content:flex-start;font-size:16px;color:#7B7D7F;">
