@@ -141,6 +141,10 @@
         <span class="leimg"></span>
         <span>{{item.name}}</span>
       </div>
+      <div class="itamStatus1" style="border-top:1px solid #eeeeee;padding-top:4px">
+        <img src="../../assets/image/new/ycnromal.png" width="13" height="15" style="margin-right:6px">
+        <span>油厂</span>
+      </div>
     </div>
     <!-- 右下角的车辆状态 -->
     <!-- 轨迹播放 -->
@@ -267,7 +271,9 @@ export default {
       startDancesa:'',//随时变化的里程数和时间
       updateData:{},//从实时监控过来的数据
       OilFacData:[],//油厂
-      cityMarker:[],//油厂
+      cityMarker1:[],//油厂
+      activeLab1:null,//油厂
+      activemillInfow:null,//油厂
       myOilFac:[],//油厂
       // mapstyle:"dark",
     };
@@ -304,19 +310,20 @@ export default {
     $('.map-content').on("click", "#close2",  ()=> {
       this.myMap.removeOverlay(this.activeInfow); 
     }) 
+    $('.map-content').on("click", "#close3",  ()=> {
+      this.myMap.removeOverlay(this.activemillInfow); 
+    }) 
   },
   created() {
     this.getstaData()
      if (this.$route.params.type == 'update') {
       this.updateData= this.$route.params.updateData
-      console.log(this.updateData)
       this.input3=this.updateData.cNo
     }
   },
   methods: {
     //油厂
     statuMark(){
-      console.log(this.OilFacData)
       this.OilFacData.forEach(iteam=>{
         let point = new BMap.Point(iteam.lon,iteam.lat);
         let icon=require('../../assets/image/new/ycnromal.png');
@@ -326,13 +333,70 @@ export default {
         }
         let marker = new BMap.Marker(point, opts);  // 创建文本标注对象
         marker.addEventListener("click",()=>{
-          // this.showIcl(iteam)
-          // this.showmillInform(iteam)
+          this.showIcl(iteam)
+          this.showmillInform(iteam)
         });
-        this.cityMarker.push(marker);
-        console.log(marker)
+        this.cityMarker1.push(marker);
         this.myMap.addOverlay(marker);   
       })
+    },
+     //显示那个大圆圈
+    showIcl(row){
+      if(this.activeLab1){
+        this.myMap.removeOverlay(this.activeLab1); 
+      }
+      let point = new BMap.Point(row.lon,row.lat);
+      let opts = {
+          icon : new BMap.Icon(require('../../assets/image/new/ycclick.png'), new BMap.Size(27,30)),    // 指定文本标注所在的地理位置
+          offset : new BMap.Size(-13, -15)    //设置文本偏移量
+      }
+        let marker = new BMap.Marker(point, opts); 
+        this.activeLab1=marker // 创建文本标注对象
+        this.myMap.addOverlay(this.activeLab1); 
+
+    },
+     //显示油厂的的信息
+    showmillInform(row){
+       if(this.activemillInfow){
+        this.myMap.removeOverlay(this.activemillInfow); 
+      }
+      let activep1 = {
+            position: new BMap.Point(row.lon,row.lat),    // 指定文本标注所在的地理位置
+            offset: new BMap.Size(-186, -166)    //设置文本偏移量
+      }
+      var sContent=`<div id="copysa2" data-clipboard-text='${row.fName},地址:${row.adr}' style="width:400px;height:120px;background:#ffffff;position:relative;box-shadow:0px 0px 12px 0px rgba(51,51,51,0.3);border-radius:4px;z-index:800">
+                        <div style="display:flex;width:100%;height:50px;background:#1E292F; justify-content: space-between;align-items: center;box-sizing: border-box;
+                        padding:8px 16px;">
+                          <img src="${require('../../assets/image/yt1.png')}" width="22" height="22">
+                          <span style="font-size:17px;color:#ffffff">${row.fName}</span>
+                          <img id="close3" style="cursor: pointer;" src="${require('../../assets/image/close2.png')}" width="16" height="16">
+                        </div>
+                        <div style="width:100%;overflow:hidden;box-sizing:border-box;padding:10px">
+                          <div style="display:flex;justify-content:flex-start;font-size:16px;color:#7B7D7F;">
+                            <div style="width:36px">地址</div>
+                            <div style="margin-left:16px;word-break:break-all;flex:1"">${row.adr}</div>
+                          </div>
+                        </div>
+                        <div style="position: absolute;bottom:-12px;left:165px;border-left: 8px solid transparent;border-right: 8px solid transparent;border-top: 12px solid #ffffff;"></div>
+                    </div>`
+      var infoWindow = new BMap.Label(sContent, activep1);  // 创建信息窗口对象
+      infoWindow.addEventListener("dblclick",()=>{
+        var clipboard = new Clipboard('#copysa2')
+        clipboard.on('success', e => {
+          this.$message({
+            message: '复制成功',
+            type: 'success'
+          });
+          clipboard.destroy()
+        })
+         clipboard.on('error', e => {
+          this.$message.error('该浏览器不支持自动复制');
+          clipboard.destroy()
+        })
+      });
+      infoWindow.setZIndex(900)
+      this.activemillInfow=infoWindow
+      this.myMap.addOverlay(this.activemillInfow); 
     },
     getAllOol(){
       this.$fetchGet("location/getPageOilFac").then(res=>{
@@ -340,7 +404,7 @@ export default {
         res.content.forEach((itam,index)=>{
           this.myOilFac.push({value:itam.fName})
         })
-        this.statuMark()
+        
       })
     },
     //是否显示异常点
@@ -508,9 +572,9 @@ export default {
       }
       let activep1 = {
             position: new BMap.Point(row.lon,row.lat),    // 指定文本标注所在的地理位置
-            offset: new BMap.Size(-180, -210)    //设置文本偏移量
+            offset: new BMap.Size(-176, -220)    //设置文本偏移量
       }
-      var sContent=`<div id="copysa" data-clipboard-text='${row.cNo},停车时长：${row.eDur}分钟,定位时间：${new Date(row.utc*1000).Format('yyyy-MM-dd hh:mm:ss')},最后定位:${row.adr}' style="width:360px;background:#ffffff;position:relative;box-shadow:0px 0px 12px 0px rgba(51,51,51,0.3);border-radius:4px;z-index:800">
+      var sContent=`<div id="copysa" data-clipboard-text='${row.cNo},停车时长：${row.eDur}分钟,定位时间：${new Date(row.utc*1000).Format('yyyy-MM-dd hh:mm:ss')},最后定位:${row.adr}' style="width:360px;height:200px;background:#ffffff;position:relative;box-shadow:0px 0px 12px 0px rgba(51,51,51,0.3);border-radius:4px;z-index:800">
                         <div style="display:flex;width:100%;height:50px;background:${type==1?'rgba(151,151,151,1)':'rgba(48,124,252,1)'}; justify-content: space-between;align-items: center;box-sizing: border-box;
                         padding:10px 20px;">
                           <img src="${require('../../assets/image/qc1.png')}" width="32" height="32">
@@ -539,7 +603,6 @@ export default {
       infoWindow.setZIndex(900)
       infoWindow.addEventListener("dblclick",()=>{
         var clipboard = new Clipboard('#copysa')
-        console.log(clipboard)
         clipboard.on('success', e => {
           this.$message({
             message: '复制成功',
@@ -675,15 +738,28 @@ export default {
         styleId: '877fcc51379e35af5063374cd7687818'
       });
     },
-    
+    //清除车辆和组织
+    clearMark1(){
+      this.cityMarker1.forEach(iteam=>{
+        this.myMap.removeOverlay(iteam);  
+      })
+      if(this.activeLab1){
+        this.myMap.removeOverlay(this.activeLab1); 
+      }
+      if(this.activemillInfow){
+        this.myMap.removeOverlay(this.activemillInfow); 
+      }
+    },
     //地图的缩放时间
     getZmap() {
       this.myMap.addEventListener("zoomend", () => {
         this.ZoomNum = this.myMap.getZoom();
         if(this.ZoomNum>8){
-          this.isCar=true
+          // this.isCar=true
+          this.statuMark()
         }else{
-          this.isCar=false
+          // this.isCar=false
+          this.clearMark1()
         }
         // 14 是1公里
         // 13 是2公里
@@ -736,14 +812,16 @@ export default {
               arrPois,//所有的GPS坐标点
               {
                 strokeColor : lineColor, //线路颜色
-                strokeOpacity:1,
+                // strokeOpacity:0.8,
                 strokeWeight : 10,//线路大小
               });
-          this.polyline.addEventListener("mouseover",(type, target, point, pixel)=>{
-            console.log(type)
-            console.log(target)
-            console.log(point)
-            console.log(pixel)
+          polyline.addEventListener("click",(type)=>{
+            let str=type.target.getPath()
+            data.forEach(itam=>{
+              if(str[0].lng==itam.lon){
+                this.getDeatil(itam)
+              }
+            })
           })
       //绘制线路
       this.polylinearr.push(polyline)
@@ -914,7 +992,6 @@ export default {
 
     //点击左侧操作的按钮
     setLeftMark(iteam){
-      console.log(iteam)
       this.myMap.centerAndZoom(new BMap.Point(iteam.lon,iteam.lat),19);
       if(this.valuenum==0){
         this.checked=true

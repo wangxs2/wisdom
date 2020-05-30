@@ -178,7 +178,7 @@
       <!-- top搜索 -->
     </div>
     <!-- 右下角的车辆状态 -->
-    <div class="statusCar" v-if="isCar">
+    <div class="statusCar" v-show="isCar">
       <div class="itamStatus" v-for="item in carData" :key="item.id">
         <img :src="item.iurl" width="16" height="16">
         <span>{{item.name}}</span>
@@ -271,6 +271,7 @@ export default {
       statusData:[],
       myOilFac:[],
       activeLab1:null,
+      allNum:0,
       myAllCp:[],
       onLine:"",
       titindex:0,
@@ -278,6 +279,7 @@ export default {
       tiadata:{},//轨迹回放
       ctrl:null,
       myMapTwo:null,
+      countryCil:null,
       // mapstyle:"dark",
     };
   },
@@ -314,6 +316,7 @@ export default {
     this.getstaData()
     this.initMap();
     this.getZmap();
+    // this.myCountry()
     $('.map-content').on("click", "#close1",  ()=> {
       this.myMap.removeOverlay(this.activeInfow); 
       this.myMap.removeOverlay(this.activeLab); 
@@ -335,6 +338,7 @@ export default {
     
   },
   methods: {
+   
     //倒计时
     countDown() {
       if(this.totalTimeme){
@@ -421,12 +425,17 @@ export default {
       this.statusData=[]
       this.allData=[]
       this.countLeft=[]
+      this.allNum=0
       this.$fetchGet("monitor/getLinkage",{
         cNo:"",
         stat:this.valuenum
       }).then(res=>{
           if(res.code=='1'){
-            this.allData=res.content.graph
+            this.allData=this.cloneObj(res.content.graph)
+            this.allData.forEach(itum=>{
+              this.allNum=this.allNum+(itum.num)
+            })
+            this.myCountry()
             this.countLeft=this.cloneObj(res.content.cars)
             this.statusData=this.cloneObj(res.content.cars)
             if(this.activeLab){
@@ -457,7 +466,7 @@ export default {
           }
           if(this.ZoomNum>8){
             this.statuMark()
-          }else{
+          }else if(this.ZoomNum>6){
             this.makeBigcel()
           }
           
@@ -473,7 +482,7 @@ export default {
       // 108.933051,34.546597
       this.myMap = new BMap.Map("mymap");
       // this.myMapTwo = new BMapGL.Map("mymap"); 
-      this.myMap.centerAndZoom(new BMap.Point(121.644624,31.205915), 5);  
+      this.myMap.centerAndZoom(new BMap.Point(121.644624,31.205915), 4);  
       this.myMap.enableScrollWheelZoom(); //地图缩放的功能
       this.myMap.addControl(
         new BMap.ScaleControl({ anchor: BMAP_ANCHOR_BOTTOM_LEFT })
@@ -610,14 +619,24 @@ export default {
     getZmap() {
       this.myMap.addEventListener("zoomend", () => {
         this.ZoomNum = this.myMap.getZoom();
+        console.log(this.ZoomNum)
         if(this.ZoomNum>8){
           this.isCar=true
           this.clearBig()
           this.statuMark()
-        }else{
+        }
+        if(this.ZoomNum>5&&this.ZoomNum<8){
           this.isCar=false
           this.makeBigcel()
           this.clearMark()
+          this.clearCountry()
+        }
+
+        if(this.ZoomNum<6){
+          this.isCar=false
+          this.clearBig()
+          this.clearMark()
+          this.myCountry()
         }
         // 14 是1公里
         // 13 是2公里
@@ -718,6 +737,25 @@ export default {
         this.cityPoint.push(label);
         this.myMap.addOverlay(label);   
       })
+    },
+    myCountry(){
+       let opts = {
+          position : new BMap.Point(108.925882,34.545817),    // 指定文本标注所在的地理位置
+          offset   : new BMap.Size(-20, -30)    //设置文本偏移量
+        }
+      let conten=`<div style="width:47px;height:52px;cursor: pointer;color:#ffffff;font-size:16px;text-align:center;line-height:50px;background:url(${require('../../assets/image/4w.png')});background-size:100% 100%">${this.allNum}</div>`
+      this.countryCil = new BMap.Label(conten, opts);
+      this.countryCil.addEventListener("click",()=>{
+          let obj=this.countryCil.getPosition()
+          this.myMap.setZoom(6)
+          this.myMap.centerAndZoom(new BMap.Point(obj.lng,obj.lat),6);
+        });
+      this.myMap.addOverlay(this.countryCil);
+    },
+    clearCountry(){
+      if(this.countryCil){
+        this.myMap.removeOverlay(this.countryCil);
+      }
     },
     //清除大圆圈
     clearBig(){
@@ -833,7 +871,6 @@ export default {
         this.myMap.removeOverlay(this.activemillInfow); 
       }
     },
-    
     //显示车辆的信息
     showInform(row){
       if(this.activeInfow){
