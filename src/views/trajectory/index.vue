@@ -466,8 +466,6 @@ export default {
       //     this.errorTotal=res.content.total
       //   }
       // })
-        console.log(this.errorCount)
-        console.log(this.page)
         this.count=this.errorCount.slice((this.page-1)*15,this.page*15)
       }else{
         this.$fetchGet("getTraceCar/byPeriodWithPage",{
