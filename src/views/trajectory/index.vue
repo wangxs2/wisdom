@@ -333,7 +333,7 @@ export default {
         }
         let marker = new BMap.Marker(point, opts);  // 创建文本标注对象
         let conten=`<div style="width:80px;">${iteam.sName}</div>`
-        var label = new BMap.Label(conten,{offset:new BMap.Size(-20,-20)});
+        var label = new BMap.Label(conten,{offset:new BMap.Size(-10,24)});
         marker.setLabel(label);
         marker.addEventListener("click",()=>{
           this.showIcl(iteam)
@@ -449,22 +449,26 @@ export default {
     currentChange(val){
       this.page=val
       if(this.valuenum==0){
-      this.$fetchGet("getTraceCar/error",{
-        cNo:this.input3,
-        beginTime:this.value1[0],
-        endTime:this.value1[1],
-        page:this.page,
-        pageSize:this.pageSize
-      }).then(res=>{
-        if(res.content.list.length>0){
-          this.errorCount=res.content.list
-          if(this.valuenum==0){
-            this.count=this.errorCount
-            this.total=res.content.total
-          }
-          this.errorTotal=res.content.total
-        }
-      })
+
+      // this.$fetchGet("getTraceCar/error",{
+      //   cNo:this.input3,
+      //   beginTime:this.value1[0],
+      //   endTime:this.value1[1],
+      //   page:this.page,
+      //   pageSize:this.pageSize
+      // }).then(res=>{
+      //   if(res.content.list.length>0){
+      //     this.errorCount=res.content.list
+      //     if(this.valuenum==0){
+      //       this.count=this.errorCount
+      //       this.total=res.content.total
+      //     }
+      //     this.errorTotal=res.content.total
+      //   }
+      // })
+        console.log(this.errorCount)
+        console.log(this.page)
+        this.count=this.errorCount.slice((this.page-1)*15,this.page*15)
       }else{
         this.$fetchGet("getTraceCar/byPeriodWithPage",{
         cNo:this.input3,
@@ -486,47 +490,47 @@ export default {
     },
     //异常点
     getErrorData(){
-      if(this.activeInfow){
-          this.myMap.removeOverlay(this.activeInfow); 
-        }
-      this.$fetchGet("getTraceCar/error",{
-        cNo:this.input3,
-        beginTime:this.value1[0],
-        endTime:this.value1[1],
-        page:this.page,
-        pageSize:this.pageSize
-      }).then(res=>{
-        if(res.content.list.length>0){
-          this.errorCount=res.content.list
-          if(this.valuenum==0){
-            this.count=this.errorCount
-            this.total=res.content.total
-          }
-          this.errorTotal=res.content.total
-        }else{
-        }
-      })
-      this.$fetchGet("getTraceCar/error",{
-        cNo:this.input3,
-        beginTime:this.value1[0],
-        endTime:this.value1[1],
-        page:0,
-        pageSize:0
-      }).then(res=>{
-        if(res.code==1){
-          if(res.content.error.length>0){
-            this.ageTime=res.content.alltime
-            this.ageSpeed=res.content.avg
-            this.allDistance=res.content.distance
-            this.statusError=res.content.error
-            this.errorMark()
-          }else{
-            //this.$message.error('暂无数据！请检查！');
-          }
-        }
+      // if(this.activeInfow){
+      //     this.myMap.removeOverlay(this.activeInfow); 
+      //   }
+      // this.$fetchGet("getTraceCar/error",{
+      //   cNo:this.input3,
+      //   beginTime:this.value1[0],
+      //   endTime:this.value1[1],
+      //   page:this.page,
+      //   pageSize:this.pageSize
+      // }).then(res=>{
+      //   if(res.content.list.length>0){
+      //     this.errorCount=res.content.list
+      //     if(this.valuenum==0){
+      //       this.count=this.errorCount
+      //       this.total=res.content.total
+      //     }
+      //     this.errorTotal=res.content.total
+      //   }else{
+      //   }
+      // })
+      // this.$fetchGet("getTraceCar/error",{
+      //   cNo:this.input3,
+      //   beginTime:this.value1[0],
+      //   endTime:this.value1[1],
+      //   page:0,
+      //   pageSize:0
+      // }).then(res=>{
+      //   if(res.code==1){
+      //     if(res.content.error.length>0){
+      //       this.ageTime=res.content.alltime
+      //       this.ageSpeed=res.content.avg
+      //       this.allDistance=res.content.distance
+      //       this.statusError=res.content.error
+      //       this.errorMark()
+      //     }else{
+      //       //this.$message.error('暂无数据！请检查！');
+      //     }
+      //   }
         
         
-      })
+      // })
     },
     //异常点的点的渲染
     errorMark(){
@@ -664,7 +668,22 @@ export default {
         pageSize:0
       }).then(res=>{
         this.loading=false
-        if(res.content.data.length>0){
+        if(res.code==1){
+
+          // 异常点
+          this.errorCount=res.content.error
+          if(this.valuenum==0){
+            this.count=this.errorCount.slice(0,15)
+            this.total=this.errorCount.length
+          }
+          this.errorTotal=this.total
+
+
+          this.ageTime=res.content.alltime
+          this.ageSpeed=res.content.avg
+          this.allDistance=res.content.distance
+          this.statusError=res.content.error
+          this.errorMark()
           this.getLine(res.content.data)
           
           this.startTimesa=res.content.data[0].time

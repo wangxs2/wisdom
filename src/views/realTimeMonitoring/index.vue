@@ -605,6 +605,12 @@ export default {
             "featureType": "poilabel",
             "elementType": "labels.icon",
             "stylers": {
+                "visibility": "on"
+            }
+        }, {
+            "featureType": "poilabel",
+            "elementType": "labels",
+            "stylers": {
                 "visibility": "off"
             }
         }]
@@ -624,6 +630,7 @@ export default {
           this.isCar=true
           this.clearBig()
           this.statuMark()
+          this.clearCountry()
         }
         if(this.ZoomNum>5&&this.ZoomNum<8){
           this.isCar=false
@@ -637,6 +644,9 @@ export default {
           this.clearBig()
           this.clearMark()
           this.myCountry()
+        }
+        if(this.ZoomNum>5){
+
         }
         // 14 是1公里
         // 13 是2公里
@@ -805,7 +815,7 @@ export default {
           this.showmillInform(iteam)
         });
         let conten=`<div style="width:80px;">${iteam.sName}</div>`
-        var label = new BMap.Label(conten,{offset:new BMap.Size(-20,-20)});
+        var label = new BMap.Label(conten,{offset:new BMap.Size(-10,24)});
 	      marker.setLabel(label);
         this.cityMarker1.push(marker);
         this.myMap.addOverlay(marker);   
