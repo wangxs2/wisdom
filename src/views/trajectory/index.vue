@@ -332,8 +332,8 @@ export default {
           offset : new BMap.Size(-13,-15)    //设置文本偏移量
         }
         let marker = new BMap.Marker(point, opts);  // 创建文本标注对象
-        let conten=`<div style="width:80px;">${iteam.fName}</div>`
-        var label = new BMap.Label(conten,{offset:new BMap.Size(-20,-28)});
+        let conten=`<div style="width:80px;">${iteam.sName}</div>`
+        var label = new BMap.Label(conten,{offset:new BMap.Size(-20,-20)});
         marker.setLabel(label);
         marker.addEventListener("click",()=>{
           this.showIcl(iteam)

@@ -804,8 +804,8 @@ export default {
           this.showIcl(iteam)
           this.showmillInform(iteam)
         });
-        let conten=`<div style="width:80px;">${iteam.fName}</div>`
-        var label = new BMap.Label(conten,{offset:new BMap.Size(-20,-28)});
+        let conten=`<div style="width:80px;">${iteam.sName}</div>`
+        var label = new BMap.Label(conten,{offset:new BMap.Size(-20,-20)});
 	      marker.setLabel(label);
         this.cityMarker1.push(marker);
         this.myMap.addOverlay(marker);   
