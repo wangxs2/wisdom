@@ -403,6 +403,8 @@ export default {
         res.content[0].forEach((iteam,index)=>{
           this.cltitData[index].name=this.cltitData[index].name+'('+iteam+')'
         })
+        this.allNum=res.content[0][0]
+        this.myCountry()
       })
 
       this.$fetchGet("monitor/getAllCNo").then(res=>{
@@ -425,17 +427,13 @@ export default {
       this.statusData=[]
       this.allData=[]
       this.countLeft=[]
-      this.allNum=0
+      // this.allNum=0
       this.$fetchGet("monitor/getLinkage",{
         cNo:"",
         stat:this.valuenum
       }).then(res=>{
-          if(res.code=='1'){
+          if(res.code==1){
             this.allData=this.cloneObj(res.content.graph)
-            this.allData.forEach(itum=>{
-              this.allNum=this.allNum+(itum.num)
-            })
-            this.myCountry()
             this.countLeft=this.cloneObj(res.content.cars)
             this.statusData=this.cloneObj(res.content.cars)
             if(this.activeLab){
@@ -456,18 +454,43 @@ export default {
           }else{
              if(this.ZoomNum>8){
                 this.clearMark()
-              }else{
+              }
+             
+              if(this.ZoomNum>5&&this.ZoomNum<9){
                 this.clearBig()
+                this.clearCountry()
+              }
+              if(this.ZoomNum<6){
+                this.clearBig()
+                this.clearCountry()
+                
               }
               if(this.activeLab){
                 this.activeLab.setPosition(new BMap.Point(iteam.lon,iteam.lat))
                 this.activeInfow.setPosition(new BMap.Point(iteam.lon,iteam.lat))
               }
           }
+          // if(this.ZoomNum>8){
+          //   this.statuMark()
+          // }else if(this.ZoomNum>6){
+          //   this.makeBigcel()
+          // }
+
           if(this.ZoomNum>8){
+            this.clearBig()
             this.statuMark()
-          }else if(this.ZoomNum>6){
+            this.clearCountry()
+          }
+          if(this.ZoomNum>5&&this.ZoomNum<9){
             this.makeBigcel()
+            this.clearMark()
+            this.clearCountry()
+          }
+
+          if(this.ZoomNum<6){
+            this.clearBig()
+            this.clearMark()
+            // this.myCountry()
           }
           
       })
@@ -632,7 +655,8 @@ export default {
           this.statuMark()
           this.clearCountry()
         }
-        if(this.ZoomNum>5&&this.ZoomNum<8){
+        if(this.ZoomNum>5&&this.ZoomNum<9){
+          console.log("wozaozheli")
           this.isCar=false
           this.makeBigcel()
           this.clearMark()
@@ -759,6 +783,7 @@ export default {
           let obj=this.countryCil.getPosition()
           this.myMap.setZoom(6)
           this.myMap.centerAndZoom(new BMap.Point(obj.lng,obj.lat),6);
+          this.myMap.removeOverlay(this.countryCil);
         });
       this.myMap.addOverlay(this.countryCil);
     },
