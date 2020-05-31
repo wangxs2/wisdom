@@ -146,10 +146,10 @@
       <div style="color:#307CFC">{{startTimesa}}</div>
       <div style="color:#307CFC;margin-left:20px">{{startDance.toFixed(2)}}km</div>
       <div style="margin-left:20px" @click="istop()" class="bfbtn">
-        <i v-if="isbf" class="iconfont iconbofang"></i>
-        <i v-if="!isbf" class="iconfont iconzantingtingzhi"></i>
+        <i v-if="isbf" style="color:#307CFC" class="iconfont iconbofang"></i>
+        <i v-if="!isbf" style="color:#307CFC" class="iconfont iconzantingtingzhi"></i>
       </div>
-      <img @click="refresh()" style="margin-left:30px;cursor: pointer;" src="../../assets/image/sx.png" width="30" height="30">
+      <img @click="refresh()" style="margin-left:30px;cursor: pointer;" src="../../assets/image/sx.png" width="20" height="20">
       <div style="color:#303133;margin-left:20px">{{value1[1]}}</div>
       <div style="color:#303133;margin-left:20px">{{allDistance}}km</div>
       <div style="margin-left:40px">
@@ -1056,7 +1056,7 @@ export default {
     width: 100%;
     height: vh(60);
     // background: #ffffff;
-    z-index: 9999;
+    z-index: 23;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -1374,7 +1374,7 @@ export default {
       display:flex;
     align-items: center;
      justify-content: center;
-      background:#307CFC;
+      // background:#307CFC;
       border-radius:2px;
       cursor: pointer;
       i{
