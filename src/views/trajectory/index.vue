@@ -6,17 +6,11 @@
     >
     <div class="top-search">
       <div class="left-sea">
-        <!-- <el-autocomplete  v-model="input3"  :fetch-suggestions="querySearchAsync" @select="getData(),getErrorData()" placeholder="请输入车牌号"  class="input-with-select">
-          <el-select v-model="select" slot="prepend" placeholder="请选择">
-            <el-option label="车辆" value="1"></el-option>
-          </el-select>
-          <el-button class="searchbtn" style="backgorund:#E6F1FC" @click="getData(),getErrorData()"  slot="append" icon="el-icon-search"></el-button>
-        </el-autocomplete> -->
          <el-select style="width:80px" @change="input3=''" v-model="select" slot="prepend" :popper-append-to-body="false" placeholder="请选择">
           <el-option label="车辆" value="1"></el-option>
           <el-option label="组织" value="2"></el-option>
         </el-select>
-         <el-select style="width:300px" v-model="input3" @change="getData(),getErrorData()" :popper-append-to-body="false" filterable :placeholder="select=='1'?'请输入车牌号':'请输入油厂名称'">
+         <el-select style="width:300px" v-model="input3" @change="getData()" :popper-append-to-body="false" filterable :placeholder="select=='1'?'请输入车牌号':'请输入油厂名称'">
             <el-option
               v-for="(item,index) in restaurants"
               :key="index"
@@ -304,13 +298,13 @@ export default {
     },
   mounted() {
     this.initMap();
-    this.getErrorData()
     this.getData()
     this.getZmap();
     $('.map-content').on("click", "#close2",  ()=> {
       this.myMap.removeOverlay(this.activeInfow); 
     }) 
     $('.map-content').on("click", "#close3",  ()=> {
+      this.myMap.removeOverlay(this.activeLab1);
       this.myMap.removeOverlay(this.activemillInfow); 
     }) 
   },
@@ -324,6 +318,9 @@ export default {
   methods: {
     //油厂
     statuMark(){
+      this.cityMarker1.forEach(iteam=>{
+        this.myMap.removeOverlay(iteam);  
+      })
       this.OilFacData.forEach(iteam=>{
         let point = new BMap.Point(iteam.lon,iteam.lat);
         let icon=require('../../assets/image/new/ycnromal.png');
@@ -466,6 +463,7 @@ export default {
       //     this.errorTotal=res.content.total
       //   }
       // })
+        
         this.count=this.errorCount.slice((this.page-1)*15,this.page*15)
       }else{
         this.$fetchGet("getTraceCar/byPeriodWithPage",{
@@ -487,49 +485,6 @@ export default {
       }
     },
     //异常点
-    getErrorData(){
-      // if(this.activeInfow){
-      //     this.myMap.removeOverlay(this.activeInfow); 
-      //   }
-      // this.$fetchGet("getTraceCar/error",{
-      //   cNo:this.input3,
-      //   beginTime:this.value1[0],
-      //   endTime:this.value1[1],
-      //   page:this.page,
-      //   pageSize:this.pageSize
-      // }).then(res=>{
-      //   if(res.content.list.length>0){
-      //     this.errorCount=res.content.list
-      //     if(this.valuenum==0){
-      //       this.count=this.errorCount
-      //       this.total=res.content.total
-      //     }
-      //     this.errorTotal=res.content.total
-      //   }else{
-      //   }
-      // })
-      // this.$fetchGet("getTraceCar/error",{
-      //   cNo:this.input3,
-      //   beginTime:this.value1[0],
-      //   endTime:this.value1[1],
-      //   page:0,
-      //   pageSize:0
-      // }).then(res=>{
-      //   if(res.code==1){
-      //     if(res.content.error.length>0){
-      //       this.ageTime=res.content.alltime
-      //       this.ageSpeed=res.content.avg
-      //       this.allDistance=res.content.distance
-      //       this.statusError=res.content.error
-      //       this.errorMark()
-      //     }else{
-      //       //this.$message.error('暂无数据！请检查！');
-      //     }
-      //   }
-        
-        
-      // })
-    },
     //异常点的点的渲染
     errorMark(){
       this.statusError.forEach(iteam=>{
@@ -541,7 +496,9 @@ export default {
         let marker = new BMap.Marker(point, opts);  // 创建文本标注对象
         marker.setRotation(iteam.drc)
         marker.addEventListener("click",()=>{
-          this.showInform(iteam,1)
+          // this.showInform(iteam,1)
+          // statusError
+          this.getDeatil(iteam,1,iteam.eDur)
         })
         this.cityMarker.push(marker);
         this.myMap.addOverlay(marker);   
@@ -571,7 +528,7 @@ export default {
         alert("已复制好，可贴粘。");
     },
      //显示异常点的车辆的信息
-    showInform(row,type){
+    showInform(row,type,eDur){
       if(this.activeInfow){
         this.myMap.removeOverlay(this.activeInfow); 
       }
@@ -579,7 +536,7 @@ export default {
             position: new BMap.Point(row.lon,row.lat),    // 指定文本标注所在的地理位置
             offset: new BMap.Size(-176, -220)    //设置文本偏移量
       }
-      var sContent=`<div id="copysa" data-clipboard-text='${row.cNo},停车时长：${row.eDur}分钟,定位时间：${new Date(row.utc*1000).Format('yyyy-MM-dd hh:mm:ss')},最后定位:${row.adr}' style="width:360px;height:200px;background:#ffffff;position:relative;box-shadow:0px 0px 12px 0px rgba(51,51,51,0.3);border-radius:4px;z-index:800">
+      var sContent=`<div id="copysa" data-clipboard-text='${row.cNo},停车时长：${eDur}分钟,定位时间：${new Date(row.utc*1000).Format('yyyy-MM-dd hh:mm:ss')},最后定位:${row.adr}' style="width:360px;height:200px;background:#ffffff;position:relative;box-shadow:0px 0px 12px 0px rgba(51,51,51,0.3);border-radius:4px;z-index:800">
                         <div style="display:flex;width:100%;height:50px;background:${type==1?'rgba(151,151,151,1)':'rgba(48,124,252,1)'}; justify-content: space-between;align-items: center;box-sizing: border-box;
                         padding:10px 20px;">
                           <img src="${require('../../assets/image/qc1.png')}" width="32" height="32">
@@ -589,7 +546,7 @@ export default {
                         <div style="width:100%;overflow:hidden;box-sizing:border-box;padding:10px">
                           <div style="display:flex;justify-content:flex-start;font-size:16px;color:#7B7D7F;margin-bottom:6px;display:${type==2?'none':''}">
                             <div style="width:66px">停车时长</div>
-                            <div style="margin-left:16px;flex:1">${row.eDur}分钟</div>
+                            <div style="margin-left:16px;flex:1">${eDur}分钟</div>
                           </div>
                           
                           <div style="display:flex;justify-content:flex-start;font-size:16px;color:#7B7D7F;margin-bottom:6px;">
@@ -635,74 +592,84 @@ export default {
 
     //获取数据
     getData(){
-      this.loading=true
-      this.startDance=0
-      this.clearPoline()
-      this.$fetchGet("getTraceCar/byPeriodWithPage",{
-        cNo:this.input3,
-        beginTime:this.value1[0],
-        endTime:this.value1[1],
-        page:this.page,
-        pageSize:this.pageSize
-      }).then(res=>{
-        if(res.content.list.length>0){
-         this.normalCount=res.content.list
-          if(this.valuenum==1){
-            this.count=this.normalCount
-            this.total=res.content.total
-          }
-          this.normalTotal=res.content.total
-          
-        }else{
-
-        }
-        
-      })
-      this.$fetchGet("getTraceCar/byPeriod",{
-        cNo:this.input3,
-        beginTime:this.value1[0],
-        endTime:this.value1[1],
-        page:0,
-        pageSize:0
-      }).then(res=>{
-        this.loading=false
-        if(res.code==1){
-
-          // 异常点
-          this.errorCount=res.content.error
-          if(this.valuenum==0){
-            this.count=this.errorCount.slice(0,15)
-            this.total=this.errorCount.length
-          }
-          this.errorTotal=this.total
-
-
-          this.ageTime=res.content.alltime
-          this.ageSpeed=res.content.avg
-          this.allDistance=res.content.distance
-          this.statusError=res.content.error
-          this.errorMark()
-          this.getLine(res.content.data)
-          
-          this.startTimesa=res.content.data[0].time
-        }else{
-          if(this.input3!==''){
-
-              this.restaurants1.forEach((iteam,index)=>{
-                if(this.input3==iteam.cNo){
-                    if(iteam.net==-1){
-                      this.$message.error('车辆未入网');
-                    }else{
-                      this.$message.error('该时间段内没有可展示的轨迹');
-                    }
-                }
-              })
+      if(this.select=='1'){
+        this.loading=true
+        this.startDance=0
+        this.clearPoline()
+        this.$fetchGet("getTraceCar/byPeriodWithPage",{
+          cNo:this.input3,
+          beginTime:this.value1[0],
+          endTime:this.value1[1],
+          page:this.page,
+          pageSize:this.pageSize
+        }).then(res=>{
+          if(res.content.list.length>0){
+          this.normalCount=res.content.list
+            if(this.valuenum==1){
+              this.count=this.normalCount
+              this.total=res.content.total
+            }
+            this.normalTotal=res.content.total
             
+          }else{
+
           }
-          this.clearPoline()
-        }
-        
-      })
+          
+        })
+        this.$fetchGet("getTraceCar/byPeriod",{
+          cNo:this.input3,
+          beginTime:this.value1[0],
+          endTime:this.value1[1],
+          page:0,
+          pageSize:0
+        }).then(res=>{
+          this.loading=false
+          if(res.code==1){
+            // 异常点
+            this.errorCount=res.content.error
+            if(this.valuenum==0){
+              this.count=this.errorCount.slice(0,15)
+              this.total=this.errorCount.length
+            }
+            this.errorTotal=this.total
+
+
+            this.ageTime=res.content.alltime
+            this.ageSpeed=res.content.avg
+            this.allDistance=res.content.distance
+            this.statusError=res.content.error
+            this.errorMark()
+            this.getLine(res.content.data)
+            
+            this.startTimesa=res.content.data[0].time
+          }else{
+            if(this.input3!==''){
+
+                this.restaurants1.forEach((iteam,index)=>{
+                  if(this.input3==iteam.cNo){
+                      if(iteam.net==-1){
+                        this.$message.error('车辆未入网');
+                      }else{
+                        this.$message.error('该时间段内没有可展示的轨迹');
+                      }
+                  }
+                })
+              
+            }
+            this.clearPoline()
+          }
+          
+        })
+
+      }else{
+        this.OilFacData.forEach((iteam,index)=>{
+          if(this.input3==iteam.fName){
+            this.myMap.centerAndZoom(new BMap.Point(iteam.lon,iteam.lat),10);
+            this.showIcl(iteam)
+            this.showmillInform(iteam)
+          }
+        })
+      }
     },
     istop(){
       if(this.isbf){
@@ -839,7 +806,8 @@ export default {
             let str=type.target.getPath()
             data.forEach(itam=>{
               if(str[0].lng==itam.lon){
-                this.getDeatil(itam)
+                // this.getDeatil(itam)
+                this.getDeatil(itam,2)
               }
             })
           })
@@ -871,7 +839,7 @@ export default {
           });
         this.carMk  = new BMap.Marker(pts[this.oneIndex],{icon:myIcon});
         this.carMk.addEventListener("click",()=>{
-          this.getDeatil(this.ptsdata1[this.oneIndex])
+          this.getDeatil(this.ptsdata1[this.oneIndex],2)
         })
         if(this.oneIndex==0){
           this.carMk.setAnimation(BMAP_ANIMATION_DROP);
@@ -881,12 +849,12 @@ export default {
       }
     },
     //点击移动的点的详细信息（
-    getDeatil(row){
+    getDeatil(row,type,eDur){
       this.$fetchGet("getTraceCar/detail",{
         cNo:row.cNo,
         utc:row.utc,
       }).then(res=>{
-        this.showInform(res.content,2)
+        this.showInform(res.content,type,eDur)
       })
     },
     resetMkPoint(){
@@ -959,6 +927,8 @@ export default {
           this.total=this.normalTotal
         }else{
           this.count=this.errorCount
+          // this.total=this.errorTotal
+          this.errorTotal=this.errorCount.length
           this.total=this.errorTotal
         }
 
@@ -976,7 +946,6 @@ export default {
 
     timedataBtn(val) {
         let timeUpdate=this.timeUpdatethree
-        this.getErrorData()
         if(val!=null){
             if(timeUpdate(val)){
               this.$message.error('查询天数不能大于3天');
@@ -1016,7 +985,8 @@ export default {
       if(this.valuenum==0){
         this.checked=true
         this.errorMark()
-        this.showInform(iteam,1)
+        // this.showInform(iteam,1)
+        this.getDeatil(iteam,1,iteam.eDur)
       }else{
         if(this.leftMark){
           this.myMap.removeOverlay(this.leftMark);
@@ -1032,7 +1002,7 @@ export default {
           }
           this.leftMark = new BMap.Marker(point, opts);  // 创建文本标注对象
           this.leftMark.addEventListener("click",()=>{
-           this.getDeatil(iteam)
+           this.getDeatil(iteam,2)
           })
           this.myMap.addOverlay(this.leftMark)
       }

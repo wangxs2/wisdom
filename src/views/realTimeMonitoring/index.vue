@@ -413,7 +413,6 @@ export default {
           this.restaurants1.push({value:iteam.cNo})
         })
         this.restaurants=this.restaurants1
-        console.log(this.restaurants1)
       })
       this.$fetchGet("location/getPageOilFac").then(res=>{
         this.OilFacData=this.cloneObj(res.content)
@@ -702,8 +701,6 @@ export default {
       };
     },
     handleSelect(item) {
-      // this.searchinput=""
-      console.log(item)
       if(this.select=='1'){
         this.statusData.forEach((iteam,index)=>{
           if(item==iteam.cNo){
@@ -888,7 +885,6 @@ export default {
     },
     //清除车辆和组织
     clearMark(){
-      console.log(this.ZoomNum)
       this.cityMarker.forEach(iteam=>{
         this.myMap.removeOverlay(iteam);  
       })
@@ -953,7 +949,6 @@ export default {
         // 创建信息窗口对象
       infoWindow.addEventListener("dblclick",()=>{
         var clipboard = new Clipboard('#copysa1')
-        console.log(clipboard)
         clipboard.on('success', e => {
           this.$message({
             message: '复制成功',
@@ -997,7 +992,6 @@ export default {
       var infoWindow = new BMap.Label(sContent, activep1);  // 创建信息窗口对象
       infoWindow.addEventListener("dblclick",()=>{
         var clipboard = new Clipboard('#copysa2')
-        console.log(clipboard)
         clipboard.on('success', e => {
           this.$message({
             message: '复制成功',
