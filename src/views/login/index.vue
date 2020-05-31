@@ -44,7 +44,7 @@
           <div class="bigquan"></div>
           <el-form-item style="margin-top:44px">
             <el-button
-              style="width:16.8vw;height:44px;background:#317AF8;color:#ffffff;font-size:22px;"
+              style="width:16.8vw;height:44px;background:#317AF8;color:#ffffff;font-size:16px;"
               :loading="loading"
               @click="submitForm()"
             >登录</el-button>

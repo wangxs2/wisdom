@@ -5,8 +5,10 @@
 </template>
 <script>
   // import "@babel/polyfill"
+  // 做你妹的适配 劳资做好了 逼事儿那么多，不给你做适配
   export default {}
 </script>
+
 <style lang="scss">
 @import url("./assets/iconfont/iconfont.css");
 html,body,#app {

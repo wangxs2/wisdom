@@ -313,10 +313,9 @@ export default {
       }
     },
   mounted() {
-    this.getstaData()
+   
     this.initMap();
     this.getZmap();
-    // this.myCountry()
     $('.map-content').on("click", "#close1",  ()=> {
       this.myMap.removeOverlay(this.activeInfow); 
       this.myMap.removeOverlay(this.activeLab); 
@@ -334,8 +333,7 @@ export default {
     this.options=cityName
     this.countDown()
     this.getAllCar()
-   
-    
+    this.getstaData()
   },
   methods: {
    
@@ -404,7 +402,10 @@ export default {
           this.cltitData[index].name=this.cltitData[index].name+'('+iteam+')'
         })
         this.allNum=res.content[0][0]
-        this.myCountry()
+         if(this.ZoomNum<6){
+            this.myCountry()
+          }
+        
       })
 
       this.$fetchGet("monitor/getAllCNo").then(res=>{
@@ -654,7 +655,7 @@ export default {
           this.statuMark()
           this.clearCountry()
         }
-        if(this.ZoomNum>5&&this.ZoomNum<9){
+        if(this.ZoomNum>5&&this.ZoomNum<9||this.ZoomNum==6){
           console.log("wozaozheli")
           this.isCar=false
           this.makeBigcel()
@@ -668,9 +669,7 @@ export default {
           this.clearMark()
           this.myCountry()
         }
-        if(this.ZoomNum>5){
-
-        }
+       
         // 14 是1公里
         // 13 是2公里
         // 12 是5公里
@@ -726,6 +725,7 @@ export default {
      //加大地图级别
     addZoom(params) {
       this.myMap.zoomIn() //放大一级视图
+
     },
     //缩小地图级别
     delZoom(params) {
