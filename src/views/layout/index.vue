@@ -47,7 +47,7 @@
         </div>
         <div class="right-user">
           <div class="img-my"></div>
-          <div class="user-name">liangyunyun</div>
+          <div class="user-name">{{$store.state.app.userName}}</div>
           <div class="fenge"></div>
           <div class="tc" @click="tuchu" style="cursor: pointer;">退出</div>
         </div>

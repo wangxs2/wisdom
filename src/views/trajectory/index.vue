@@ -114,7 +114,6 @@
         <img src="../../assets/image/image_2@3x.png">
       </div>
     </transition>
-   
     <!-- 缩放的按钮 -->
     <div class="zoomBtn">
       <div class="box-big" id="box-big1" @click="addZoom()">

@@ -132,10 +132,10 @@ export default {
               // password:Basesa.encode(this.ruleForm2.password)
             }
             this.$fetchPost("login", data).then(res=>{
-              console.log(res.slice(6,7))
-                console.log(res.code)
                 if(res.slice(6,7)==1){
                   this.$router.push("/realTimeMonitoring")
+                  this.$store.state.app.userName=this.ruleForm2.username
+                  console.log(this.$store)
                 }else{
                    this.$message({
                       message: "用户名或密码错误",

@@ -3,6 +3,7 @@ import $ from "jquery"
 const app = {
   state: {
     docHeight: $(document).height() - 180, //文档高度
+    userName:'',
     menuFlag: false, //左侧菜单的开关
   },
   mutations: {
