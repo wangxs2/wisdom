@@ -369,8 +369,8 @@ export default {
     CircleMarker(row){
       let point=new BMap.Point(row.lon,row.lat);
       let opt={
-        strokeColor:"#307CFC",
-        fillColor:"rgba(255,255,255,0.5)",
+        strokeColor:"rgba(49,122,248,1)",
+        fillColor:"rgba(49,122,248,0.2)",
       }
       this.circleSa = new BMap.Circle(point,row.radius*1000,opt);  // 创建文本标注对象
       console.log(this.myMap)

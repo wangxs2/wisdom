@@ -68,7 +68,7 @@
         <el-row :gutter="20">
            <div class="grid-content grid-content1">
                 <el-button type="primary" @click="getAlldata()">搜索</el-button>
-                <el-button>重置</el-button>
+                <el-button @click="resetAll">重置</el-button>
             </div>
         </el-row>
       </div>
@@ -127,7 +127,7 @@
             label="地址状态"
             >
             <template slot-scope="scope">
-                <div>{{scope.row.status==1?'启用':"禁用"}}</div>
+                <div :style="{color:scope.row.status==1?'#317AF8':'#DE2E2D'}">{{scope.row.status==1?'启用':"禁用"}}</div>
             </template>
             </el-table-column>
             <el-table-column
@@ -137,7 +137,7 @@
             label="围栏创建状态"
             >
             <template slot-scope="scope">
-                <div>{{scope.row.status==1?'启用':"禁用"}}</div>
+                <div :style="{color:scope.row.status==1?'#317AF8':'#DE2E2D'}">{{scope.row.status==1?'成功':"失败"}}</div>
             </template>
             </el-table-column>
              <el-table-column
@@ -163,8 +163,8 @@
             <el-table-column width="160" align="center" label="操作">
                 <template slot-scope="scope">
                     <span style="color:#317AF8;cursor:pointer" @click="dialogVisible2=true,detailObj=scope.row">查看详情</span>
-                    <span style="color:#317AF8;margin-left:0.5vw;cursor:pointer" @click='updute()'>修改</span>
-                    <span style="color:#317AF8 ;margin-left:0.5vw;cursor:pointer">禁用</span>
+                    <span style="color:#317AF8;margin-left:0.5vw;cursor:pointer" @click='updute(scope.row)'>修改</span>
+                    <span @click="disableCir(scope.row)" :style="{'color':scope.row.status==1?'#317AF8':'#DE2E2D','margin-left':'0.5vw','cursor':'pointer'}">{{scope.row.status==1?'禁用':"启用"}}</span>
                 </template>
             </el-table-column>
         </el-table>
@@ -183,7 +183,7 @@
       </div>
 
       <!-- 添加和修改的弹窗 -->
-       <el-dialog :title="title" :close-on-click-modal="false" :visible.sync="dialogFormVisible">
+       <el-dialog :title="title" @close="emptyForm" :close-on-click-modal="false" :visible.sync="dialogFormVisible">
             <el-form  size="small" :rules="rules" ref="form" :model="form">
                 <el-row>
                     <el-col>
@@ -446,9 +446,9 @@ export default {
             query:{
                 type:1,
                 shortName:'',
-                status:1,
+                status:2,
                 division:"",
-                fStatus:1,
+                fStatus:2,
                 page:1,
                 pageSize:20,
             },//请求头的信息
@@ -502,12 +502,10 @@ export default {
         handleSizeChange(val) {
             this.query.pageSize=val
             this.getAlldata()
-            console.log(`每页 ${val} 条`);
         },
         handleCurrentChange(val) {
             this.query.page=val
             this.getAlldata()
-            console.log(`当前页: ${val}`);
         },
         successFile(val){
            if(val.code==1){
@@ -526,7 +524,6 @@ export default {
             this.$refs.upload.submit();
         },
         changecity(type){
-            console.log(this.form.province)
             if(type==1){
                 this.form.city=''
                 this.form.country=''
@@ -543,14 +540,14 @@ export default {
             }
         },
         //保存或者修改
-        sunmitAll:_debounce(function() {
+        sunmitAll() {
             //提交表单
             this.$refs.form.validate(valid => {
                 if (valid) {
                     let formData = this.cloneObj(this.form);
                     if (this.title=="添加地址") {
-                        this.$fetchPost("location/addLocation", formData).then(res => {
-                        if (res.status == 0) {
+                        this.$fetchPost("location/addLocation",formData,'json').then(res => {
+                        if (res.code == 1) {
                             this.$message({
                             message: '添加成功',
                             type: 'success'
@@ -562,8 +559,8 @@ export default {
                         }
                         });
                     } else if (this.title=="修改地址") {
-                        this.$fetchPost("location/addLocation", formData).then(res => {
-                            if (res.status == 0) {
+                        this.$fetchPost("location/addLocation",formData,'json').then(res => {
+                            if (res.code == 1) {
                                 this.$message({
                                 message: '修改成功',
                                 type: 'success'
@@ -584,19 +581,103 @@ export default {
                 }
             });
 
-        }, 300),
-        updute(){
-            this.title="添加地址"
+        },
+        disableCir(row){
+            let str=row.status==1?'确认禁用？':'确认启用？'
+            this.$confirm(str, "提示", {
+                confirmButtonText: "确定",
+                cancelButtonText: "取消",
+                type: "warning"
+            }).then(() => {
+                this.$fetchGet("location/updateOilStatus",{
+                    oId:row.oId,
+                    status:row.status==1?0:1,
+                }).then(res => {
+                if (res.code == 1) {
+                    this.$message({
+                    message: '操作成功！',
+                    type: 'success'
+                    });
+                    this.getAlldata()
+                } else {
+                    this.$message.error('操作失败！');
+                }
+                });
+            });
+
+        },
+        emptyForm() {
+        //清空表单和验证
+        this.form = {
+                fullName:'',
+                shortName:'',
+                status:1,
+                province:'',
+                city:'',
+                country:'',
+                adr:'',
+                oId:'',
+                division:"",
+                type:1,
+            };
+            this.$refs.form.resetFields();
+            this.$refs.form.clearValidate();
+        },
+        updute(row){
+            this.title="修改地址"
+            //  $.each(this.form, (key, item) => {
+            //     this.form[key] = row[key] + "";
+            // });
+            this.form.fullName=row.fName
+            this.form.shortName=row.sName
+            this.form.type=Number(row.type)
+            this.form.status=Number(row.status)
+            this.form.adr=row.adr
+            this.form.oId=row.oId
+            this.form.division=row.division
+            this.form.province=row.province
+            if(row.city){
+                 let city = this.myAllProince.findIndex((value, index) => {
+                   return  value.name==row.province
+                }) 
+                this.myAllcity=this.myAllProince[city].city
+                this.form.city=row.city
+            }else{
+                
+            }
+            if(row.country){
+                let area = this.myAllcity.findIndex((value, index) => {
+                   return  value.name==row.city
+                })
+                this.myAllarez=this.myAllcity[area].area
+                this.form.country=row.country
+            }else{
+                
+            }
             this.dialogFormVisible=true
         },
         add(){
-            this.title="修改地址"
+            this.title="添加地址"
             this.dialogFormVisible=true
         },
         getOther(){
             this.$fetchGet("location/getPageOilFac").then(res=>{
                 this.restaurants=this.cloneObj(res.content)
             })
+
+        },
+          //重置
+        resetAll(){
+            this.query={
+               type:1,
+                shortName:'',
+                status:2,
+                division:"",
+                fStatus:2,
+                page:1,
+                pageSize:20,
+            }
+            this.getAlldata()
 
         },
         getAlldata(){
