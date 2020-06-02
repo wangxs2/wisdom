@@ -1,5 +1,5 @@
 <template>
-  <div class="map-content" ref="compreMap">
+  <div class="map-content" ref="compreMap" >
     <div class="top-search">
       <div class="left-sea">
         <el-select :popper-append-to-body="false" style="width:80px" @change="searchinput=''" v-model="select" slot="prepend" placeholder="请选择">
@@ -174,7 +174,7 @@
       </div>
     </div>
     <!-- 缩放的按钮 -->
-    <div class="timeCar" id="mymap">
+    <div class="timeCar" id="mymap" @click="isWaring=false">
       <!-- top搜索 -->
     </div>
     <!-- 右下角的车辆状态 -->
@@ -280,6 +280,8 @@ export default {
       ctrl:null,
       myMapTwo:null,
       countryCil:null,
+      circleSa:null,
+      circledata:{},
       // mapstyle:"dark",
     };
   },
@@ -331,9 +333,21 @@ export default {
   },
   created() {
     this.options=cityName
+
+   
     this.countDown()
     this.getAllCar()
-    this.getstaData()
+
+     if (this.$route.params.type == 'radius') {
+      this.circledata= this.$route.params.data
+      console.log(this.circledata)
+      setTimeout(()=>{
+        this.CircleMarker(this.circledata)
+        this.showIcl(this.circledata)
+        this.showmillInform(this.circledata)
+      },100)
+      
+    }
   },
   methods: {
    
@@ -350,6 +364,18 @@ export default {
       this.totalTimeme=setTimeout( ()=> {
 				this.countDown()
 			}, 1000)
+    },
+    //圆形围栏
+    CircleMarker(row){
+      let point=new BMap.Point(row.lon,row.lat);
+      let opt={
+        strokeColor:"#307CFC",
+        fillColor:"rgba(255,255,255,0.5)",
+      }
+      this.circleSa = new BMap.Circle(point,row.radius*1000,opt);  // 创建文本标注对象
+      console.log(this.myMap)
+      this.myMap.centerAndZoom(point,15);  
+      this.myMap.addOverlay(this.circleSa);   
     },
     addLk(){
       this.islk=!this.islk
@@ -397,6 +423,10 @@ export default {
     getstaData(){
       this.myOilFac=[]
       this.restaurants1=[]
+      this.allNum=0
+      this.cltitData.forEach((iteam,index)=>{
+          iteam.name=iteam.name.slice(0,2)
+      })
       this.$fetchGet("monitor/getFooBar").then(res=>{
         res.content[0].forEach((iteam,index)=>{
           this.cltitData[index].name=this.cltitData[index].name+'('+iteam+')'
@@ -500,6 +530,8 @@ export default {
         }
         // this.waringData=res.content
       })
+
+      this.getstaData()
     },
     initMap() {
       // 108.933051,34.546597
@@ -668,6 +700,10 @@ export default {
           this.clearBig()
           this.clearMark()
           this.myCountry()
+
+          if(this.circleSa){
+            this.myMap.removeOverlay(this.circleSa);  
+          }
         }
        
         // 14 是1公里
@@ -888,6 +924,8 @@ export default {
       this.cityMarker.forEach(iteam=>{
         this.myMap.removeOverlay(iteam);  
       })
+
+      
       this.cityMarker1.forEach(iteam=>{
         this.myMap.removeOverlay(iteam);  
       })

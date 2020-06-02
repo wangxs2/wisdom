@@ -5,39 +5,35 @@
             <el-col :span="8">
                 <div class="grid-content">
                     <span class="header-tit">地址简称</span>
-                    <el-select v-model="value" placeholder="请选择">
-                        <el-option
-                        v-for="item in options"
-                        :key="item.value"
-                        :label="item.label"
-                        :value="item.value">
-                        </el-option>
+                    <el-select filterable clearable v-model="query.shortName" placeholder="请选择">
+                         <el-option
+                            v-for="(item,index) in restaurants"
+                            :key="index"
+                            :label="item.sName"
+                            :value="item.sName">
+                            </el-option>
                     </el-select>
                 </div>
             </el-col>
             <el-col :span="8">
                 <div class="grid-content">
                     <span class="header-tit">行政区域</span>
-                    <el-select v-model="value" placeholder="请选择">
-                        <el-option
-                        v-for="item in options"
-                        :key="item.value"
-                        :label="item.label"
-                        :value="item.value">
-                        </el-option>
+                    <el-select clearable  v-model="query.division" placeholder="请选择">
+                        <el-option label="东北" value="东北"></el-option>
+                        <el-option label="华东" value="华东"></el-option>
+                        <el-option label="华中" value="华中"></el-option>
+                        <el-option label="华北" value="华北"></el-option>
+                        <el-option label="华南" value="华南"></el-option>
+                        <el-option label="西北" value="西北"></el-option>
+                        <el-option label="西南" value="西南"></el-option>
                     </el-select>
                 </div>
             </el-col>
             <el-col :span="8">
                 <div class="grid-content">
                     <span class="header-tit">地址类型</span>
-                    <el-select v-model="value" placeholder="请选择">
-                        <el-option
-                        v-for="item in options"
-                        :key="item.value"
-                        :label="item.label"
-                        :value="item.value">
-                        </el-option>
+                    <el-select v-model="query.type" placeholder="请选择">
+                       <el-option label="油厂" :value="1"></el-option>
                     </el-select>
                 </div>
             </el-col>
@@ -46,26 +42,20 @@
             <el-col :span="8">
                 <div class="grid-content">
                     <span class="header-tit">地址状态</span>
-                    <el-select v-model="value" placeholder="请选择">
-                        <el-option
-                        v-for="item in options"
-                        :key="item.value"
-                        :label="item.label"
-                        :value="item.value">
-                        </el-option>
+                    <el-select v-model="query.status" placeholder="请选择">
+                        <el-option label="全部" :value="2"></el-option>
+                       <el-option label="启用" :value="1"></el-option>
+                       <el-option label="禁用" :value="0"></el-option>
                     </el-select>
                 </div>
             </el-col>
             <el-col :span="8">
                 <div class="grid-content">
                     <span class="header-tit" style="margin-right:1vw">围栏创建状态</span>
-                    <el-select v-model="value" placeholder="请选择">
-                        <el-option
-                        v-for="item in options"
-                        :key="item.value"
-                        :label="item.label"
-                        :value="item.value">
-                        </el-option>
+                    <el-select v-model="query.fStatus" placeholder="请选择">
+                        <el-option label="全部" :value="2"></el-option>
+                        <el-option label="启用" :value="1"></el-option>
+                        <el-option label="禁用" :value="0"></el-option>
                     </el-select>
                 </div>
             </el-col>
@@ -77,7 +67,7 @@
 
         <el-row :gutter="20">
            <div class="grid-content grid-content1">
-                <el-button type="primary">搜索</el-button>
+                <el-button type="primary" @click="getAlldata()">搜索</el-button>
                 <el-button>重置</el-button>
             </div>
         </el-row>
@@ -95,46 +85,60 @@
             border
             style="width: 100%">
             <el-table-column
-            prop="date"
+            type="index"
+            width="60"
             align="center"
             label="序号"
             >
             </el-table-column>
             <el-table-column
-            prop="name"
+            prop="oId"
             align="center"
             label="地址编码"
             >
             </el-table-column>
             <el-table-column
-            prop="name"
+            prop="sName"
             align="center"
             label="地址简称"
             >
             </el-table-column>
             <el-table-column
-            prop="name"
+            prop="division"
+            width="80"
             align="center"
             label="行政区域"
             >
             </el-table-column>
             <el-table-column
             prop="name"
+            width="80"
             align="center"
             label="地址类型"
             >
+            <template slot-scope="scope">
+                <div>{{scope.row.type==1?'油厂':""}}</div>
+            </template>
             </el-table-column>
             <el-table-column
             prop="name"
+            width="80"
             align="center"
             label="地址状态"
             >
+            <template slot-scope="scope">
+                <div>{{scope.row.status==1?'启用':"禁用"}}</div>
+            </template>
             </el-table-column>
             <el-table-column
             prop="name"
+            width="110"
             align="center"
             label="围栏创建状态"
             >
+            <template slot-scope="scope">
+                <div>{{scope.row.status==1?'启用':"禁用"}}</div>
+            </template>
             </el-table-column>
              <el-table-column
             prop="name"
@@ -142,23 +146,23 @@
             label="触发次数">
             </el-table-column>
             <el-table-column
-            prop="name"
+            prop="uTime"
             align="center"
             label="操作时间">
             </el-table-column>
             <el-table-column
-            prop="name"
+            prop="uBy"
             align="center"
             label="操作人">
             </el-table-column>
-            <el-table-column align="center" label="位置">
+            <el-table-column width="60" align="center" label="位置">
                 <template slot-scope="scope">
-                    <img src="../../assets/image/dw.png">
+                    <img style="cursor: pointer;" @click="weiradiu(scope.row)" src="../../assets/image/dw.png">
                 </template>
             </el-table-column>
             <el-table-column width="160" align="center" label="操作">
                 <template slot-scope="scope">
-                    <span style="color:#317AF8;cursor:pointer">查看详情</span>
+                    <span style="color:#317AF8;cursor:pointer" @click="dialogVisible2=true,detailObj=scope.row">查看详情</span>
                     <span style="color:#317AF8;margin-left:0.5vw;cursor:pointer" @click='updute()'>修改</span>
                     <span style="color:#317AF8 ;margin-left:0.5vw;cursor:pointer">禁用</span>
                 </template>
@@ -171,16 +175,16 @@
             @size-change="handleSizeChange"
             @current-change="handleCurrentChange"
             :current-page="currentPage4"
-            :page-sizes="[100, 200, 300, 400]"
-            :page-size="100"
+            :page-sizes="[20, 50, 100, 200]"
+            :page-size="query.pageSize"
             layout="total, sizes, prev, pager, next, jumper"
-            :total="400">
+            :total="total">
             </el-pagination>
       </div>
 
       <!-- 添加和修改的弹窗 -->
        <el-dialog :title="title" :close-on-click-modal="false" :visible.sync="dialogFormVisible">
-            <el-form  size="small" :rules="rules" :model="form">
+            <el-form  size="small" :rules="rules" ref="form" :model="form">
                 <el-row>
                     <el-col>
                         <div>
@@ -195,8 +199,8 @@
                         <div>
                             <el-form-item label="地址状态" label-width="100px" prop="status">
                                 <el-select style="width:100%" v-model="form.status" placeholder="请选择">
-                                  <el-option label="启用" value="1"></el-option>
-                                  <el-option label="不启用" value="0"></el-option>
+                                  <el-option label="启用" :value="1"></el-option>
+                                  <el-option label="禁用" :value="0"></el-option>
                                 </el-select>
                             </el-form-item>
                         </div>
@@ -215,7 +219,7 @@
                     <el-col>
                         <div>
                             <el-form-item label="行政区域" label-width="100px">
-                                <el-input  v-model="quyu" :disabled="true" autocomplete="off"></el-input>
+                                <el-input  v-model="form.division" :disabled="true" autocomplete="off"></el-input>
                             </el-form-item>
                         </div>
                     </el-col>
@@ -224,7 +228,7 @@
                     <el-col>
                         <div>
                             <el-form-item label="地址编码" label-width="100px">
-                                <el-input  v-model="bianma" :disabled="true" autocomplete="off"></el-input>
+                                <el-input  v-model="form.oId" :disabled="true" autocomplete="off"></el-input>
                             </el-form-item>
                         </div>
                     </el-col>
@@ -266,7 +270,7 @@
                         <div>
                             <el-form-item label="地址类型" label-width="100px" prop="type">
                                 <el-select style="width:100%" v-model="form.type" placeholder="请选择">
-                                  <el-option label="油厂" value="1"></el-option>
+                                  <el-option label="油厂" :value="1"></el-option>
                                 </el-select>
                             </el-form-item>
                         </div>
@@ -290,9 +294,10 @@
       <!-- 添加和修改的弹窗 -->
 
       <!-- 导入的弹窗 -->
-      <el-dialog
+    <el-dialog
         title="地址导入"
         align="left"
+        :close-on-click-modal="false"
         :visible.sync="dialogVisible1"
         width="30%">
         <el-upload
@@ -311,13 +316,107 @@
             <span style="color:rgba(48, 124, 252, 1);margin-right:20px">下载模版</span>
             <el-button type="primary" @click="submitUpload">确认上传</el-button>
         </span>
-        </el-dialog>
+    </el-dialog>
+
+
+    <!-- 地址详细信息 -->
+
+    <el-dialog
+        title="地址详情"
+        align="left"
+        :close-on-click-modal="false"
+        custom-class="address-box"
+        :visible.sync="dialogVisible2">
+        <div>
+            <div style="font-size:18px;color:#303133;margin-bottom:10px">基本信息</div>
+            <div class="top-box">
+                <div class="iteam-top">
+                     <div class="list-iteam">
+                        <div class="tit">地址全称</div>
+                        <div>{{detailObj.fName}}</div>
+                    </div>
+                    <div class="list-iteam">
+                        <div class="tit">地址简称</div>
+                        <div>{{detailObj.sName}}</div>
+                    </div>
+                    <div class="list-iteam">
+                        <div class="tit">地址类型</div>
+                        <div>{{detailObj.type==1?'油厂':""}}</div>
+                    </div>
+                    <div class="list-iteam">
+                        <div class="tit">行政区域</div>
+                        <div>{{detailObj.division}}</div>
+                    </div>
+                    
+                </div>
+                <div class="iteam-top">
+                    <div class="list-iteam">
+                        <div class="tit">地址编码</div>
+                        <div>{{detailObj.oId}}</div>
+                    </div>
+                    <div class="list-iteam">
+                        <div class="tit">地址状态</div>
+                        <div>{{detailObj.status==1?'启用':"禁用"}}</div>
+                    </div>
+                    <div class="list-iteam">
+                        <div class="tit">所属城市</div>
+                        <div>上海东辰</div>
+                    </div>
+                    <div class="list-iteam">
+                        <div class="tit">详细地址</div>
+                        <div>{{detailObj.adr}}</div>
+                    </div>
+
+                </div>
+            </div>
+            <div style="font-size:18px;color:#303133;margin-bottom:10px;margin-top:50px;">围栏信息</div>
+            <div class="top-box">
+                <div class="iteam-top">
+                    <div class="list-iteam">
+                        <div class="tit">围栏经度</div>
+                        <div>{{detailObj.lon}}</div>
+                    </div>
+                    <div class="list-iteam">
+                        <div class="tit">围栏维度</div>
+                        <div>{{detailObj.lat}}</div>
+                    </div>
+                    <div class="list-iteam">
+                        <div class="tit">围栏形状</div>
+                        <div>{{detailObj.shape==1?'圆形':"未知"}}</div>
+                    </div>
+                </div>
+                <div class="iteam-top">
+                    <div class="list-iteam">
+                        <div class="tit">围栏半径</div>
+                        <div>{{detailObj.radius}}千米</div>
+                    </div>
+                    <div class="list-iteam">
+                        <div class="tit">围栏创建时间</div>
+                        <div>{{detailObj.uTime}}</div>
+                    </div>
+                    <div class="list-iteam">
+                        <div class="tit">围栏创建状态</div>
+                        <div>{{detailObj.status==1?'成功':"失败"}}</div>
+                    </div>
+                    
+
+                </div>
+            </div>
+        </div>
+        <div slot="footer" class="dialog-footer">
+            <el-button type="primary" @click="dialogVisible2=false">关 闭</el-button>
+        </div>
+
+       
+    </el-dialog>
+    <!-- 地址详细信息 -->
             
     
   </div>
 </template>
 
 <script>
+import { _debounce } from "@/libs/public.js";
 // @ is an alias to /src
 import cityData from './city_code.json';
 export default {
@@ -326,20 +425,35 @@ export default {
     data(){
         return{
             options: [],
+            total:null,
+            restaurants: [],//油厂
             title:"添加地址",
             dialogFormVisible:false,
             dialogVisible1:false,//导入的弹窗
+            dialogVisible2:false,//详情的弹框
             form:{
                 fullName:'',
                 shortName:'',
-                status:'1',
+                status:1,
                 province:'',
                 city:'',
                 country:'',
                 adr:'',
-                type:'1',
+                oId:'',
+                division:"",
+                type:1,
             },
+            query:{
+                type:1,
+                shortName:'',
+                status:1,
+                division:"",
+                fStatus:1,
+                page:1,
+                pageSize:20,
+            },//请求头的信息
             quyu:'',
+            detailObj:{},
             bianma:'',
             tableData: [],
             city:0,
@@ -371,13 +485,29 @@ export default {
     },
     created(){
         this.myAllProince=cityData
+        this.getOther()
+        this.getAlldata()
     },
     methods: {
+            //围栏
+        weiradiu(row){
+            this.$router.push({
+                name: 'realTimeMonitoring',
+                params: {
+                type: 'radius',
+                data: row
+                }
+            });
+        },
         handleSizeChange(val) {
-        console.log(`每页 ${val} 条`);
+            this.query.pageSize=val
+            this.getAlldata()
+            console.log(`每页 ${val} 条`);
         },
         handleCurrentChange(val) {
-        console.log(`当前页: ${val}`);
+            this.query.page=val
+            this.getAlldata()
+            console.log(`当前页: ${val}`);
         },
         successFile(val){
            if(val.code==1){
@@ -413,9 +543,48 @@ export default {
             }
         },
         //保存或者修改
-        sunmitAll(){
+        sunmitAll:_debounce(function() {
+            //提交表单
+            this.$refs.form.validate(valid => {
+                if (valid) {
+                    let formData = this.cloneObj(this.form);
+                    if (this.title=="添加地址") {
+                        this.$fetchPost("location/addLocation", formData).then(res => {
+                        if (res.status == 0) {
+                            this.$message({
+                            message: '添加成功',
+                            type: 'success'
+                            });
+                            this.dialogFormVisible = false;
+                            this.getAlldata()
+                        } else {
+                            this.Gerror(res.message);
+                        }
+                        });
+                    } else if (this.title=="修改地址") {
+                        this.$fetchPost("location/addLocation", formData).then(res => {
+                            if (res.status == 0) {
+                                this.$message({
+                                message: '修改成功',
+                                type: 'success'
+                                });
+                                this.dialogFormVisible = false;
+                                this.getAlldata()
+                            } else {
+                                // this.Gerror(res.message);
+                                this.$message.error(res.message);
+                            }
+                        });
+                    }
+                }else{
+                      this.$message({
+                        message: '请完善信息',
+                        type: 'warning'
+                        });
+                }
+            });
 
-        },
+        }, 300),
         updute(){
             this.title="添加地址"
             this.dialogFormVisible=true
@@ -424,13 +593,55 @@ export default {
             this.title="修改地址"
             this.dialogFormVisible=true
         },
+        getOther(){
+            this.$fetchGet("location/getPageOilFac").then(res=>{
+                this.restaurants=this.cloneObj(res.content)
+            })
+
+        },
+        getAlldata(){
+
+            this.$fetchGet("location/searchLocation",this.query).then(res=>{
+                if(res.code==1){
+                    this.tableData=res.content.list
+                    this.total=res.content.total
+                }
+                
+            })
+
+        },
         
     },
 }
 </script>
-<style>
+<style lang="scss">
 .addManage .el-form-item__content{
     text-align:left;
+}
+.address-box{
+    .top-box{
+        display: flex;
+        justify-content: flex-start;
+        .iteam-top{
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            
+            .list-iteam{
+                display: flex;
+                justify-content: flex-start;
+                margin: 10px 0;
+                font-size: 16px;
+            .tit{
+                width:100px;
+                text-align: right;
+                margin-right:16px;
+            }
+            }
+        }
+
+    }
+
 }
 </style>
 <style lang="scss" scoped>
@@ -475,6 +686,7 @@ export default {
             font-size:vw(22);
             text-align:left;
             margin-bottom:vh(20);
+            
         }
     }
     .page-box{

@@ -17,7 +17,7 @@ Vue.use(VueRouter)
     children: [
       {
         path: '/realTimeMonitoring',
-        name: '实时监控',
+        name: 'realTimeMonitoring',
         component: realTimeMonitoring
       },
       {
