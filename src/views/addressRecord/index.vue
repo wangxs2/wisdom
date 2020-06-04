@@ -228,6 +228,8 @@ export default {
      created(){
          if (this.$route.params.type == 'addrestwo') {
             this.query.sName= this.$route.params.data.sName
+            this.query.division= this.$route.params.data.division
+            this.query.status= this.$route.params.data.status
         }
          this.getAll()
         this.getAlldata()
