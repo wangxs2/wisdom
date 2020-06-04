@@ -190,25 +190,27 @@
 
       <!-- 添加和修改的弹窗 -->
        <el-dialog :title="title" @close="emptyForm" :close-on-click-modal="false" :visible.sync="dialogFormVisible">
-            <el-form  size="small" :rules="rules" ref="form" :model="form">
+            <el-form  size="small" :rules="rules" ref="addform" :model="form">
                 <el-row>
                     <el-col>
                         <div>
-                            <el-form-item label="地址全称" label-width="100px" prop="fullName">
+                            <el-form-item label="地址全称" label-width="100px" :prop="title=='添加地址'?'fullName':'fullName1'">
                                 <el-input :disabled="isdisplay" maxlength="30" v-model="form.fullName"></el-input>
                             </el-form-item>
                         </div>
                     </el-col>
                 </el-row>
+               
                 <el-row>
                     <el-col>
                         <div>
-                            <el-form-item label="地址简称" label-width="100px" prop="shortName">
+                            <el-form-item label="地址简称" label-width="100px" :prop="title=='添加地址'?'shortName':'shortName1'">
                                 <el-input  :disabled="isdisplay" maxlength="10" v-model="form.shortName"></el-input>
                             </el-form-item>
                         </div>
                     </el-col>
                 </el-row>
+               
                 <el-row>
                     <el-col>
                         <div>
@@ -225,9 +227,9 @@
                     <el-col>
                         <div>
                             
-                            <el-form-item style="position:relative;" label="行政区域" label-width="100px">
+                            <el-form-item style="position:relative;" label="行政区域"  label-width="100px">
                                 <span style="color:#F56C6C;position:absolute;left:-77px;top:1px">*</span>
-                                <el-input  v-model="form.division" :disabled="true" autocomplete="off"></el-input>
+                                <el-input  v-model="form.division" :disabled="true" placeholder="自动生成" autocomplete="off"></el-input>
                             </el-form-item>
                         </div>
                     </el-col>
@@ -235,9 +237,9 @@
                 <el-row>
                     <el-col>
                         <div>
-                            <el-form-item style="position:relative;" label="地址编码" label-width="100px">
+                            <el-form-item style="position:relative;" label="地址编码"  label-width="100px">
                                 <span style="color:#F56C6C;position:absolute;left:-77px;top:1px">*</span>
-                                <el-input  v-model="form.oId" :disabled="true" autocomplete="off"></el-input>
+                                <el-input  v-model="form.oId" :disabled="true" placeholder="自动生成" autocomplete="off"></el-input>
                             </el-form-item>
                         </div>
                     </el-col>
@@ -298,7 +300,7 @@
             </el-form>
             <div slot="footer" class="dialog-footer">
                 <el-button @click="dialogFormVisible = false">关 闭</el-button>
-                <el-button type="primary" @click="sunmitAll">保 存</el-button>
+                <el-button type="primary" :loading="isbtn" @click="sunmitAll('addform')">保 存</el-button>
             </div>
         </el-dialog>
       <!-- 添加和修改的弹窗 -->
@@ -307,6 +309,7 @@
     <el-dialog
         title="地址导入"
         align="left"
+        @close="emptyForm1"
         :close-on-click-modal="false"
         :visible.sync="dialogVisible1"
         width="30%">
@@ -317,7 +320,7 @@
         accept=".xlsx"
         action="/lhana/location/importLocation"
         :on-success="successFile"
-        :on-change="changefile"
+        :on-change="handleChangePic"
         :on-error="errorFile"
         :auto-upload="false"
         :file-list="fileList">
@@ -326,10 +329,11 @@
         </el-upload>
         <div style="color:#DD2726">{{errorMessage}}</div>
         <div style="margin-top:32px">
-            <span style="margin-right:70px">重复数据</span>
+            <span style="margin-right:70px"> 重复数据</span>
              <el-radio v-model="type" label="1">跳过</el-radio>
              <el-radio v-model="type" label="0">覆盖</el-radio>
         </div>
+        <div style="color:#909399;margin-top:6px;margin-left:-4px">“地址简称”作为重复数据识别字段</div>
         <span slot="footer" class="dialog-footer">
             <span style="color:rgba(48, 124, 252, 1);margin-right:20px;cursor: pointer;" @click="downloadModel()">下载模版</span>
             <el-button type="primary" @click="submitUpload">确认上传</el-button>
@@ -378,7 +382,7 @@
                     </div>
                     <div class="list-iteam">
                         <div class="tit">所属城市</div>
-                        <div>{{detailObj.province+detailObj.city||""+detailObj.country||""}}</div>
+                        <div>{{detailObj.province}}{{detailObj.city==undefined?'':detailObj.city}}{{detailObj.country==undefined?'':detailObj.country}}</div>
                     </div>
                     <div class="list-iteam">
                         <div class="tit">详细地址</div>
@@ -443,40 +447,39 @@ export default {
    
     data(){
         var validateInputNumber=(rlue,value,callback)=>{
-             let index = this.restaurants.findIndex((itam, index) => {
-                   return  itam.fName==value
+                let index = this.restaurants.findIndex((itam, index) => {
+                  return  itam.fName==value
                 })
                 if(index!==-1){
                     callback (new Error("该地址全称已经存在"))
+                }else{
+                    callback();
                 }
-                if (!this.checkSpecialKey(value)) {
-                    callback(new Error("不能含有特殊字符！！"));
-                }
-
+               
         };
-        // var validateInput = (rule, value, callback) => {
-        //     if (!checkSpecialKey(value)) {
-        //         callback(new Error("不能含有特殊字符！！"));
-        //     } else {
-        //         callback();
-        //     }
-        // };
+        var validateInput = (rule, value, callback) => {
+            if (!this.checkSpecialKey(value)) {
+                    callback(new Error("不能含有特殊字符！！"));
+                }else{
+                    callback();
+                }
+        };
         var validateInputNumber1=(rlue,value,callback)=>{
              let index = this.restaurants.findIndex((itam, index) => {
                    return  itam.sName==value
-                })
-                if(index!==-1){
-                    callback (new Error("该地址简称已经存在"))
+            })
+            if(index!==-1){
+                callback (new Error("该地址简称已经存在"))
+            }else{
+                    callback();
                 }
-                 if (!this.checkSpecialKey(value)) {
-                    callback(new Error("不能含有特殊字符！！"));
-                }
-
+           
         };
         return{
             options: [],
             type:'1',//跳过
             total:null,
+            isbtn:false,
             isdisplay:false,
             errorMessage:"",
             restaurants: [],//油厂
@@ -518,12 +521,23 @@ export default {
                 fullName: [
                     { required: true, message: '请输入地址全称', trigger: 'blur' },
                     { validator: validateInputNumber, trigger: 'blur'},
-                    // { validator: validateInput, trigger: 'blur'}
+                    {
+                        validator: validateInput, trigger: 'blur'
+                    }
                 ],
                 shortName: [
                     { required: true, message: '请输入地址简称', trigger: 'blur' },
-                    { validator: validateInputNumber1, trigger: 'blur'}
+                    { validator: validateInputNumber1, trigger: 'blur'},
+                     {
+                        validator: validateInput, trigger: 'blur'
+                    }
                 ],
+                // fullName1: [
+                //     { required: true, message: '请输入地址全称', trigger: 'blur' },
+                // ],
+                // shortName1: [
+                //     { required: true, message: '请输入地址简称', trigger: 'blur' },
+                // ],
                 adr: [
                     { required: true, message: '请输入详细地址', trigger: 'blur' },
                 ],
@@ -573,11 +587,11 @@ export default {
             this.query.page=val
             this.getAlldata()
         },
-        changefile(val){
-            console.log(val)
-
+        handleChangePic(file,fileList){
+            if (fileList.length > 1) {
+                fileList.splice(0, 1);
+            }
         },
-
         checkSpecialKey(str) {
             var specialKey = "[`~!#$^&*=|{}':;'\\[\\].<>/?~！#￥……&*——|{}【】‘；：”“'。，、？]‘'";
             for (var i = 0; i < str.length; i++) {
@@ -595,6 +609,7 @@ export default {
                 message: '上传成功！',
                 type: 'success'
             });
+            this.errorMessage=""
            }else{
                this.errorMessage=val.content
                this.$message.error('上传失败！');
@@ -625,13 +640,19 @@ export default {
             }
         },
         //保存或者修改
-        sunmitAll() {
+        sunmitAll(addform) {
             //提交表单
-            this.$refs.form.validate(valid => {
+           
+            this.$refs.addform.validate(valid => {
+                console.log(this.title)
                 if (valid) {
+                    this.isbtn=true
+                    console.log(this.title)
                     let formData = this.cloneObj(this.form);
                     if (this.title=="添加地址") {
+                         console.log(this.title)
                         this.$fetchPost("location/addLocation",formData,'json').then(res => {
+                            this.isbtn=false
                         if (res.code == 1) {
                             this.$message({
                             message: '添加成功',
@@ -645,6 +666,7 @@ export default {
                         });
                     } else if (this.title=="修改地址") {
                         this.$fetchPost("location/addLocation",formData,'json').then(res => {
+                            this.isbtn=false
                             if (res.code == 1) {
                                 this.$message({
                                 message: '修改成功',
@@ -659,10 +681,10 @@ export default {
                         });
                     }
                 }else{
-                      this.$message({
+                    this.$message({
                         message: '请完善信息',
                         type: 'warning'
-                        });
+                    });
                 }
             });
 
@@ -710,16 +732,18 @@ export default {
                 division:"",
                 type:1,
             };
-            this.$refs.form.resetFields();
+            this.$refs.addform.resetFields();
              this.isdisplay=false
-            this.$refs.form.clearValidate();
+             this.isbtn=false
+            this.$refs.addform.clearValidate();
+        },
+        emptyForm1(){
+            this.fileList=[]
+            this.errorMessage=""
         },
         updute(row){
             this.title="修改地址"
             this.isdisplay=true
-            //  $.each(this.form, (key, item) => {
-            //     this.form[key] = row[key] + "";
-            // });
             this.form.fullName=row.fName
             this.form.shortName=row.sName
             this.form.type=Number(row.type)
