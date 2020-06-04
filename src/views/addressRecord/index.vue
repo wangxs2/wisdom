@@ -5,7 +5,7 @@
             <el-col :span="8">
                 <div class="grid-content">
                     <span class="header-tit">地址简称</span>
-                    <el-select v-model="query.sName" placeholder="请选择">
+                    <el-select filterable clearable v-model="query.sName" placeholder="请选择">
                         <el-option
                             v-for="(item,index) in restaurants"
                             :key="index"
@@ -19,6 +19,7 @@
                 <div class="grid-content">
                     <span class="header-tit">行政区域</span>
                     <el-select clearable  v-model="query.division" placeholder="请选择">
+                        <el-option label="全部" value=""></el-option>
                         <el-option label="东北" value="东北"></el-option>
                         <el-option label="华东" value="华东"></el-option>
                         <el-option label="华中" value="华中"></el-option>
@@ -55,9 +56,9 @@
                 <div class="grid-content">
                     <span class="header-tit">开始时间</span>
                     <el-date-picker
+                        @change="changeTime(1)"
                         v-model="query.bUtc"
                         type="datetime"
-                        value-format="yyyy-mm-dd hh:mm:ss"
                         placeholder="选择日期时间">
                         </el-date-picker>
                 </div>
@@ -66,7 +67,7 @@
                 <div class="grid-content">
                     <span class="header-tit">结束时间</span>
                      <el-date-picker
-                        value-format=""
+                        @change="changeTime(2)"
                         v-model="query.eUtc"
                         type="datetime"
                         placeholder="选择日期时间">
@@ -78,7 +79,7 @@
            <el-col :span="8">
                 <div class="grid-content">
                     <span class="header-tit" style="margin-right:3.4vw">车牌号</span>
-                    <el-select v-model="query.cNo" filterable placeholder="请选择">
+                    <el-select clearable v-model="query.cNo" filterable placeholder="请选择">
                        <el-option
                         v-for="(item,index) in myAllCp"
                         :key="index"
@@ -106,39 +107,47 @@
             style="width: 100%">
             <el-table-column
             type="index"
+            width="60"
             align="center"
             label="序号"
             >
             </el-table-column>
             <el-table-column
             prop="cNo"
+            
             align="center"
             label="车牌号"
             >
             </el-table-column>
             <el-table-column
-            prop="sNam"
+            prop="sName"
             align="center"
+            
             label="地址简称"
             >
             <template slot-scope="scope">
-                <div style="color:#307CFC">{{scope.row.sNam}}</div>
+                <div style="color:#307CFC">{{scope.row.sName}}</div>
             </template>
             </el-table-column>
             <el-table-column
             prop="division"
             align="center"
+            
             label="行政区域"
             >
             </el-table-column>
             <el-table-column
-            prop="name"
+            prop="type"
+             
             align="center"
             label="触发类型"
             >
+            <template slot-scope="scope">
+                <div>{{scope.row.type==1?'进入':'离开'}}</div>
+            </template>
             </el-table-column>
             <el-table-column
-            prop="utc"
+            prop="time"
             align="center"
             label="触发时间"
             >
@@ -148,16 +157,27 @@
             align="center"
             label="触发数据源"
             >
+            <template slot-scope="scope">
+                <div>{{scope.row.source==1?'GPS':''}}</div>
+            </template>
             </el-table-column>
              <el-table-column
-            prop="name"
+            prop="firLoc"
             align="center"
+            width="280"
             label="触发位置1">
+            <template slot-scope="scope">
+                <div style="text-align:left">{{scope.row.firLoc}}</div>
+            </template>
             </el-table-column>
             <el-table-column
-            prop="name"
+            prop="secLoc"
+            width="280"
             align="center"
             label="触发位置2">
+            <template slot-scope="scope">
+                <div style="text-align:left">{{scope.row.secLoc}}</div>
+            </template>
             </el-table-column>
         </el-table>
 
@@ -167,7 +187,7 @@
             @size-change="handleSizeChange"
             @current-change="handleCurrentChange"
             :current-page="currentPage4"
-            :page-sizes="[20, 50, 100, 200]"
+            :page-sizes="[10, 30, 100]"
             :page-size="query.pageSize"
             layout="total, sizes, prev, pager, next, jumper"
             :total="total">
@@ -194,7 +214,7 @@ export default {
             currentPage4: 4,
             query:{
                 page:1,
-                pageSize:15,
+                pageSize:10,
                 type:2,
                 status:2,
                 sName:"",
@@ -213,6 +233,14 @@ export default {
        handleSizeChange(val) {
             this.query.pageSize=val
             this.getAlldata()
+        },
+        changeTime(type){
+            if(type==1){
+                this.query.bUtc=new Date(this.query.bUtc).getTime()
+            }else{
+                this.query.eUtc=new Date(this.query.eUtc).getTime()
+            }
+
         },
         handleCurrentChange(val) {
             this.query.page=val
@@ -248,6 +276,9 @@ export default {
                 if(res.code==1){
                     this.tableData=res.content.list
                     this.total=res.content.total
+                }else{
+                    this.tableData=[]
+                    this.total=0
                 }
                 
             })

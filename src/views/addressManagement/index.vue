@@ -19,6 +19,7 @@
                 <div class="grid-content">
                     <span class="header-tit">行政区域</span>
                     <el-select clearable  v-model="query.division" placeholder="请选择">
+                        <el-option label="全部" value=""></el-option>
                         <el-option label="东北" value="东北"></el-option>
                         <el-option label="华东" value="华东"></el-option>
                         <el-option label="华中" value="华中"></el-option>
@@ -33,7 +34,8 @@
                 <div class="grid-content">
                     <span class="header-tit">地址类型</span>
                     <el-select v-model="query.type" placeholder="请选择">
-                       <el-option label="油厂" :value="1"></el-option>
+                        <el-option label="全部" value="全部"></el-option>
+                       <el-option label="油厂" value="油厂"></el-option>
                     </el-select>
                 </div>
             </el-col>
@@ -141,7 +143,7 @@
             </template>
             </el-table-column>
              <el-table-column
-            prop="name"
+            prop="firNum"
             align="center"
             label="触发次数">
             </el-table-column>
@@ -175,7 +177,7 @@
             @size-change="handleSizeChange"
             @current-change="handleCurrentChange"
             :current-page="currentPage4"
-            :page-sizes="[20, 50, 100, 200]"
+            :page-sizes="[10, 30, 100]"
             :page-size="query.pageSize"
             layout="total, sizes, prev, pager, next, jumper"
             :total="total">
@@ -189,7 +191,16 @@
                     <el-col>
                         <div>
                             <el-form-item label="地址全称" label-width="100px" prop="fullName">
-                                <el-input v-model="form.fullName"></el-input>
+                                <el-input :disabled="isdisplay" maxlength="30" v-model="form.fullName"></el-input>
+                            </el-form-item>
+                        </div>
+                    </el-col>
+                </el-row>
+                <el-row>
+                    <el-col>
+                        <div>
+                            <el-form-item label="地址简称" label-width="100px" prop="shortName">
+                                <el-input  :disabled="isdisplay" maxlength="10" v-model="form.shortName"></el-input>
                             </el-form-item>
                         </div>
                     </el-col>
@@ -209,16 +220,9 @@
                 <el-row>
                     <el-col>
                         <div>
-                            <el-form-item label="地址简称" label-width="100px" prop="shortName">
-                                <el-input  v-model="form.shortName"></el-input>
-                            </el-form-item>
-                        </div>
-                    </el-col>
-                </el-row>
-                <el-row>
-                    <el-col>
-                        <div>
-                            <el-form-item label="行政区域" label-width="100px">
+                            
+                            <el-form-item style="position:relative;" label="行政区域" label-width="100px">
+                                <span style="color:#F56C6C;position:absolute;left:-77px;top:1px">*</span>
                                 <el-input  v-model="form.division" :disabled="true" autocomplete="off"></el-input>
                             </el-form-item>
                         </div>
@@ -227,7 +231,8 @@
                 <el-row>
                     <el-col>
                         <div>
-                            <el-form-item label="地址编码" label-width="100px">
+                            <el-form-item style="position:relative;" label="地址编码" label-width="100px">
+                                <span style="color:#F56C6C;position:absolute;left:-77px;top:1px">*</span>
                                 <el-input  v-model="form.oId" :disabled="true" autocomplete="off"></el-input>
                             </el-form-item>
                         </div>
@@ -236,7 +241,8 @@
                 <el-row>
                     <el-col>
                         <div>
-                            <el-form-item label="所属城市" label-width="100px" prop="province">
+                            <el-form-item style="position:relative;" label="所属城市" label-width="100px" prop="province">
+                                <span style="color:#F56C6C;position:absolute;left:-77px;top:1px">*</span>
                                 <el-select style="margin-right:10px" filterable v-model="form.province" @change="changecity(1)" placeholder="请选择">
                                     <el-option
                                     v-for="(item,i) in myAllProince"
@@ -269,7 +275,7 @@
                     <el-col>
                         <div>
                             <el-form-item label="地址类型" label-width="100px" prop="type">
-                                <el-select style="width:100%" v-model="form.type" placeholder="请选择">
+                                <el-select :disabled="isdisplay" style="width:100%" v-model="form.type" placeholder="请选择">
                                   <el-option label="油厂" :value="1"></el-option>
                                 </el-select>
                             </el-form-item>
@@ -280,15 +286,15 @@
                     <el-col>
                         <div>
                             <el-form-item label="详细地址" label-width="100px" prop="adr">
-                                <el-input  type="textarea" :rows="4" v-model="form.adr" maxlength="120" ></el-input>
+                                <el-input  type="textarea" :rows="4" v-model="form.adr" show-word-limit maxlength="120" ></el-input>
                             </el-form-item>
                         </div>
                     </el-col>
                 </el-row>
             </el-form>
             <div slot="footer" class="dialog-footer">
-                <el-button @click="dialogFormVisible = false">取 消</el-button>
-                <el-button type="primary" @click="sunmitAll">确 定</el-button>
+                <el-button @click="dialogFormVisible = false">关 闭</el-button>
+                <el-button type="primary" @click="sunmitAll">保 存</el-button>
             </div>
         </el-dialog>
       <!-- 添加和修改的弹窗 -->
@@ -303,17 +309,25 @@
         <el-upload
         class="upload-demo"
         ref="upload"
+        :data="{'type':type}"
         accept=".xlsx"
         action="/lhana/location/importLocation"
         :on-success="successFile"
+        :on-change="changefile"
         :on-error="errorFile"
         :auto-upload="false"
         :file-list="fileList">
         <el-button size="small" icon="el-icon-plus" type="primary">点击上传</el-button>
-        <div slot="tip" class="el-upload__tip">支持xlsx格式，文件打下不超过2M</div>
+        <div slot="tip" class="el-upload__tip">支持xlsx格式，文件大小不超过2M</div>
         </el-upload>
+        <div style="color:#DD2726">{{errorMessage}}</div>
+        <div style="margin-top:32px">
+            <span style="margin-right:70px">重复数据</span>
+             <el-radio v-model="type" label="1">跳过</el-radio>
+             <el-radio v-model="type" label="0">覆盖</el-radio>
+        </div>
         <span slot="footer" class="dialog-footer">
-            <span style="color:rgba(48, 124, 252, 1);margin-right:20px">下载模版</span>
+            <span style="color:rgba(48, 124, 252, 1);margin-right:20px;cursor: pointer;" @click="downloadModel()">下载模版</span>
             <el-button type="primary" @click="submitUpload">确认上传</el-button>
         </span>
     </el-dialog>
@@ -360,7 +374,7 @@
                     </div>
                     <div class="list-iteam">
                         <div class="tit">所属城市</div>
-                        <div>上海东辰</div>
+                        <div>{{detailObj.province+detailObj.city||""+detailObj.country||""}}</div>
                     </div>
                     <div class="list-iteam">
                         <div class="tit">详细地址</div>
@@ -422,10 +436,45 @@ import cityData from './city_code.json';
 export default {
     components: {
     },
+   
     data(){
+        var validateInputNumber=(rlue,value,callback)=>{
+             let index = this.restaurants.findIndex((itam, index) => {
+                   return  itam.fName==value
+                })
+                if(index!==-1){
+                    callback (new Error("该地址全称已经存在"))
+                }
+                if (!this.checkSpecialKey(value)) {
+                    callback(new Error("不能含有特殊字符！！"));
+                }
+
+        };
+        // var validateInput = (rule, value, callback) => {
+        //     if (!checkSpecialKey(value)) {
+        //         callback(new Error("不能含有特殊字符！！"));
+        //     } else {
+        //         callback();
+        //     }
+        // };
+        var validateInputNumber1=(rlue,value,callback)=>{
+             let index = this.restaurants.findIndex((itam, index) => {
+                   return  itam.sName==value
+                })
+                if(index!==-1){
+                    callback (new Error("该地址简称已经存在"))
+                }
+                 if (!this.checkSpecialKey(value)) {
+                    callback(new Error("不能含有特殊字符！！"));
+                }
+
+        };
         return{
             options: [],
+            type:'1',//跳过
             total:null,
+            isdisplay:false,
+            errorMessage:"",
             restaurants: [],//油厂
             title:"添加地址",
             dialogFormVisible:false,
@@ -444,13 +493,13 @@ export default {
                 type:1,
             },
             query:{
-                type:1,
+                type:"全部",
                 shortName:'',
                 status:2,
                 division:"",
                 fStatus:2,
                 page:1,
-                pageSize:20,
+                pageSize:10,
             },//请求头的信息
             quyu:'',
             detailObj:{},
@@ -464,9 +513,12 @@ export default {
             rules: {
                 fullName: [
                     { required: true, message: '请输入地址全称', trigger: 'blur' },
+                    { validator: validateInputNumber, trigger: 'blur'},
+                    // { validator: validateInput, trigger: 'blur'}
                 ],
                 shortName: [
                     { required: true, message: '请输入地址简称', trigger: 'blur' },
+                    { validator: validateInputNumber1, trigger: 'blur'}
                 ],
                 adr: [
                     { required: true, message: '请输入详细地址', trigger: 'blur' },
@@ -507,12 +559,31 @@ export default {
             this.query.page=val
             this.getAlldata()
         },
+        changefile(val){
+            console.log(val)
+
+        },
+
+        checkSpecialKey(str) {
+            var specialKey = "[`~!#$^&*=|{}':;'\\[\\].<>/?~！#￥……&*——|{}【】‘；：”“'。，、？]‘'";
+            for (var i = 0; i < str.length; i++) {
+                if (specialKey.indexOf(str.substr(i, 1)) != -1) {
+                return false;
+                }
+            }
+            return true;
+        },
+
         successFile(val){
+
            if(val.code==1){
             this.$message({
-            message: '上传成功！',
-            type: 'success'
+                message: '上传成功！',
+                type: 'success'
             });
+           }else{
+               this.errorMessage=val.content
+               this.$message.error('上传失败！');
            }
         },
         errorFile(){
@@ -582,6 +653,11 @@ export default {
             });
 
         },
+        //下载模板
+        downloadModel(){
+            window.open("/lhana/location/downloadMouldFile ");
+            // window.location.href =require("../../assets/地址导入模板.xlsx")
+        },
         disableCir(row){
             let str=row.status==1?'确认禁用？':'确认启用？'
             this.$confirm(str, "提示", {
@@ -621,10 +697,12 @@ export default {
                 type:1,
             };
             this.$refs.form.resetFields();
+             this.isdisplay=false
             this.$refs.form.clearValidate();
         },
         updute(row){
             this.title="修改地址"
+            this.isdisplay=true
             //  $.each(this.form, (key, item) => {
             //     this.form[key] = row[key] + "";
             // });
@@ -640,8 +718,11 @@ export default {
                  let city = this.myAllProince.findIndex((value, index) => {
                    return  value.name==row.province
                 }) 
-                this.myAllcity=this.myAllProince[city].city
-                this.form.city=row.city
+                if(this.myAllProince[city]){
+                    this.myAllcity=this.myAllProince[city].city
+                    this.form.city=row.city
+                }
+                
             }else{
                 
             }
@@ -649,8 +730,11 @@ export default {
                 let area = this.myAllcity.findIndex((value, index) => {
                    return  value.name==row.city
                 })
-                this.myAllarez=this.myAllcity[area].area
-                this.form.country=row.country
+                if(this.myAllcity[area]){
+                    this.myAllarez=this.myAllcity[area].area
+                    this.form.country=row.country
+                }
+              
             }else{
                 
             }
@@ -686,6 +770,9 @@ export default {
                 if(res.code==1){
                     this.tableData=res.content.list
                     this.total=res.content.total
+                }else{
+                    this.tableData=[]
+                    this.total=0
                 }
                 
             })
@@ -731,6 +818,7 @@ export default {
     height: 100%;
     background: #F1F8FD;
     box-sizing: border-box;
+    
     padding: vw(20);
     .search-header{
          box-sizing: border-box;
