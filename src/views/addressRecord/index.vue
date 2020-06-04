@@ -79,7 +79,7 @@
            <el-col :span="8">
                 <div class="grid-content">
                     <span class="header-tit" style="margin-right:3.4vw">车牌号</span>
-                    <el-select clearable v-model="query.cNo" filterable placeholder="请选择">
+                    <el-select  v-model="query.cNo" filterable clearable placeholder="请选择">
                        <el-option
                         v-for="(item,index) in myAllCp"
                         :key="index"
@@ -226,6 +226,9 @@ export default {
         }
     },
      created(){
+         if (this.$route.params.type == 'addrestwo') {
+            this.query.sName= this.$route.params.data.sName
+        }
          this.getAll()
         this.getAlldata()
     },
@@ -260,7 +263,7 @@ export default {
             this.query={
                 page:1,
                 pageSize:15,
-                type:0,
+                type:2,
                 status:2,
                 sName:"",
                 bUtc:"",

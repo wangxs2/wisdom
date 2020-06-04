@@ -146,7 +146,11 @@
             prop="firNum"
             align="center"
             label="触发次数">
+             <template slot-scope="scope">
+                    <div style="cursor: pointer;" @click="addrestwo(scope.row)">{{scope.row.firNum}}</div>
+                </template>
             </el-table-column>
+            
             <el-table-column
             prop="uTime"
             align="center"
@@ -551,6 +555,16 @@ export default {
                 }
             });
         },
+            //围栏
+        addrestwo(row){
+            this.$router.push({
+                name: 'addressRecord',
+                params: {
+                type: 'addrestwo',
+                data: row
+                }
+            });
+        },
         handleSizeChange(val) {
             this.query.pageSize=val
             this.getAlldata()
@@ -753,7 +767,7 @@ export default {
           //重置
         resetAll(){
             this.query={
-               type:1,
+               type:"全部",
                 shortName:'',
                 status:2,
                 division:"",

@@ -32,7 +32,7 @@ Vue.use(VueRouter)
       },
       {
         path: '/addressRecord',
-        name: '地址记录',
+        name: 'addressRecord',
         component: addressRecord
       },
       {
