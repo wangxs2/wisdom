@@ -92,7 +92,25 @@ export default {
   },
   methods:{
     tuchu(){
-      this.$router.push("/login")
+      this.$confirm("是否确认退出登录？", "提示", {
+          confirmButtonText: "确定",
+          cancelButtonText: "取消",
+          type: "warning"
+      }).then(() => {
+        this.$fetchGet("/logout").then(res => {
+          this.$router.push("/login")
+          // if (res.code == 1) {
+          //     // this.$message({
+          //     // message: '操作成功！',
+          //     // type: 'success'
+          //     // });
+          //     this.$router.push("/login")
+          // } else {
+          //     this.$message.error('操作失败！');
+          // }
+        });
+      });
+
       // this.menuFlag=true
     },
     isShow() {

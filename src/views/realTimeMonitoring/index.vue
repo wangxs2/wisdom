@@ -484,27 +484,23 @@ export default {
           }else{
              if(this.ZoomNum>8){
                 this.clearMark()
-              }
-             
-              if(this.ZoomNum>5&&this.ZoomNum<9){
+              }else{
                 this.clearBig()
                 this.clearCountry()
               }
-              if(this.ZoomNum<6){
-                this.clearBig()
-                this.clearCountry()
-                
-              }
+              // if(this.ZoomNum>5&&this.ZoomNum<9){
+              //   this.clearBig()
+              //   this.clearCountry()
+              // }
+              // if(this.ZoomNum<6){
+              //   this.clearBig()
+              //   this.clearCountry()
+              // }
               if(this.activeLab){
                 this.activeLab.setPosition(new BMap.Point(iteam.lon,iteam.lat))
                 this.activeInfow.setPosition(new BMap.Point(iteam.lon,iteam.lat))
               }
           }
-          // if(this.ZoomNum>8){
-          //   this.statuMark()
-          // }else if(this.ZoomNum>6){
-          //   this.makeBigcel()
-          // }
 
           if(this.ZoomNum>8){
             this.clearBig()
@@ -537,7 +533,7 @@ export default {
       // 108.933051,34.546597
       this.myMap = new BMap.Map("mymap");
       // this.myMapTwo = new BMapGL.Map("mymap"); 
-      this.myMap.centerAndZoom(new BMap.Point(121.644624,31.205915), 4);  
+      this.myMap.centerAndZoom(new BMap.Point(121.644624,31.205915), 5);  
       this.myMap.enableScrollWheelZoom(); //地图缩放的功能
       this.myMap.addControl(
         new BMap.ScaleControl({ anchor: BMAP_ANCHOR_BOTTOM_LEFT })
@@ -677,6 +673,7 @@ export default {
       // this.statuMark()
     },
     //地图的缩放时间
+
     getZmap() {
       this.myMap.addEventListener("zoomend", () => {
         this.ZoomNum = this.myMap.getZoom();
@@ -686,6 +683,7 @@ export default {
           this.clearBig()
           this.statuMark()
           this.clearCountry()
+          this.myMap.removeOverlay(this.countryCil);
         }
         if(this.ZoomNum>5&&this.ZoomNum<9||this.ZoomNum==6){
           console.log("wozaozheli")
@@ -693,18 +691,21 @@ export default {
           this.makeBigcel()
           this.clearMark()
           this.clearCountry()
+          console.log(this.countryCil)
+          this.myMap.removeOverlay(this.countryCil);
         }
-
         if(this.ZoomNum<6){
           this.isCar=false
           this.clearBig()
           this.clearMark()
+          // this.clearCountry()
           this.myCountry()
 
           if(this.circleSa){
             this.myMap.removeOverlay(this.circleSa);  
           }
         }
+
        
         // 14 是1公里
         // 13 是2公里
@@ -806,21 +807,29 @@ export default {
       })
     },
     myCountry(){
+       if(this.countryCil){
+          this.myMap.removeOverlay(this.countryCil);
+        }
+      
        let opts = {
           position : new BMap.Point(108.925882,34.545817),    // 指定文本标注所在的地理位置
           offset   : new BMap.Size(-20, -30)    //设置文本偏移量
         }
       let conten=`<div style="width:47px;height:52px;cursor: pointer;color:#ffffff;font-size:16px;text-align:center;line-height:50px;background:url(${require('../../assets/image/4w.png')});background-size:100% 100%">${this.allNum}</div>`
-      this.countryCil = new BMap.Label(conten, opts);
-      this.countryCil.addEventListener("click",()=>{
+      // this.countryCil = new BMap.Label(conten, opts);
+      let markerCoun= new BMap.Label(conten, opts);
+      markerCoun.addEventListener("click",()=>{
           let obj=this.countryCil.getPosition()
           this.myMap.setZoom(6)
           this.myMap.centerAndZoom(new BMap.Point(obj.lng,obj.lat),6);
           this.myMap.removeOverlay(this.countryCil);
         });
-      this.myMap.addOverlay(this.countryCil);
+        this.countryCil=markerCoun
+      this.myMap.addOverlay(markerCoun);
+      console.log("创建国家的点位")
     },
     clearCountry(){
+      console.log("删除全国的")
       if(this.countryCil){
         this.myMap.removeOverlay(this.countryCil);
       }

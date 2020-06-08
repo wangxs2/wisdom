@@ -133,13 +133,13 @@
             </template>
             </el-table-column>
             <el-table-column
-            prop="name"
+            prop="fStatus"
             width="110"
             align="center"
             label="围栏创建状态"
             >
             <template slot-scope="scope">
-                <div :style="{color:scope.row.status==1?'#317AF8':'#DE2E2D'}">{{scope.row.status==1?'成功':"失败"}}</div>
+                <div :style="{color:scope.row.fStatus==1?'#317AF8':'#DE2E2D'}">{{scope.row.fStatus==1?'成功':"失败"}}</div>
             </template>
             </el-table-column>
              <el-table-column

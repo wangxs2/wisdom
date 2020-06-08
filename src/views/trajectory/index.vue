@@ -149,7 +149,7 @@
         <i v-if="!isbf" style="color:#307CFC" class="iconfont iconzantingtingzhi"></i>
       </div>
       <img @click="refresh()" style="margin-left:30px;cursor: pointer;" src="../../assets/image/sx.png" width="20" height="20">
-      <div style="color:#303133;margin-left:20px">{{value1[1]}}</div>
+      <div style="color:#303133;margin-left:20px">{{endTimesa}}</div>
       <div style="color:#303133;margin-left:20px">{{allDistance}}km</div>
       <div style="margin-left:40px">
         <el-dropdown @command="handleCommand">
@@ -261,6 +261,7 @@ export default {
       timeId:null,
       leftMark:null,
       startTimesa:"",//随时变化的里程数和时间
+      endTimesa:"",//随时变化的里程数和时间
       startDancesa:'',//随时变化的里程数和时间
       updateData:{},//从实时监控过来的数据
       OilFacData:[],//油厂
@@ -641,6 +642,7 @@ export default {
             this.getLine(res.content.data)
             
             this.startTimesa=res.content.data[0].time
+            this.endTimesa=res.content.data[res.content.data.length-1].time
           }else{
             if(this.input3!==''){
 

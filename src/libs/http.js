@@ -39,9 +39,9 @@ Axios.interceptors.response.use(
       switch (res.status) {
         //401 登录过期 返回登录
         case 401:
-          Message.error({
-            message: '登录过期，请重新登录'
-          });
+          // Message.error({
+          //   message: '登录过期，请重新登录'
+          // });
           router.replace({
             path: '/login?flag=true'
           })
