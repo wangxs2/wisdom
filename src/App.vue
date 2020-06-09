@@ -25,6 +25,7 @@ html,body,#app {
 .el-scrollbar__wrap{
   margin-bottom: 0 !important;
 }
+
 ul,li{
   list-style-type:none;
   margin: 0;
@@ -36,5 +37,32 @@ input:focus {
 }
 .el-pager li.active{
   color:#317AF8 !important;
+}
+.el-button--primary{
+  background:rgba(49,122,248,1) !important;
+  font-size:16px !important;
+  padding:9px 35px !important;
+  color:#ffffff !important;
+}
+.el-button--primary:focus, .el-button--primary:hover{
+  background:rgba(17,92,223,1) !important;
+}
+.el-button--primary:active{
+  background:rgba(3,75,200,1) !important;
+}
+.el-button--default{
+ font-size:16px !important;
+  padding:9px 35px !important;
+  color:#303133;
+}
+.el-select-dropdown__item.selected{
+  color:#007FFF!important;
+}
+
+.activesa:focus,.activesa:hover{
+  color:#115CDF!important;
+}
+.activesa:active{
+  color:#115CDF!important;
 }
 </style>

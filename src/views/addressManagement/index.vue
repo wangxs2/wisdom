@@ -168,8 +168,8 @@
             </el-table-column>
             <el-table-column width="160" align="center" label="操作">
                 <template slot-scope="scope">
-                    <span style="color:#317AF8;cursor:pointer" @click="dialogVisible2=true,detailObj=scope.row">查看详情</span>
-                    <span style="color:#317AF8;margin-left:0.5vw;cursor:pointer" @click='updute(scope.row)'>修改</span>
+                    <span class="activesa" style="color:#317AF8;cursor:pointer" @click="dialogVisible2=true,detailObj=scope.row">查看详情</span>
+                    <span class="activesa" style="color:#317AF8;margin-left:0.5vw;cursor:pointer" @click='updute(scope.row)'>修改</span>
                     <span @click="disableCir(scope.row)" :style="{'color':scope.row.status==1?'#317AF8':'#DE2E2D','margin-left':'0.5vw','cursor':'pointer'}">{{scope.row.status==1?'禁用':"启用"}}</span>
                 </template>
             </el-table-column>
@@ -321,13 +321,14 @@
         action="/lhana/location/importLocation"
         :on-success="successFile"
         :on-change="handleChangePic"
+        :before-upload="beforeAvatarUpload"
         :on-error="errorFile"
         :auto-upload="false"
         :file-list="fileList">
         <el-button size="small" icon="el-icon-plus" type="primary">点击上传</el-button>
         <div slot="tip" class="el-upload__tip">支持xlsx格式，文件大小不超过2M</div>
         </el-upload>
-        <div style="color:#DD2726">{{errorMessage}}</div>
+        <div style="color:#DD2726;margin-top:6px;" v-for="(item,index) in errorMessage" :key="index">{{item}}</div>
         <div style="margin-top:32px">
             <span style="margin-right:70px"> 重复数据</span>
              <el-radio v-model="type" label="1">跳过</el-radio>
@@ -481,7 +482,7 @@ export default {
             total:null,
             isbtn:false,
             isdisplay:false,
-            errorMessage:"",
+            errorMessage:[],
             restaurants: [],//油厂
             title:"添加地址",
             dialogFormVisible:false,
@@ -559,7 +560,16 @@ export default {
         this.getAlldata()
     },
     methods: {
-            //围栏
+        beforeAvatarUpload(file) {
+            const isLt2M = file.size / 1024 / 1024 < 2;
+            if (!isLt2M) {
+            this.$message.error('上传文件大小不超过2MB!');
+             
+            }
+            this.errorMessage=[]
+            return  isLt2M;
+        },
+     //围栏
         weiradiu(row){
             this.$router.push({
                 name: 'realTimeMonitoring',
@@ -569,7 +579,7 @@ export default {
                 }
             });
         },
-            //围栏
+    //围栏
         addrestwo(row){
             this.$router.push({
                 name: 'addressRecord',
@@ -606,14 +616,15 @@ export default {
 
            if(val.code==1){
             this.$message({
-                message: '上传成功！',
+                message: val.message,
                 type: 'success'
             });
-            this.errorMessage=""
            }else{
                this.errorMessage=val.content
-               this.$message.error('上传失败！');
+               this.$message.error(val.message);
            }
+           this.getAlldata()
+            this.errorMessage=[]
         },
         errorFile(){
             if(val.code==0){
@@ -739,7 +750,7 @@ export default {
         },
         emptyForm1(){
             this.fileList=[]
-            this.errorMessage=""
+            this.errorMessage=[]
         },
         updute(row){
             this.title="修改地址"

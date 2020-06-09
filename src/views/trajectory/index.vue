@@ -86,6 +86,7 @@
               background
               @size-change="sizeChange"
               :page-size="15"
+              :current-page="page"
               @current-change="currentChange"
               layout="pager"
               :total="total">
@@ -445,25 +446,8 @@ export default {
     },
     currentChange(val){
       this.page=val
+      console.log(this.page)
       if(this.valuenum==0){
-
-      // this.$fetchGet("getTraceCar/error",{
-      //   cNo:this.input3,
-      //   beginTime:this.value1[0],
-      //   endTime:this.value1[1],
-      //   page:this.page,
-      //   pageSize:this.pageSize
-      // }).then(res=>{
-      //   if(res.content.list.length>0){
-      //     this.errorCount=res.content.list
-      //     if(this.valuenum==0){
-      //       this.count=this.errorCount
-      //       this.total=res.content.total
-      //     }
-      //     this.errorTotal=res.content.total
-      //   }
-      // })
-        
         this.count=this.errorCount.slice((this.page-1)*15,this.page*15)
       }else{
         this.$fetchGet("getTraceCar/byPeriodWithPage",{
@@ -478,6 +462,8 @@ export default {
             if(this.valuenum==1){
               this.count=this.normalCount
               this.total=res.content.total
+              console.log(12412)
+              console.log(this.count)
             }
             this.normalTotal=res.content.total
           }
@@ -923,14 +909,42 @@ export default {
     },
     changePoint(index){
         this.valuenum=index
+        this.page=1
         if(index==1){
-          this.count=this.normalCount
-          this.total=this.normalTotal
+          // this.count=this.normalCount
+          // console.log("wqwqw")
+          // console.log(this.count)
+          // this.total=this.normalTotal
+
+          console.log(this.page)
+           this.$fetchGet("getTraceCar/byPeriodWithPage",{
+            cNo:this.input3,
+            beginTime:this.value1[0],
+            endTime:this.value1[1],
+            page:this.page,
+            pageSize:this.pageSize
+            }).then(res=>{
+              if(res.content.list.length>0){
+              this.normalCount=res.content.list
+              this.count=this.normalCount
+              this.total=res.content.total
+                // if(this.valuenum==1){
+                //   this.count=this.normalCount
+                //   this.total=res.content.total
+                //   console.log(12412)
+                //   console.log(this.count)
+                // }
+                this.normalTotal=res.content.total
+              }
+            })
         }else{
-          this.count=this.errorCount
+          // this.count=this.errorCount
+          this.count=this.errorCount.slice((this.page-1)*15,this.page*15)
           // this.total=this.errorTotal
           this.errorTotal=this.errorCount.length
           this.total=this.errorTotal
+
+
         }
 
         
@@ -986,7 +1000,6 @@ export default {
       if(this.valuenum==0){
         this.checked=true
         this.errorMark()
-        // this.showInform(iteam,1)
         this.getDeatil(iteam,1,iteam.eDur)
       }else{
         if(this.leftMark){
@@ -995,7 +1008,6 @@ export default {
         if(this.activeInfow){
           this.myMap.removeOverlay(this.activeInfow);
         }
-        // this.getDeatil(iteam)
           let point = new BMap.Point(iteam.lon,iteam.lat);
           let opts = {
               icon : new BMap.Icon(require('../../assets/image/xs.png'),new BMap.Size(30,30)),    // 指定文本标注所在的地理位置
@@ -1007,26 +1019,6 @@ export default {
           })
           this.myMap.addOverlay(this.leftMark)
       }
-      // if(this.leftMark){
-      //   this.myMap.removeOverlay(this.leftMark);
-      // }
-      // if(this.activeInfow){
-      //   this.myMap.removeOverlay(this.activeInfow);
-      // }
-      //   let point = new BMap.Point(iteam.lon,iteam.lat);
-      //   let opts = {
-      //       icon : new BMap.Icon(this.valuenum==0?require('../../assets/image/ycd.png'):require('../../assets/image/xs.png'), this.valuenum==0?new BMap.Size(12,12):new BMap.Size(30,30)),    // 指定文本标注所在的地理位置
-      //       offset : new BMap.Size(0,0)    //设置文本偏移量
-      //   }
-      //   this.leftMark = new BMap.Marker(point, opts);  // 创建文本标注对象
-      //   this.leftMark.addEventListener("click",()=>{
-      //     // this.showInform(iteam,1)
-      //     if(this.valuenum==0){
-      //       this.showInform(iteam,1)
-      //     }else{
-      //       this.getDeatil(iteam)
-      //     }
-      //   })
     },
 
 

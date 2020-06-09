@@ -371,6 +371,7 @@ export default {
       let opt={
         strokeColor:"rgba(49,122,248,1)",
         fillColor:"rgba(49,122,248,0.2)",
+        strokeWeight:2,
       }
       this.circleSa = new BMap.Circle(point,row.radius*1000,opt);  // 创建文本标注对象
       console.log(this.myMap)
@@ -425,7 +426,11 @@ export default {
       this.restaurants1=[]
       this.allNum=0
       this.cltitData.forEach((iteam,index)=>{
+        if(index==4){
+          iteam.name=iteam.name.slice(0,3)
+        }else{
           iteam.name=iteam.name.slice(0,2)
+        }
       })
       this.$fetchGet("monitor/getFooBar").then(res=>{
         res.content[0].forEach((iteam,index)=>{
@@ -873,7 +878,7 @@ export default {
         let icon=require('../../assets/image/new/ycnromal.png');
         let opts = {
             icon : new BMap.Icon(icon, new BMap.Size(27,30)),   // 指定文本标注所在的地理位置
-            offset : new BMap.Size(-13, -15)    //设置文本偏移量
+            offset : new BMap.Size(0, 0)    //设置文本偏移量
         }
         let marker = new BMap.Marker(point, opts);  // 创建文本标注对象
         marker.addEventListener("click",(e)=>{
@@ -921,7 +926,7 @@ export default {
       let point = new BMap.Point(row.lon,row.lat);
       let opts = {
           icon : new BMap.Icon(require('../../assets/image/new/ycclick.png'), new BMap.Size(27,30)),    // 指定文本标注所在的地理位置
-          offset : new BMap.Size(-13, -15)    //设置文本偏移量
+          offset : new BMap.Size(0, 0)    //设置文本偏移量
       }
         let marker = new BMap.Marker(point, opts); 
         this.activeLab1=marker // 创建文本标注对象
@@ -1019,7 +1024,7 @@ export default {
       }
       let activep1 = {
             position: new BMap.Point(row.lon,row.lat),    // 指定文本标注所在的地理位置
-            offset: new BMap.Size(-186, -166)    //设置文本偏移量
+            offset: new BMap.Size(-173, -150)    //设置文本偏移量
       }
       var sContent=`<div id="copysa2" data-clipboard-text='${row.fName},地址:${row.adr}' style="width:400px;height:120px;background:#ffffff;position:relative;box-shadow:0px 0px 12px 0px rgba(51,51,51,0.3);border-radius:4px;z-index:800">
                         <div style="display:flex;width:100%;height:50px;background:#1E292F; justify-content: space-between;align-items: center;box-sizing: border-box;
