@@ -2,6 +2,7 @@
   <div class="treeleft">
     <el-menu
       :default-active="$route.path"
+      :default-openeds="['0','1','2','3','4']" 
       ref="navbar"
       router
       :collapse-transition="false"
@@ -202,7 +203,7 @@ export default {
     background:rgba(0,0,0,0.3) !important;
   }
   .el-menu--collapse{
-    width:100px !important;
+    width:64px !important;
   }
   .el-menu--popup-right-start{
     background:#1E292F !important

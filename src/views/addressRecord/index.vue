@@ -92,13 +92,13 @@
         </el-row>
         <el-row :gutter="20">
            <div class="grid-content grid-content1">
-                <el-button @click="getAlldata()" type="primary">搜索</el-button>
+                <el-button @click="getAlldata(1)" type="primary">搜索</el-button>
                 <el-button @click="resetAll">重置</el-button>
             </div>
         </el-row>
       </div>
       <div class="table-box">
-        <div class="table-tit" style="color:#303133">地址列表</div>
+        <div class="table-tit" style="color:#303133">围栏触发记录列表</div>
          <el-table
             :data="tableData"
             :header-cell-style="{background:'#F4F8FD',color:'#606266'}"
@@ -211,7 +211,7 @@ export default {
             restaurants: [],
             myAllCp: [],
             value: '',
-            currentPage4: 4,
+            currentPage4:1,
             query:{
                 page:1,
                 pageSize:10,
@@ -264,7 +264,7 @@ export default {
         resetAll(){
             this.query={
                 page:1,
-                pageSize:15,
+                pageSize:10,
                 type:2,
                 status:2,
                 sName:"",
@@ -276,7 +276,10 @@ export default {
             this.getAlldata()
 
         },
-      getAlldata(){
+      getAlldata(type){
+          if(type==1){
+                this.query.page=1
+            }
             this.$fetchPost("fence/getFenceRec",this.query,'json').then(res=>{
                 if(res.code==1){
                     this.tableData=res.content.list

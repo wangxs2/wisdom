@@ -149,7 +149,7 @@
         <i v-if="isbf" style="color:#307CFC" class="iconfont iconbofang"></i>
         <i v-if="!isbf" style="color:#307CFC" class="iconfont iconzantingtingzhi"></i>
       </div>
-      <img @click="refresh()" style="margin-left:30px;cursor: pointer;" src="../../assets/image/sx.png" width="20" height="20">
+      <img @click="refresh()" style="margin-left:30px;cursor:pointer;" src="../../assets/image/sx.png" width="20" height="20">
       <div style="color:#303133;margin-left:20px">{{endTimesa}}</div>
       <div style="color:#303133;margin-left:20px">{{allDistance}}km</div>
       <div style="margin-left:40px">

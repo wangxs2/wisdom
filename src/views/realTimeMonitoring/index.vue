@@ -453,7 +453,7 @@ export default {
       this.$fetchGet("location/getPageOilFac").then(res=>{
         this.OilFacData=this.cloneObj(res.content)
         res.content.forEach((itam,index)=>{
-          this.myOilFac.push({value:itam.fName})
+          this.myOilFac.push({value:itam.sName})
         })
       })
     },
@@ -757,7 +757,7 @@ export default {
         })
       }else{
         this.OilFacData.forEach((iteam,index)=>{
-          if(item==iteam.fName){
+          if(item==iteam.sName){
             this.dwMark(iteam,1)
           }
         })
@@ -1096,8 +1096,10 @@ export default {
           pointArray = pointArray.concat(ply.getPath());
           this.mapo=rs.boundaries[i]
         }    
+        
         this.myMap.setViewport(pointArray);    //调整视野  
         this.mapo=this.formattingCharacters(pointArray)
+        console.log(this.mapo)
         // addlabel();               
       });  
     },
@@ -1109,7 +1111,7 @@ export default {
       let arr1 = [];
       let arr2;
       val.forEach((iteam, index) => {
-        arr1.push(iteam.lng + ' ' + iteam.lat)
+        arr1.push(iteam.lng.toFixed(6) + ' ' + iteam.lat.toFixed(6))
       })
       arr2 = arr1.join(',')
       let arr3 = `POLYGON((${arr2}))`

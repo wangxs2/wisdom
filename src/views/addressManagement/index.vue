@@ -56,8 +56,8 @@
                     <span class="header-tit" style="margin-right:1vw">围栏创建状态</span>
                     <el-select v-model="query.fStatus" placeholder="请选择">
                         <el-option label="全部" :value="2"></el-option>
-                        <el-option label="启用" :value="1"></el-option>
-                        <el-option label="禁用" :value="0"></el-option>
+                        <el-option label="成功" :value="1"></el-option>
+                        <el-option label="失败" :value="0"></el-option>
                     </el-select>
                 </div>
             </el-col>
@@ -69,7 +69,7 @@
 
         <el-row :gutter="20">
            <div class="grid-content grid-content1">
-                <el-button type="primary" @click="getAlldata()">搜索</el-button>
+                <el-button type="primary" @click="getAlldata(1)">搜索</el-button>
                 <el-button @click="resetAll">重置</el-button>
             </div>
         </el-row>
@@ -400,7 +400,7 @@
                         <div>{{detailObj.lon}}</div>
                     </div>
                     <div class="list-iteam">
-                        <div class="tit">围栏维度</div>
+                        <div class="tit">围栏纬度</div>
                         <div>{{detailObj.lat}}</div>
                     </div>
                     <div class="list-iteam">
@@ -419,7 +419,7 @@
                     </div>
                     <div class="list-iteam">
                         <div class="tit">围栏创建状态</div>
-                        <div>{{detailObj.status==1?'成功':"失败"}}</div>
+                        <div>成功</div>
                     </div>
                     
 
@@ -550,7 +550,7 @@ export default {
                 ],
             },
             value: '',
-            currentPage4: 4,
+            currentPage4:1,
             fileList:[],
         }
     },
@@ -619,12 +619,13 @@ export default {
                 message: val.message,
                 type: 'success'
             });
+            this.errorMessage=[]
            }else{
                this.errorMessage=val.content
                this.$message.error(val.message);
            }
            this.getAlldata()
-            this.errorMessage=[]
+            
         },
         errorFile(){
             if(val.code==0){
@@ -808,13 +809,15 @@ export default {
                 division:"",
                 fStatus:2,
                 page:1,
-                pageSize:20,
+                pageSize:10,
             }
             this.getAlldata()
 
         },
-        getAlldata(){
-
+        getAlldata(type){
+            if(type==1){
+                this.query.page=1
+            }
             this.$fetchGet("location/searchLocation",this.query).then(res=>{
                 if(res.code==1){
                     this.tableData=res.content.list
