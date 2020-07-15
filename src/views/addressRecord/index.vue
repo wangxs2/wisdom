@@ -126,7 +126,7 @@
             label="地址简称"
             >
             <template slot-scope="scope">
-                <div style="color:#307CFC">{{scope.row.sName}}</div>
+                <div style="cursor: pointer;color:#307CFC" @click="weiradiu(scope.row)">{{scope.row.sName}}</div>
             </template>
             </el-table-column>
             <el-table-column
@@ -239,6 +239,17 @@ export default {
             this.query.pageSize=val
             this.getAlldata()
         },
+         //围栏
+        weiradiu(row){
+            this.$router.push({
+                name: 'realTimeMonitoring',
+                params: {
+                type: 'radius',
+                data: row
+                }
+            });
+        },
+    //围栏
         changeTime(type){
             if(type==1){
                 this.query.bUtc=new Date(this.query.bUtc).getTime()
@@ -252,7 +263,9 @@ export default {
             this.getAlldata()
         },
         getAll(){
-            this.$fetchGet("monitor/getAllCNo").then(res=>{
+            this.$fetchGet("monitor/getAllCNo",{
+                isUse:2
+            }).then(res=>{
                 this.myAllCp=this.cloneObj(res.content)
             })
             this.$fetchGet("location/getPageOilFac").then(res=>{

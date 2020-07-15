@@ -36,6 +36,9 @@
                     <el-select v-model="query.type" placeholder="请选择">
                         <el-option label="全部" value="全部"></el-option>
                        <el-option label="油厂" value="油厂"></el-option>
+                       <el-option label="养殖终端" value="养殖终端"></el-option>
+                       <el-option label="加工厂" value="加工厂"></el-option>
+                       <el-option label="贸易商" value="贸易商"></el-option>
                     </el-select>
                 </div>
             </el-col>
@@ -119,7 +122,7 @@
             label="地址类型"
             >
             <template slot-scope="scope">
-                <div>{{scope.row.type==1?'油厂':""}}</div>
+                <div>{{scope.row.type==1?'油厂':scope.row.type==2?"养殖终端":scope.row.type==3?'加工厂':'贸易商'}}</div>
             </template>
             </el-table-column>
             <el-table-column
@@ -147,7 +150,7 @@
             align="center"
             label="触发次数">
              <template slot-scope="scope">
-                    <div style="cursor: pointer;" @click="addrestwo(scope.row)">{{scope.row.firNum}}</div>
+                    <div style="cursor: pointer;color:#317AF8" @click="addrestwo(scope.row)">{{scope.row.firNum}}</div>
                 </template>
             </el-table-column>
             
@@ -283,6 +286,9 @@
                             <el-form-item label="地址类型" label-width="100px" prop="type">
                                 <el-select :disabled="isdisplay" style="width:100%" v-model="form.type" placeholder="请选择">
                                   <el-option label="油厂" :value="1"></el-option>
+                                   <el-option label="养殖终端" :value="2"></el-option>
+                                    <el-option label="加工厂" :value="3"></el-option>
+                                    <el-option label="贸易商" :value="4"></el-option>
                                 </el-select>
                             </el-form-item>
                         </div>
@@ -364,7 +370,7 @@
                     </div>
                     <div class="list-iteam">
                         <div class="tit">地址类型</div>
-                        <div>{{detailObj.type==1?'油厂':""}}</div>
+                        <div>{{detailObj.type==1?'油厂':detailObj.type==2?"养殖终端":detailObj.type==3?'加工厂':'贸易商'}}</div>
                     </div>
                     <div class="list-iteam">
                         <div class="tit">行政区域</div>
@@ -387,7 +393,7 @@
                     </div>
                     <div class="list-iteam">
                         <div class="tit">详细地址</div>
-                        <div>{{detailObj.adr}}</div>
+                        <div style="flex:1">{{detailObj.adr}}</div>
                     </div>
 
                 </div>
@@ -415,7 +421,7 @@
                     </div>
                     <div class="list-iteam">
                         <div class="tit">围栏创建时间</div>
-                        <div>{{detailObj.uTime}}</div>
+                        <div>{{detailObj.cTime}}</div>
                     </div>
                     <div class="list-iteam">
                         <div class="tit">围栏创建状态</div>
@@ -581,11 +587,12 @@ export default {
         },
     //围栏
         addrestwo(row){
+
             this.$router.push({
-                name: 'addressRecord',
-                params: {
-                type: 'addrestwo',
-                data: row
+                    name: 'addressRecord',
+                    params: {
+                    type: 'addrestwo',
+                    data: row
                 }
             });
         },

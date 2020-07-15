@@ -2,11 +2,11 @@
   <div class="map-content" ref="compreMap" >
     <div class="top-search">
       <div class="left-sea">
-        <el-select :popper-append-to-body="false" style="width:80px" @change="searchinput=''" v-model="select" slot="prepend" placeholder="请选择">
+        <el-select :popper-append-to-body="false" class="tyhy" style="width:80px;background:#E6F1FC" @change="searchinput=''" v-model="select" slot="prepend" placeholder="请选择">
           <el-option label="车辆" value="1"></el-option>
           <el-option label="组织" value="2"></el-option>
         </el-select>
-         <el-select :popper-append-to-body="false" style="width:300px" v-model="searchinput" @change="handleSelect" filterable :placeholder="select=='1'?'请输入车牌号':'请输入油厂名称'">
+         <el-select :popper-append-to-body="false" style="width:300px" v-model="searchinput"  filterable :placeholder="select=='1'?'请输入车牌号':'请输入组织名称'">
             <el-option
               v-for="(item,index) in restaurants"
               :key="index"
@@ -14,6 +14,7 @@
               :value="item.value">
             </el-option>
           </el-select>
+          <div class="tybtn" @click="handleSelect(searchinput)"><img src="../../assets/image/sear.png" alt="" srcset=""></div>
       </div>
       <!-- 录入省市的边界 -->
       <!-- <el-select  @change="getXzqu" v-model="inputaas" placeholder="请选择">
@@ -243,6 +244,21 @@ export default {
           id:4,
           iurl:require("../../assets/image/new/ycnromal.png")
         },
+        {
+          name:"养殖终端",
+          id:5,
+          iurl:require("../../assets/image/new/yzcn.png")
+        },
+        {
+          name:"加工厂",
+          id:6,
+          iurl:require("../../assets/image/new/slcn.png")
+        },
+        {
+          name:"贸易商",
+          id:7,
+          iurl:require("../../assets/image/new/mysn.png")
+        },
       ],
       cltitData:[
         {
@@ -325,11 +341,15 @@ export default {
     $('.map-content').on("click", "#close2",  ()=> {
       this.myMap.removeOverlay(this.activemillInfow); 
       this.myMap.removeOverlay(this.activeLab1); 
+      this.myMap.removeOverlay(this.circleSa); 
     })
     $('.map-content').on("click", "#trajectory",  ()=> {
        this.guiji(this.tiadata)
     })
     
+  },
+  beforeDestroy () {
+    clearTimeout(this.totalTimeme)
   },
   created() {
     this.options=cityName
@@ -373,8 +393,7 @@ export default {
         fillColor:"rgba(49,122,248,0.2)",
         strokeWeight:2,
       }
-      this.circleSa = new BMap.Circle(point,row.radius*1000,opt);  // 创建文本标注对象
-      console.log(this.myMap)
+      this.circleSa = new BMap.Circle(point,row.radius==undefined?2000:row.radius*1000,opt);  // 创建文本标注对象
       this.myMap.centerAndZoom(point,15);  
       this.myMap.addOverlay(this.circleSa);   
     },
@@ -418,7 +437,15 @@ export default {
     //切换车辆的状态
     carStatus(){
       if(this.select=="1"){
-        this.getAllCar()
+        this.countLeft=[]
+        this.$fetchGet("monitor/getLinkage",{
+        cNo:"",
+        stat:this.valuenum
+        }).then(res=>{
+            if(res.code==1){
+              this.countLeft=this.cloneObj(res.content.cars)
+            }
+        })
       }
     },
     getstaData(){
@@ -443,7 +470,9 @@ export default {
         
       })
 
-      this.$fetchGet("monitor/getAllCNo").then(res=>{
+      this.$fetchGet("monitor/getAllCNo",{
+        isUse:1
+      }).then(res=>{
         this.myAllCp=this.cloneObj(res.content)
         res.content.forEach((iteam,index)=>{
           this.restaurants1.push({value:iteam.cNo})
@@ -682,7 +711,6 @@ export default {
     getZmap() {
       this.myMap.addEventListener("zoomend", () => {
         this.ZoomNum = this.myMap.getZoom();
-        console.log(this.ZoomNum)
         if(this.ZoomNum>8){
           this.isCar=true
           this.clearBig()
@@ -691,12 +719,10 @@ export default {
           this.myMap.removeOverlay(this.countryCil);
         }
         if(this.ZoomNum>5&&this.ZoomNum<9||this.ZoomNum==6){
-          console.log("wozaozheli")
           this.isCar=false
           this.makeBigcel()
           this.clearMark()
           this.clearCountry()
-          console.log(this.countryCil)
           this.myMap.removeOverlay(this.countryCil);
         }
         if(this.ZoomNum<6){
@@ -831,10 +857,8 @@ export default {
         });
         this.countryCil=markerCoun
       this.myMap.addOverlay(markerCoun);
-      console.log("创建国家的点位")
     },
     clearCountry(){
-      console.log("删除全国的")
       if(this.countryCil){
         this.myMap.removeOverlay(this.countryCil);
       }
@@ -875,7 +899,7 @@ export default {
       })
       this.OilFacData.forEach(iteam=>{
         let point = new BMap.Point(iteam.lon,iteam.lat);
-        let icon=require('../../assets/image/new/ycnromal.png');
+        let icon=iteam.type==1?require('../../assets/image/new/ycnromal.png'):iteam.type==2?require('../../assets/image/new/yzcn.png'):iteam.type==3?require('../../assets/image/new/slcn.png'):require('../../assets/image/new/mysn.png');
         let opts = {
             icon : new BMap.Icon(icon, new BMap.Size(27,30)),   // 指定文本标注所在的地理位置
             offset : new BMap.Size(0, 0)    //设置文本偏移量
@@ -925,7 +949,7 @@ export default {
       }
       let point = new BMap.Point(row.lon,row.lat);
       let opts = {
-          icon : new BMap.Icon(require('../../assets/image/new/ycclick.png'), new BMap.Size(27,30)),    // 指定文本标注所在的地理位置
+          icon : new BMap.Icon(row.type==1?require('../../assets/image/new/ycclick.png'):row.type==2?require('../../assets/image/new/yzcc.png'):row.type==3?require('../../assets/image/new/slcc.png'):require('../../assets/image/new/mysc.png'), new BMap.Size(27,30)),    // 指定文本标注所在的地理位置
           offset : new BMap.Size(0, 0)    //设置文本偏移量
       }
         let marker = new BMap.Marker(point, opts); 
@@ -1029,7 +1053,7 @@ export default {
       var sContent=`<div id="copysa2" data-clipboard-text='${row.fName},地址:${row.adr}' style="width:400px;height:120px;background:#ffffff;position:relative;box-shadow:0px 0px 12px 0px rgba(51,51,51,0.3);border-radius:4px;z-index:800">
                         <div style="display:flex;width:100%;height:50px;background:#1E292F; justify-content: space-between;align-items: center;box-sizing: border-box;
                         padding:8px 16px;">
-                          <img src="${require('../../assets/image/yt1.png')}" width="22" height="22">
+                          <img src="${row.type==1?require('../../assets/image/new/yt1.png'):row.type==2?require('../../assets/image/new/yt4.png'):row.type==3?require('../../assets/image/new/yt3.png'):require('../../assets/image/new/yt2.png')}" width="22" height="22">
                           <span style="font-size:17px;color:#ffffff">${row.fName}</span>
                           <img id="close2" style="cursor: pointer;" src="${require('../../assets/image/close2.png')}" width="16" height="16">
                         </div>
@@ -1099,7 +1123,6 @@ export default {
         
         this.myMap.setViewport(pointArray);    //调整视野  
         this.mapo=this.formattingCharacters(pointArray)
-        console.log(this.mapo)
         // addlabel();               
       });  
     },
@@ -1122,6 +1145,13 @@ export default {
 };
 </script>
 <style lang="scss">
+.tyhy{
+  .el-input--suffix .el-input__inner{
+    background: #E6F1FC;
+    color: #000000;
+  }
+}
+
 .BMapLabel{
   border:none !important;
   background-color:transparent !important;
@@ -1175,6 +1205,20 @@ export default {
     // border-bottom:1px solid #DCDFE6;
     .left-sea{
       box-shadow:0px 0px vw(6) 0px rgba(51,51,51,0.3);
+      position: relative;
+      .tybtn{
+        position: absolute;
+        right: 1px;
+        top: 1px;
+        width:50px;
+        height: 38px;
+        background:rgba(230,241,252,1);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        cursor: pointer;
+          border-radius:4px 0px 0px 4px;
+      }
     }
     .right-sea{
       display: flex;

@@ -10,7 +10,7 @@
           <el-option label="车辆" value="1"></el-option>
           <el-option label="组织" value="2"></el-option>
         </el-select>
-         <el-select style="width:300px" v-model="input3" @change="getData()" :popper-append-to-body="false" filterable :placeholder="select=='1'?'请输入车牌号':'请输入油厂名称'">
+         <el-select style="width:300px" v-model="input3" @change="getData()" :popper-append-to-body="false" filterable :placeholder="select=='1'?'请输入车牌号':'请输入组织名称'">
             <el-option
               v-for="(item,index) in restaurants"
               :key="index"
@@ -139,6 +139,19 @@
         <img src="../../assets/image/new/ycnromal.png" width="13" height="15" style="margin-right:6px">
         <span>油厂</span>
       </div>
+      <div class="itamStatus1">
+        <img src="../../assets/image/new/yzcn.png" width="13" height="15" style="margin-right:6px">
+        <span>养殖终端</span>
+      </div>
+      <div class="itamStatus1">
+        <img src="../../assets/image/new/slcn.png" width="13" height="15" style="margin-right:6px">
+        <span>加工厂</span>
+      </div>
+      <div class="itamStatus1">
+        <img src="../../assets/image/new/mysn.png" width="13" height="15" style="margin-right:6px">
+        <span>贸易商</span>
+      </div>
+      
     </div>
     <!-- 右下角的车辆状态 -->
     <!-- 轨迹播放 -->
@@ -324,7 +337,7 @@ export default {
       })
       this.OilFacData.forEach(iteam=>{
         let point = new BMap.Point(iteam.lon,iteam.lat);
-        let icon=require('../../assets/image/new/ycnromal.png');
+        let icon=iteam.type==1?require('../../assets/image/new/ycnromal.png'):iteam.type==2?require('../../assets/image/new/yzcn.png'):iteam.type==3?require('../../assets/image/new/slcn.png'):require('../../assets/image/new/mysn.png');
         let opts = {
           icon : new BMap.Icon(icon, new BMap.Size(27,30)),// 指定文本标注所在的地理位置
           offset : new BMap.Size(-13,-15)    //设置文本偏移量
@@ -348,7 +361,7 @@ export default {
       }
       let point = new BMap.Point(row.lon,row.lat);
       let opts = {
-          icon : new BMap.Icon(require('../../assets/image/new/ycclick.png'), new BMap.Size(27,30)),    // 指定文本标注所在的地理位置
+          icon : new BMap.Icon(row.type==1?require('../../assets/image/new/ycclick.png'):row.type==2?require('../../assets/image/new/yzcc.png'):row.type==3?require('../../assets/image/new/slcc.png'):require('../../assets/image/new/mysc.png'), new BMap.Size(27,30)),    // 指定文本标注所在的地理位置
           offset : new BMap.Size(-13, -15)    //设置文本偏移量
       }
         let marker = new BMap.Marker(point, opts); 
@@ -365,10 +378,11 @@ export default {
             position: new BMap.Point(row.lon,row.lat),    // 指定文本标注所在的地理位置
             offset: new BMap.Size(-186, -166)    //设置文本偏移量
       }
+      console.log(row)
       var sContent=`<div id="copysa2" data-clipboard-text='${row.fName},地址:${row.adr}' style="width:400px;height:120px;background:#ffffff;position:relative;box-shadow:0px 0px 12px 0px rgba(51,51,51,0.3);border-radius:4px;z-index:800">
                         <div style="display:flex;width:100%;height:50px;background:#1E292F; justify-content: space-between;align-items: center;box-sizing: border-box;
                         padding:8px 16px;">
-                          <img src="${require('../../assets/image/yt1.png')}" width="22" height="22">
+                          <img src="${row.type==1?require('../../assets/image/new/yt1.png'):row.type==2?require('../../assets/image/new/yt4.png'):row.type==3?require('../../assets/image/new/yt3.png'):require('../../assets/image/new/yt2.png')}" width="22" height="22">
                           <span style="font-size:17px;color:#ffffff">${row.fName}</span>
                           <img id="close3" style="cursor: pointer;" src="${require('../../assets/image/close2.png')}" width="16" height="16">
                         </div>
@@ -403,7 +417,7 @@ export default {
       this.$fetchGet("location/getPageOilFac").then(res=>{
         this.OilFacData=this.cloneObj(res.content)
         res.content.forEach((itam,index)=>{
-          this.myOilFac.push({value:itam.fName})
+          this.myOilFac.push({value:itam.sName})
         })
         
       })
@@ -650,7 +664,7 @@ export default {
 
       }else{
         this.OilFacData.forEach((iteam,index)=>{
-          if(this.input3==iteam.fName){
+          if(this.input3==iteam.sName){
             this.myMap.centerAndZoom(new BMap.Point(iteam.lon,iteam.lat),10);
             this.showIcl(iteam)
             this.showmillInform(iteam)
@@ -985,7 +999,11 @@ export default {
     },
 
     getstaData(){
-      this.$fetchGet("monitor/getAllCNo").then(res=>{
+      this.$fetchGet("monitor/getAllCNo",
+      {
+        isUse:2
+      }
+      ).then(res=>{
         res.content.forEach((iteam,index)=>{
           iteam.value=iteam.cNo
           this.restaurants1.push(iteam)
