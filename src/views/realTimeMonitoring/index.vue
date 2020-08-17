@@ -64,10 +64,6 @@
                 </el-option>
               </el-select>
           </div>
-          <!-- <div :class='titindex==index?"cltit-iteamac cltit-iteam":"cltit-iteam"' @click="titindex=index" v-for="(iteam,index) in cltitData">
-            <span>{{iteam.name}}</span>
-            <span>{{iteam.num}}</span>
-          </div> -->
         </div>
         <div class="table-box">
           <div class="table-head">
@@ -83,7 +79,7 @@
             <el-scrollbar style="height:100%">
               <ul
                 class="list">
-                <li v-for="(itam,index) in countLeft" :key="index" class="list-item">
+                <li v-for="(itam,index) in countLeft1" :key="index" class="list-item">
                   <div class="body-it" style="width:15%">{{index+1}}</div>
                   <div class="body-it chepai" style="width:35%">{{itam.cNo}}</div>
                   <div class="body-it" v-if="valuenum==0"><span :class="itam.onLine==1?'body-it0':itam.onLine==2?'body-it1':'body-it2'">{{itam.net==-1?"未入网":itam.onLine==1?'行驶':itam.onLine==2?'静止':itam.onLine==-1?'离线':''}}</span></div>
@@ -100,6 +96,7 @@
             </el-scrollbar>
           </div>
         </div>
+        <div class="morelist" v-loading="loadings" element-loading-spinner="el-icon-loading" @click="moreList">{{moreListtext}}</div>
       </div>
     </transition>
     <!-- 左侧的车辆信息 -->
@@ -198,11 +195,13 @@ export default {
   data() {
     return {
       countLeft:[],//左侧
+      countLeft1:[],//左侧
       myCno:'',
       oilData:[],
       waringData:[],
       value:'',
       inputaas:'',
+      moreListtext:'',
       totalTime: 60, //倒计时
       activeLab:null,//选中车辆
       activeInfow:null,//选中车辆详细信息
@@ -211,6 +210,7 @@ export default {
       restaurants1: [],
       timeout:  null,
       loading: false,
+      loadings: false,
       isWaring: false,
       isCar: false,//图例
       myMap: null,
@@ -242,22 +242,22 @@ export default {
         {
           name:"油厂",
           id:4,
-          iurl:require("../../assets/image/new/ycnromal.png")
+          iurl:require("../../assets/image/new/ycclick.png")
         },
         {
           name:"养殖终端",
           id:5,
-          iurl:require("../../assets/image/new/yzcn.png")
+          iurl:require("../../assets/image/new/yzcc.png")
         },
         {
           name:"加工厂",
           id:6,
-          iurl:require("../../assets/image/new/slcn.png")
+          iurl:require("../../assets/image/new/slcc.png")
         },
         {
           name:"贸易商",
           id:7,
-          iurl:require("../../assets/image/new/mysn.png")
+          iurl:require("../../assets/image/new/mysc.png")
         },
       ],
       cltitData:[
@@ -370,7 +370,18 @@ export default {
     }
   },
   methods: {
-   
+    //点击加载更多
+    moreList(){
+      if(this.moreListtext=="已加载全部"){
+        return
+      }
+      this.loadings=true
+      setTimeout( ()=> {
+        this.countLeft1=this.countLeft
+        this.moreListtext="已加载全部"
+        this.loadings=false
+			}, 1000)
+    },
     //倒计时
     countDown() {
       if(this.totalTimeme){
@@ -438,11 +449,19 @@ export default {
     carStatus(){
       if(this.select=="1"){
         this.countLeft=[]
+        this.countLeft1=[]
         this.$fetchGet("monitor/getLinkage",{
         cNo:"",
         stat:this.valuenum
         }).then(res=>{
             if(res.code==1){
+              if(res.content.cars.length>19){
+                this.moreListtext="点击加载更多"
+                this.countLeft1=this.cloneObj(res.content.cars).slice(0,19)
+              }else{
+                this.moreListtext="已加载全部"
+                this.countLeft1=this.cloneObj(res.content.cars)
+              }
               this.countLeft=this.cloneObj(res.content.cars)
             }
         })
@@ -491,6 +510,7 @@ export default {
       this.statusData=[]
       this.allData=[]
       this.countLeft=[]
+      this.countLeft1=[]
       // this.allNum=0
       this.$fetchGet("monitor/getLinkage",{
         cNo:"",
@@ -498,6 +518,13 @@ export default {
       }).then(res=>{
           if(res.code==1){
             this.allData=this.cloneObj(res.content.graph)
+            if(res.content.cars.length>19){
+              this.moreListtext="点击加载更多"
+              this.countLeft1=this.cloneObj(res.content.cars).slice(0,19)
+            }else{
+              this.moreListtext="已加载全部"
+              this.countLeft1=this.cloneObj(res.content.cars)
+            }
             this.countLeft=this.cloneObj(res.content.cars)
             this.statusData=this.cloneObj(res.content.cars)
             if(this.activeLab){
@@ -899,7 +926,7 @@ export default {
       })
       this.OilFacData.forEach(iteam=>{
         let point = new BMap.Point(iteam.lon,iteam.lat);
-        let icon=iteam.type==1?require('../../assets/image/new/ycnromal.png'):iteam.type==2?require('../../assets/image/new/yzcn.png'):iteam.type==3?require('../../assets/image/new/slcn.png'):require('../../assets/image/new/mysn.png');
+        let icon=iteam.type==1?require('../../assets/image/new/ycclick.png'):iteam.type==2?require('../../assets/image/new/yzcc.png'):iteam.type==3?require('../../assets/image/new/slcc.png'):require('../../assets/image/new/mysc.png');
         let opts = {
             icon : new BMap.Icon(icon, new BMap.Size(27,30)),   // 指定文本标注所在的地理位置
             offset : new BMap.Size(0, 0)    //设置文本偏移量
@@ -992,7 +1019,7 @@ export default {
             offset: new BMap.Size(-190, -306)    //设置文本偏移量
       }
       this.tiadata=row
-      var sContent=`<div id="copysa1" data-clipboard-text='${row.cNo},时速:${row.spd}km/h,定位时间：${new Date(row.utc*1000).Format('yyyy-MM-dd hh:mm:ss')},最后定位:${row.adr}' style="width:360px;height:260px;background:#ffffff;position:relative;box-shadow:0px 0px 12px 0px rgba(51,51,51,0.3);border-radius:4px;z-index:800">
+      var sContent=`<div id="copysa1" data-clipboard-text='${row.cNo},时速:${row.spd}km/h,定位时间：${row.lTime!==undefined?row.lTime:'0'},最后定位:${row.adr}' style="width:360px;height:260px;background:#ffffff;position:relative;box-shadow:0px 0px 12px 0px rgba(51,51,51,0.3);border-radius:4px;z-index:800">
                         <div style="display:flex;width:100%;height:50px;background:${row.onLine==1?'rgba(48,124,252,1)':row.onLine==2?'rgba(255,153,0,1)':'rgba(151,151,151,1)'}; justify-content: space-between;align-items: center;box-sizing: border-box;
                         padding:10px 20px;">
                           <img src="${require('../../assets/image/qc1.png')}" width="32" height="32">
@@ -1007,7 +1034,7 @@ export default {
                           
                           <div style="display:flex;justify-content:flex-start;font-size:16px;color:#7B7D7F;margin-bottom:6px;">
                             <div style="width:66px">定位时间</div>
-                            <div style="margin-left:16px">${new Date(row.utc*1000).Format('yyyy-MM-dd hh:mm:ss')}</div>
+                            <div style="margin-left:16px">${row.lTime!==undefined?row.lTime:'0'}</div>
                           </div>
                           <div style="display:flex;justify-content:flex-start;font-size:16px;color:#7B7D7F;display:${row.adr==undefined?'none':''}">
                             <div style="width:66px">最后定位</div>
@@ -1098,7 +1125,7 @@ export default {
       if(minutes/60<1){
         return (minutes + "m" );
       }else{
-        return (Math.floor(minutes/60) + "h" + (minutes%60) + "m" );
+        return (Math.floor(minutes/60) + "h" + Math.floor(minutes%60) + "m" );
       }
     },
     // 使用示属例
@@ -1354,7 +1381,7 @@ export default {
   }
   .left-content{
     width:vw(400);
-    height:86%;
+    height:93.5%;
     position: absolute;
     box-shadow:vw(2) vw(2) vw(2) vw(2) rgba(51,51,51,0.1);
     top: vh(60);
@@ -1466,6 +1493,18 @@ export default {
       box-sizing: border-box;
       padding: vw(12);
       font-size: vw(16);
+    }
+    .morelist{
+      width: 100%;
+      height: 40px;
+      background:rgba(255,255,255,1);
+      box-shadow:0px -1px 1px 0px rgba(230,241,252,1);
+      font-size:16px;
+      font-family:PingFangSC-Regular,PingFang SC;
+      font-weight:400;
+      color:rgba(48,124,252,0.8);
+      line-height: 40px;
+      cursor: pointer;
     }
   }
   .waring-box{

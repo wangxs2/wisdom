@@ -136,19 +136,19 @@
         <span>{{item.name}}</span>
       </div>
       <div class="itamStatus1" style="border-top:1px solid #eeeeee;padding-top:4px">
-        <img src="../../assets/image/new/ycnromal.png" width="13" height="15" style="margin-right:6px">
+        <img src="../../assets/image/new/ycclick.png" width="13" height="15" style="margin-right:6px">
         <span>油厂</span>
       </div>
       <div class="itamStatus1">
-        <img src="../../assets/image/new/yzcn.png" width="13" height="15" style="margin-right:6px">
+        <img src="../../assets/image/new/yzcc.png" width="13" height="15" style="margin-right:6px">
         <span>养殖终端</span>
       </div>
       <div class="itamStatus1">
-        <img src="../../assets/image/new/slcn.png" width="13" height="15" style="margin-right:6px">
+        <img src="../../assets/image/new/slcc.png" width="13" height="15" style="margin-right:6px">
         <span>加工厂</span>
       </div>
       <div class="itamStatus1">
-        <img src="../../assets/image/new/mysn.png" width="13" height="15" style="margin-right:6px">
+        <img src="../../assets/image/new/mysc.png" width="13" height="15" style="margin-right:6px">
         <span>贸易商</span>
       </div>
       
@@ -327,6 +327,7 @@ export default {
      if (this.$route.params.type == 'update') {
       this.updateData= this.$route.params.updateData
       this.input3=this.updateData.cNo
+       console.log(this.input3)
     }
   },
   methods: {
@@ -337,7 +338,7 @@ export default {
       })
       this.OilFacData.forEach(iteam=>{
         let point = new BMap.Point(iteam.lon,iteam.lat);
-        let icon=iteam.type==1?require('../../assets/image/new/ycnromal.png'):iteam.type==2?require('../../assets/image/new/yzcn.png'):iteam.type==3?require('../../assets/image/new/slcn.png'):require('../../assets/image/new/mysn.png');
+        let icon=iteam.type==1?require('../../assets/image/new/ycclick.png'):iteam.type==2?require('../../assets/image/new/yzcc.png'):iteam.type==3?require('../../assets/image/new/slcc.png'):require('../../assets/image/new/mysc.png');
         let opts = {
           icon : new BMap.Icon(icon, new BMap.Size(27,30)),// 指定文本标注所在的地理位置
           offset : new BMap.Size(-13,-15)    //设置文本偏移量
@@ -536,17 +537,17 @@ export default {
             position: new BMap.Point(row.lon,row.lat),    // 指定文本标注所在的地理位置
             offset: new BMap.Size(-176, -220)    //设置文本偏移量
       }
-      var sContent=`<div id="copysa" data-clipboard-text='${row.cNo},停车时长：${eDur}分钟,定位时间：${new Date(row.utc*1000).Format('yyyy-MM-dd hh:mm:ss')},最后定位:${row.adr}' style="width:360px;height:200px;background:#ffffff;position:relative;box-shadow:0px 0px 12px 0px rgba(51,51,51,0.3);border-radius:4px;z-index:800">
-                        <div style="display:flex;width:100%;height:50px;background:${type==1?'rgba(151,151,151,1)':'rgba(48,124,252,1)'}; justify-content: space-between;align-items: center;box-sizing: border-box;
+      var sContent=`<div id="copysa" data-clipboard-text='${row.cNo},停车时长：${Math.floor(eDur)}分钟,定位时间：${new Date(row.utc*1000).Format('yyyy-MM-dd hh:mm:ss')},最后定位:${row.adr}' style="width:360px;height:200px;background:#ffffff;position:relative;box-shadow:0px 0px 12px 0px rgba(51,51,51,0.3);border-radius:4px;z-index:800">
+                        <div style="display:flex;width:100%;height:50px;background:${type==1?'rgba(254,238,228,1)':'rgba(48,124,252,1)'}; justify-content: space-between;align-items: center;box-sizing: border-box;
                         padding:10px 20px;">
-                          <img src="${require('../../assets/image/qc1.png')}" width="32" height="32">
-                          <span style="font-size:22px;color:#ffffff">${row.cNo}</span>
-                          <img id="close2" style="cursor: pointer;" src="${require('../../assets/image/close2.png')}" width="16" height="16">
+                          <img src="${type==1?require('../../assets/image/qc2.png'):require('../../assets/image/qc1.png')}" width="22" height="22">
+                          <span style="font-size:22px;color:${type==1?'#FC8333':'#ffffff'}">${row.cNo}</span>
+                          <img id="close2" style="cursor: pointer;" src="${type==1?require('../../assets/image/close3.png'):require('../../assets/image/close2.png')}" width="16" height="16">
                         </div>
                         <div style="width:100%;overflow:hidden;box-sizing:border-box;padding:10px">
                           <div style="display:flex;justify-content:flex-start;font-size:16px;color:#7B7D7F;margin-bottom:6px;display:${type==2?'none':''}">
                             <div style="width:66px">停车时长</div>
-                            <div style="margin-left:16px;flex:1">${eDur}分钟</div>
+                            <div style="margin-left:16px;flex:1">${Math.floor(eDur)}分钟</div>
                           </div>
                           
                           <div style="display:flex;justify-content:flex-start;font-size:16px;color:#7B7D7F;margin-bottom:6px;">
@@ -645,9 +646,11 @@ export default {
             this.endTimesa=res.content.data[res.content.data.length-1].time
           }else{
             if(this.input3!==''){
-
+               console.log(this.input3)
+               setTimeout(() => {
                 this.restaurants1.forEach((iteam,index)=>{
                   if(this.input3==iteam.cNo){
+                    console.log(this.input3)
                       if(iteam.net==-1){
                         this.$message.error('车辆未入网');
                       }else{
@@ -655,6 +658,8 @@ export default {
                       }
                   }
                 })
+              }, 100);
+                
               
             }
             this.clearPoline()
